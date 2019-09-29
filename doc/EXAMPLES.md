@@ -1,6 +1,6 @@
 # Examples
 
-This document contains examples of project relevant problems with the use of various methods from the project.
+This document contains examples of project relevant problems with the use of various methods from the repository.
 
 ---
 
@@ -11,3 +11,5 @@ A paragraph that describes the problem statement and which methods are used to s
 ```cpp
 cv::Mat img_k_mean = utils::k_mean(img_src, 8);
 ```
+
+---
