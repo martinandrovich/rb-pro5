@@ -1,0 +1,12 @@
+# CMake build paths
+build/
+CMakeFiles/
+
+# VSCode folders
+.vscode/
+
+
+# executables
+*.o
+*.out
+*.exe
