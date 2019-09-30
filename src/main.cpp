@@ -15,7 +15,7 @@ typedef struct closest_obstacle {
   closest_obstacle(float dir_delta_, float range_) : dir_delta(dir_delta_) , range(range_){};
 } closest_obstacle;
 
-void fuzzy_controller();
+void fuzzy_controller(closest_obstacle & );
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
   (void)_msg;
@@ -82,7 +82,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   cv::Mat im(height, width, CV_8UC3);
   im.setTo(0);
 
-  closest_obstacle cur_im(0, range_max);
+  closest_obstacle cloest_obs(0, range_max);
 
   for (int i = 0; i < nranges; i++) 
   {
@@ -101,10 +101,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
                 cv::LINE_AA, 4);
 
         //Find Shortest Obstacle
-        if ( cur_im.range > range )
+        if ( cloest_obs.range > range )
         {
-            cur_im.range = range;
-            cur_im.dir_delta = angle;
+            cloest_obs.range = range;
+            cloest_obs.dir_delta = angle;
         }
         
     }
@@ -112,10 +112,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   }
 
   //Draw Shortest Obstacle 
-  cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(cur_im.dir_delta),
-                            200.5f - range_min * px_per_m * std::sin(cur_im.dir_delta));
-  cv::Point2f endpt(200.5f + cur_im.range * px_per_m * std::cos(cur_im.dir_delta),
-                          200.5f - cur_im.range * px_per_m * std::sin(cur_im.dir_delta));
+  cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(cloest_obs.dir_delta),
+                            200.5f - range_min * px_per_m * std::sin(cloest_obs.dir_delta));
+  cv::Point2f endpt(200.5f + cloest_obs.range * px_per_m * std::cos(cloest_obs.dir_delta),
+                          200.5f - cloest_obs.range * px_per_m * std::sin(cloest_obs.dir_delta));
   cv::line(im, startpt * 16, endpt * 16, cv::Scalar(0, 255, 0, 0), 1,
         cv::LINE_AA, 4);
 
@@ -129,8 +129,8 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
         cv::LINE_AA, 4, 0.2);
 
   //Callback to fuzzy controller.
-  std::function<void()> callback = fuzzy_controller;
-  fuzzy_controller();
+  std::function<void(closest_obstacle &)> callback = fuzzy_controller;
+  fuzzy_controller(cloest_obs);
 
   //
   cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
@@ -227,10 +227,11 @@ int main(int _argc, char **_argv) {
   gazebo::client::shutdown();
 }
 
-void fuzzy_controller()
+void fuzzy_controller(closest_obstacle & obs)
 {
 
   // So everytime the draw shortest obstacle is called, then this is called.
-  std::cout << "Calling Fuzzy Controller" << std::endl;
+  std::cout << "Closest Obs in Meters: " << obs.range << std::endl;
+  std::cout << "Closest Dir in Degree: " << obs.dir_delta*180/M_PI << std::endl;
 
-};
+}
