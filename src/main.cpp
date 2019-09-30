@@ -36,7 +36,6 @@ void poseCallback(ConstPosesStampedPtr &_msg) {
 }
 
 void cameraCallback(ConstImageStampedPtr &msg) {
-
   std::size_t width = msg->image().width();
   std::size_t height = msg->image().height();
   const char *data = msg->image().data().c_str();
@@ -59,6 +58,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 
   float range_min = float(msg->scan().range_min());
   float range_max = float(msg->scan().range_max());
+  
+  std::cout << "Angle Increment: " << angle_increment << std::endl;
+  // std::cout << "Range Min: " << range_min << std::endl;
+  // std::cout << "Range Max: " << range_max << std::endl;
 
   int sec = msg->time().sec();
   int nsec = msg->time().nsec();
@@ -74,9 +77,11 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 
   cv::Mat im(height, width, CV_8UC3);
   im.setTo(0);
-  for (int i = 0; i < nranges; i++) {
+  for (
+	int i = 0; i < nranges; i++) {
     float angle = angle_min + i * angle_increment;
     float range = std::min(float(msg->scan().ranges(i)), range_max);
+	//    std::cout << std::to_string(sec) + ":" + std::to_string(nsec) << " " << msg->scan().ranges(i) << std::endl;
     //    double intensity = msg->scan().intensities(i);
     cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
                         200.5f - range_min * px_per_m * std::sin(angle));
@@ -106,7 +111,7 @@ int main(int _argc, char **_argv) {
   node->Init();
 
   // Listen to Gazebo topics
-  gazebo::transport::SubscriberPtr statSubscriber =
+  /* gazebo::transport::SubscriberPtr statSubscriber =
       node->Subscribe("~/world_stats", statCallback);
 
   gazebo::transport::SubscriberPtr poseSubscriber =
@@ -114,6 +119,8 @@ int main(int _argc, char **_argv) {
 
   gazebo::transport::SubscriberPtr cameraSubscriber =
       node->Subscribe("~/pioneer2dx/camera/link/camera/image", cameraCallback);
+
+   */
 
   gazebo::transport::SubscriberPtr lidarSubscriber =
       node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
@@ -163,6 +170,8 @@ int main(int _argc, char **_argv) {
       //      speed *= 0.1;
       //      dir *= 0.1;
     }
+
+	std::cout << "Direction: " << dir << std::endl;
 
     // Generate a pose
     ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
