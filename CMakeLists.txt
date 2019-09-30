@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10.2)
 
 # project name
 project(rb-pro5)
@@ -24,6 +24,13 @@ add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+
+## gazebo
+find_package(gazebo REQUIRED)
+include_directories(${GAZEBO_PROTO_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${GAZEBO_LIBRARIES} ${GAZEBO_PROTO_LIBRARIES})
+message("!!!!!!!!!kig her")
+message(${GAZEBO_INCLUDE_DIRS})
 
 ## python libs
 find_package(PythonLibs 2.7)
