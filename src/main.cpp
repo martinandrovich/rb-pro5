@@ -2,12 +2,20 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <mutex>
-
+#include <math.h>
+#include <functional>
 #include <opencv2/opencv.hpp>
-
 #include <iostream>
 
 static std::mutex mutex;
+
+typedef struct closest_obstacle {
+  float dir_delta;
+  float range;
+  closest_obstacle(float dir_delta_, float range_) : dir_delta(dir_delta_) , range(range_){};
+} closest_obstacle;
+
+void fuzzy_controller();
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
   (void)_msg;
@@ -58,10 +66,6 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 
   float range_min = float(msg->scan().range_min());
   float range_max = float(msg->scan().range_max());
-  
-  std::cout << "Angle Increment: " << angle_increment << std::endl;
-  // std::cout << "Range Min: " << range_min << std::endl;
-  // std::cout << "Range Max: " << range_max << std::endl;
 
   int sec = msg->time().sec();
   int nsec = msg->time().nsec();
@@ -77,25 +81,64 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 
   cv::Mat im(height, width, CV_8UC3);
   im.setTo(0);
-  for (
-	int i = 0; i < nranges; i++) {
-    float angle = angle_min + i * angle_increment;
-    float range = std::min(float(msg->scan().ranges(i)), range_max);
-	//    std::cout << std::to_string(sec) + ":" + std::to_string(nsec) << " " << msg->scan().ranges(i) << std::endl;
-    //    double intensity = msg->scan().intensities(i);
-    cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
-                        200.5f - range_min * px_per_m * std::sin(angle));
-    cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
-                      200.5f - range * px_per_m * std::sin(angle));
-    cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
-             cv::LINE_AA, 4);
 
-    //    std::cout << angle << " " << range << " " << intensity << std::endl;
+  closest_obstacle cur_im(0, range_max);
+
+  for (int i = 0; i < nranges; i++) 
+  {
+    float angle = angle_min + i * angle_increment;
+
+    //Not using full RoM for the LIDAR.
+    if (angle < M_PI/4 && angle > -M_PI/4 )
+    {
+        float range = std::min(float(msg->scan().ranges(i)), range_max);
+
+        cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
+                            200.5f - range_min * px_per_m * std::sin(angle));
+        cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
+                          200.5f - range * px_per_m * std::sin(angle));
+        cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
+                cv::LINE_AA, 4);
+
+        //Find Shortest Obstacle
+        if ( cur_im.range > range )
+        {
+            cur_im.range = range;
+            cur_im.dir_delta = angle;
+        }
+        
+    }
+
   }
+
+  //Draw Shortest Obstacle 
+  cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(cur_im.dir_delta),
+                            200.5f - range_min * px_per_m * std::sin(cur_im.dir_delta));
+  cv::Point2f endpt(200.5f + cur_im.range * px_per_m * std::cos(cur_im.dir_delta),
+                          200.5f - cur_im.range * px_per_m * std::sin(cur_im.dir_delta));
+  cv::line(im, startpt * 16, endpt * 16, cv::Scalar(0, 255, 0, 0), 1,
+        cv::LINE_AA, 4);
+
+
+  //Draw Current Direction 
+  cv::Point2f start_dir(200.5f + range_min * px_per_m * std::cos(0),
+                            200.5f - range_min * px_per_m * std::sin(0));
+  cv::Point2f end_dir(200.5f + 1 * px_per_m * std::cos(0),
+                          200.5f - 1 * px_per_m * std::sin(0));
+  cv::arrowedLine(im, start_dir * 16, end_dir * 16, cv::Scalar(0, 0, 255, 0), 1,
+        cv::LINE_AA, 4, 0.2);
+
+  //Callback to fuzzy controller.
+  std::function<void()> callback = fuzzy_controller;
+  fuzzy_controller();
+
+  //
   cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
   cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
               cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
               cv::Scalar(255, 0, 0));
+
+  
 
   mutex.lock();
   cv::imshow("lidar", im);
@@ -171,8 +214,6 @@ int main(int _argc, char **_argv) {
       //      dir *= 0.1;
     }
 
-	std::cout << "Direction: " << dir << std::endl;
-
     // Generate a pose
     ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
 
@@ -185,3 +226,11 @@ int main(int _argc, char **_argv) {
   // Make sure to shut everything down.
   gazebo::client::shutdown();
 }
+
+void fuzzy_controller()
+{
+
+  // So everytime the draw shortest obstacle is called, then this is called.
+  std::cout << "Calling Fuzzy Controller" << std::endl;
+
+};
