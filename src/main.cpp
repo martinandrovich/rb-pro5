@@ -6,14 +6,21 @@
 #include <functional>
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <thread>
+
+#include "fl/Headers.h"
 
 static std::mutex mutex;
+static std::mutex fuzzy_cont;
 
-typedef struct closest_obstacle {
+typedef struct closest_obstacle 
+{
   float dir_delta;
   float range;
   closest_obstacle(float dir_delta_, float range_) : dir_delta(dir_delta_) , range(range_){};
 } closest_obstacle;
+
+static closest_obstacle cloest_obs(0, 10);
 
 void fuzzy_controller(closest_obstacle & );
 
@@ -82,10 +89,11 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   cv::Mat im(height, width, CV_8UC3);
   im.setTo(0);
 
-  closest_obstacle cloest_obs(0, range_max);
+  cloest_obs.range = range_max;
 
   for (int i = 0; i < nranges; i++) 
   {
+
     float angle = angle_min + i * angle_increment;
 
     //Not using full RoM for the LIDAR.
@@ -106,10 +114,13 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
             cloest_obs.range = range;
             cloest_obs.dir_delta = angle;
         }
-        
+
     }
 
   }
+
+  // Works like a signal semaphore
+  fuzzy_cont.unlock();
 
   //Draw Shortest Obstacle 
   cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(cloest_obs.dir_delta),
@@ -128,10 +139,6 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   cv::arrowedLine(im, start_dir * 16, end_dir * 16, cv::Scalar(0, 0, 255, 0), 1,
         cv::LINE_AA, 4, 0.2);
 
-  //Callback to fuzzy controller.
-  std::function<void(closest_obstacle &)> callback = fuzzy_controller;
-  fuzzy_controller(cloest_obs);
-
   //
   cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
   cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
@@ -145,7 +152,20 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   mutex.unlock();
 }
 
-int main(int _argc, char **_argv) {
+int main(int _argc, char **_argv) 
+{
+
+  fl::Engine* engine = fl::FllImporter().fromFile("ObstacleAvoidancev2.fll");
+
+  std::string status;
+  if (not engine->isReady(&status))
+      throw fl::Exception("[engine error] engine is not ready:n" + status, FL_AT);
+
+  fl::InputVariable* obs_dir      = engine->getInputVariable("obstacle_dir"); // 
+  fl::InputVariable* obs_dist     = engine->getInputVariable("obstacle_dist"); // 
+  fl::OutputVariable* robot_dir   = engine->getOutputVariable("robot_dir"); // 
+  fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed"); //
+
   // Load gazebo
   gazebo::client::setup(_argc, _argv);
 
@@ -154,16 +174,18 @@ int main(int _argc, char **_argv) {
   node->Init();
 
   // Listen to Gazebo topics
-  /* gazebo::transport::SubscriberPtr statSubscriber =
+   gazebo::transport::SubscriberPtr statSubscriber =
       node->Subscribe("~/world_stats", statCallback);
 
+  /*
   gazebo::transport::SubscriberPtr poseSubscriber =
       node->Subscribe("~/pose/info", poseCallback);
+  
 
   gazebo::transport::SubscriberPtr cameraSubscriber =
       node->Subscribe("~/pioneer2dx/camera/link/camera/image", cameraCallback);
-
-   */
+  */
+  
 
   gazebo::transport::SubscriberPtr lidarSubscriber =
       node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
@@ -175,23 +197,24 @@ int main(int _argc, char **_argv) {
   // Publish a reset of the world
   gazebo::transport::PublisherPtr worldPublisher =
       node->Advertise<gazebo::msgs::WorldControl>("~/world_control");
+
   gazebo::msgs::WorldControl controlMessage;
+
   controlMessage.mutable_reset()->set_all(true);
   worldPublisher->WaitForConnection();
   worldPublisher->Publish(controlMessage);
 
-  const int key_left = 81;
-  const int key_up = 82;
-  const int key_down = 84;
-  const int key_right = 83;
   const int key_esc = 27;
 
-  float speed = 0.0;
-  float dir = 0.0;
+  fuzzy_cont.lock();
 
   // Loop
-  while (true) {
+  while (true) 
+  {
+
     gazebo::common::Time::MSleep(10);
+
+    fuzzy_cont.lock();
 
     mutex.lock();
     int key = cv::waitKey(1);
@@ -199,6 +222,39 @@ int main(int _argc, char **_argv) {
 
     if (key == key_esc)
       break;
+    
+    obs_dir->setValue(cloest_obs.dir_delta);
+    obs_dist->setValue(cloest_obs.range);
+
+    //std::cout << cloest_obs.dir_delta << std::endl;
+    //std::cout << cloest_obs.range << std::endl;
+
+    engine->process();
+
+    double set_speed = static_cast<double>(robot_speed->getValue());
+    double set_dir   = static_cast<double>(robot_dir->getValue());
+
+    std::cout << "Obstacle Dir: " << cloest_obs.dir_delta << std::endl;
+    std::cout << "Obstacle Range: "<< cloest_obs.range << std::endl;
+    std::cout << "Speed: " << set_speed << std::endl;
+    std::cout << "Dir: " << set_dir << std::endl;
+    
+    // Generate a pose
+    ignition::math::Pose3d pose(set_speed, 0, 0, 0, 0, set_dir);
+
+
+    // Convert to a pose message
+    gazebo::msgs::Pose msg;
+    gazebo::msgs::Set(&msg, pose);
+    movementPublisher->Publish(msg);
+  }
+
+
+  // Make sure to shut everything down.
+  gazebo::client::shutdown();
+}
+
+/*
 
     if ((key == key_up) && (speed <= 1.2f))
       speed += 0.05;
@@ -214,24 +270,4 @@ int main(int _argc, char **_argv) {
       //      dir *= 0.1;
     }
 
-    // Generate a pose
-    ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
-
-    // Convert to a pose message
-    gazebo::msgs::Pose msg;
-    gazebo::msgs::Set(&msg, pose);
-    movementPublisher->Publish(msg);
-  }
-
-  // Make sure to shut everything down.
-  gazebo::client::shutdown();
-}
-
-void fuzzy_controller(closest_obstacle & obs)
-{
-
-  // So everytime the draw shortest obstacle is called, then this is called.
-  std::cout << "Closest Obs in Meters: " << obs.range << std::endl;
-  std::cout << "Closest Dir in Degree: " << obs.dir_delta*180/M_PI << std::endl;
-
-}
+*/
