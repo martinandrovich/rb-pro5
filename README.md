@@ -2,6 +2,8 @@
 
 The project combines the fields of robotic path planning, computer vision and artificial intelligence, to be implemented as algorithms with the purpose of controlling a robot within a simulated environment; this environment contains marbles where the objective is to map the environment and collect marbles efficiently.
 
+![gazebo-sreenshot](assets/img/gazebo-sim-screenshot.png "Gazebo screenshot")
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
