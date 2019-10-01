@@ -2,6 +2,11 @@
 
 The `utils.h` module contains various utility centered methods for easy of use throghout the project; these methods are categorized by their respective fields.
 
+* [Computer vision](#computer-vision)
+
+  + [`utils::loadimg()`](#utilsloadimg)
+  + [`utils::another_one()`](#utilsanother_one)
+
 ---
 
 ## Computer vision
