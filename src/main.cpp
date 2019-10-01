@@ -1,14 +1,18 @@
+#include <mutex>
+#include <math.h>
+#include <iostream>
+#include <functional>
+#include <thread>
+
+#include <opencv2/opencv.hpp>
+
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
-#include <mutex>
-#include <math.h>
-#include <functional>
-#include <opencv2/opencv.hpp>
-#include <iostream>
-#include <thread>
 
 #include "fl/Headers.h"
+
+#include "modules/core.h"
 
 static std::mutex mutex;
 static std::mutex fuzzy_cont;

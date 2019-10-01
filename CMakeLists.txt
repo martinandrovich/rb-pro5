@@ -27,10 +27,8 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
 ## gazebo
 find_package(gazebo REQUIRED)
-include_directories(${GAZEBO_PROTO_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
+include_directories(${GAZEBO_INCLUDE_DIRS} ${GAZEBO_PROTO_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${GAZEBO_LIBRARIES} ${GAZEBO_PROTO_LIBRARIES})
-message("!!!!!!!!!kig her")
-message(${GAZEBO_INCLUDE_DIRS})
 
 ## python libs
 find_package(PythonLibs 2.7)

@@ -6,7 +6,7 @@ The project combines the fields of robotic path planning, computer vision and ar
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites
+### Dependencies
 
 This project is compiled using CMake and built with:
 
@@ -20,8 +20,10 @@ The dependencies can be installed on Linux (Ubuntu 18.04) with the following com
 
 ```bash
 sudo apt-get install libopenv-dev
-sudo apt-get install gazebo
+curl -sSL http://get.gazebosim.org | sh
 ```
+
+**Notice**, if using Visual Studio Code C/C++ extension, the linter might have issues with the Gazebo header files; simply add `/usr/include/gazebo-9` to the include path to resolve this issuse.
 
 ### Demo
 
@@ -45,6 +47,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 Thanks to the supervisors at Southern University of Danmark, particulary:
 
-* [Anders](https://github.com/jakobwilm)
-* [Thomas](https://github.com/jakobwilm)
+* [Thomas F. Iversen](https://github.com/jakobwilm)
+* [Anders L. Christensen](https://github.com/jakobwilm)
 * [Jakob Wilm](https://github.com/jakobwilm)
