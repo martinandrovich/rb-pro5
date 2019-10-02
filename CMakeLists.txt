@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic")
 
 # source folder (.cpp + .h files)
 file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES src/modules/*.cpp)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/src/modules/)
 
