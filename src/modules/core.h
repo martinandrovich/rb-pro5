@@ -13,11 +13,26 @@
 
 #include "fl/Headers.h"
 
+// public declarations for core
+
 namespace core
 {
 	void
-	init(int argc, char** argv) {}
+	init(int argc, char** argv);
 
 	void
-	run() {}
+	run();
 }
+
+// public declarations for core::data
+
+namespace core { namespace data
+{
+
+	struct lidar_t
+	{
+		std::mutex mutex;
+		ConstLaserScanStampedPtr data;
+	};
+
+}}
