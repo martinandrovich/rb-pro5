@@ -25,7 +25,14 @@ sudo apt-get install libopenv-dev
 curl -sSL http://get.gazebosim.org | sh
 ```
 
-**Notice**, if using Visual Studio Code C/C++ extension, the linter might have issues with the Gazebo header files; simply add `/usr/include/gazebo-9` to the include path to resolve this issuse.
+**Notice**, if using Visual Studio Code C/C++ extension, the linter might have issues with the Gazebo header files; simply add the following lines to the include path to resolve this issuse:
+
+```
+/usr/include/gazebo-9
+/usr/include/sdformat-6.2
+/usr/include/ignition/math4
+/usr/include/ignition/msgs1
+```
 
 ### Demo
 
