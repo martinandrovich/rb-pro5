@@ -19,4 +19,4 @@ min_range(cloest_obs_front, range_min, range_max, px_per_m, angle, im, msg, i, 0
 
 ### Demo
 
-Only tested in the smallworld, should drive around in the first room.
+Only tested in the smallworld, should drive around in the first room. This is not tuned yet.
