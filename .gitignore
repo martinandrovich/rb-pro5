@@ -6,7 +6,7 @@ CMakeFiles/
 .vscode/
 
 # executables
-bin/
+/bin/
 *.o
 *.out
 *.exe
