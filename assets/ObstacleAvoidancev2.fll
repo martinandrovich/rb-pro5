@@ -1,20 +1,29 @@
 #File: ObstacleAvoidance.fll
 Engine: ObstacleAvoidance
 
-InputVariable: obstacle_dir
-  enabled: true
-  range: -0.785 0.785
-  lock-range: false
-  term: left Ramp 0.785 -0.785 
-  term: right Ramp -0.785 0.785
-
-InputVariable: obstacle_dist
+InputVariable: obs_dist_right
   enabled: true
   range: 0.10 10
   lock-range: false
-  term: close Ramp 5.000 1.500 
-  term: middle Triangle 1.500 5.000 8.500
-  term: far Ramp 5.000 8.500
+  term: close Ramp      3.000 1.000
+  term: middle Triangle 1.000 3.000 6.000
+  term: far Ramp        3.000 6.000
+
+InputVariable: obs_dist_forward
+  enabled: true
+  range: 0.10 10
+  lock-range: false
+  term: close Ramp      3.000 1.000  
+  term: middle Triangle 1.000 3.000 6.000
+  term: far Ramp        3.000 6.000
+
+InputVariable: obs_dist_left
+  enabled: true
+  range: 0.10 10
+  lock-range: false
+  term: close Ramp      3.000 1.000  
+  term: middle Triangle 1.000 3.000 6.000
+  term: far Ramp        3.000 6.000
 
 OutputVariable: robot_dir
   enabled: true
@@ -24,8 +33,9 @@ OutputVariable: robot_dir
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
-  term: left Ramp -0.4 0.4
-  term: right Ramp 0.4 -0.4
+  term: left Ramp          0.000 -0.4000
+  term: straight Triangle -0.2000 0.000 0.200
+  term: right Ramp         0.000 -0.4000
 
 OutputVariable: robot_speed
   enabled: true
@@ -35,9 +45,9 @@ OutputVariable: robot_speed
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
-  term: stop Ramp 0.600 0.000
-  term: normal Triangle 0.000 0.500 0.800
-  term: fast Ramp 0.600 1.200  
+  term: stop Ramp       0.600 0.000
+  term: normal Triangle 0.000 0.600 1.200
+  term: fast Ramp       0.600 1.200  
 
 RuleBlock: mamdani
   enabled: true
@@ -45,15 +55,39 @@ RuleBlock: mamdani
   disjunction: none
   implication: AlgebraicProduct
   activation: General
-  rule: if obstacle_dir is left    and obstacle_dist is close     then robot_dir is right
-  rule: if obstacle_dir is left    and obstacle_dist is middle    then robot_dir is right
-  rule: if obstacle_dir is left    and obstacle_dist is far       then robot_dir is right
-  rule: if obstacle_dir is right   and obstacle_dist is close     then robot_dir is left
-  rule: if obstacle_dir is right   and obstacle_dist is middle    then robot_dir is left
-  rule: if obstacle_dir is right   and obstacle_dist is far       then robot_dir is left
-  rule: if obstacle_dist is close   and obstacle_dir is left     then robot_speed is normal
-  rule: if obstacle_dist is close   and obstacle_dir is right    then robot_speed is normal
-  rule: if obstacle_dist is middle  and obstacle_dir is left     then robot_speed is normal
-  rule: if obstacle_dist is middle  and obstacle_dir is right    then robot_speed is normal
-  rule: if obstacle_dist is far     and obstacle_dir is left     then robot_speed is normal
-  rule: if obstacle_dist is far     and obstacle_dir is right    then robot_speed is normal
+
+  rule: if obs_dist_right is close and obs_dist_forward is close and obs_dist_left is close   then robot_dir is right     and robot_speed is stop
+  rule: if obs_dist_right is close and obs_dist_forward is close and obs_dist_left is middle  then robot_dir is right     and robot_speed is stop
+  rule: if obs_dist_right is close and obs_dist_forward is close and obs_dist_left is far     then robot_dir is right     and robot_speed is stop
+
+  rule: if obs_dist_right is close and obs_dist_forward is middle and obs_dist_left is close  then robot_dir is straight  and robot_speed is normal
+  rule: if obs_dist_right is close and obs_dist_forward is middle and obs_dist_left is middle then robot_dir is straight  and robot_speed is normal
+  rule: if obs_dist_right is close and obs_dist_forward is middle and obs_dist_left is far    then robot_dir is straight  and robot_speed is normal
+
+  rule: if obs_dist_right is close and obs_dist_forward is far and obs_dist_left is close     then robot_dir is straight  and robot_speed is fast
+  rule: if obs_dist_right is close and obs_dist_forward is far and obs_dist_left is middle    then robot_dir is straight  and robot_speed is fast
+  rule: if obs_dist_right is close and obs_dist_forward is far and obs_dist_left is far       then robot_dir is straight  and robot_speed is fast
+
+  rule: if obs_dist_right is middle and obs_dist_forward is close and obs_dist_left is close  then robot_dir is left      and robot_speed is stop
+  rule: if obs_dist_right is middle and obs_dist_forward is close and obs_dist_left is middle then robot_dir is left      and robot_speed is stop
+  rule: if obs_dist_right is middle and obs_dist_forward is close and obs_dist_left is far    then robot_dir is left      and robot_speed is stop
+
+  rule: if obs_dist_right is middle and obs_dist_forward is middle and obs_dist_left is close then robot_dir is straight  and robot_speed is normal
+  rule: if obs_dist_right is middle and obs_dist_forward is middle and obs_dist_left is middle then robot_dir is straight and robot_speed is normal
+  rule: if obs_dist_right is middle and obs_dist_forward is middle and obs_dist_left is far   then robot_dir is straight  and robot_speed is normal
+
+  rule: if obs_dist_right is middle and obs_dist_forward is far and obs_dist_left is close    then robot_dir is straight  and robot_speed is fast
+  rule: if obs_dist_right is middle and obs_dist_forward is far and obs_dist_left is middle   then robot_dir is straight  and robot_speed is fast
+  rule: if obs_dist_right is middle and obs_dist_forward is far and obs_dist_left is far      then robot_dir is straight  and robot_speed is fast
+
+  rule: if obs_dist_right is far and obs_dist_forward is close and obs_dist_left is close  then robot_dir is left         and robot_speed is stop
+  rule: if obs_dist_right is far and obs_dist_forward is close and obs_dist_left is middle then robot_dir is left         and robot_speed is stop
+  rule: if obs_dist_right is far and obs_dist_forward is close and obs_dist_left is far    then robot_dir is left         and robot_speed is stop
+
+  rule: if obs_dist_right is far and obs_dist_forward is middle and obs_dist_left is close then robot_dir is straight     and robot_speed is normal
+  rule: if obs_dist_right is far and obs_dist_forward is middle and obs_dist_left is middle then robot_dir is straight    and robot_speed is normal
+  rule: if obs_dist_right is far and obs_dist_forward is middle and obs_dist_left is far   then robot_dir is straight     and robot_speed is normal
+
+  rule: if obs_dist_right is far and obs_dist_forward is far and obs_dist_left is close    then robot_dir is straight     and robot_speed is fast
+  rule: if obs_dist_right is far and obs_dist_forward is far and obs_dist_left is middle   then robot_dir is straight     and robot_speed is fast
+  rule: if obs_dist_right is far and obs_dist_forward is far and obs_dist_left is far      then robot_dir is straight     and robot_speed is fast

@@ -3,15 +3,11 @@
 #include <iostream>
 #include <functional>
 #include <thread>
-
 #include <opencv2/opencv.hpp>
-
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
-
 #include "fl/Headers.h"
-
 #include "modules/core.h"
 
 static std::mutex mutex;
@@ -24,9 +20,11 @@ typedef struct closest_obstacle
   closest_obstacle(float dir_delta_, float range_) : dir_delta(dir_delta_) , range(range_){};
 } closest_obstacle;
 
-static closest_obstacle cloest_obs(0, 10);
+static closest_obstacle cloest_obs_front(0, 10);
+static closest_obstacle cloest_obs_left(0, 10);
+static closest_obstacle cloest_obs_right(0, 10);
 
-void fuzzy_controller(closest_obstacle & );
+void min_range(closest_obstacle & cloest_obs_right, float range_min, float range_max, float px_per_m, float angle, cv::Mat & im, ConstLaserScanStampedPtr &msg, int i, float compare1, float compare2);
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
   (void)_msg;
@@ -93,47 +91,23 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   cv::Mat im(height, width, CV_8UC3);
   im.setTo(0);
 
-  cloest_obs.range = range_max;
+  cloest_obs_front.range = range_max;
+  cloest_obs_right.range = range_max;
+  cloest_obs_left.range = range_max;  
 
   for (int i = 0; i < nranges; i++) 
   {
 
     float angle = angle_min + i * angle_increment;
-
-    //Not using full RoM for the LIDAR.
-    if (angle < M_PI/4 && angle > -M_PI/4 )
-    {
-        float range = std::min(float(msg->scan().ranges(i)), range_max);
-
-        cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
-                            200.5f - range_min * px_per_m * std::sin(angle));
-        cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
-                          200.5f - range * px_per_m * std::sin(angle));
-        cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
-                cv::LINE_AA, 4);
-
-        //Find Shortest Obstacle
-        if ( cloest_obs.range > range )
-        {
-            cloest_obs.range = range;
-            cloest_obs.dir_delta = angle;
-        }
-
-    }
+      //Not using full RoM for the LIDAR.
+    min_range(cloest_obs_front, range_min, range_max, px_per_m, angle, im, msg, i, 0.19, -0.19);
+    min_range(cloest_obs_left, range_min, range_max, px_per_m, angle, im, msg, i, -1.37, -1.76);
+    min_range(cloest_obs_right, range_min, range_max, px_per_m, angle, im, msg, i, 1.76, 1.37);
 
   }
 
   // Works like a signal semaphore
   fuzzy_cont.unlock();
-
-  //Draw Shortest Obstacle 
-  cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(cloest_obs.dir_delta),
-                            200.5f - range_min * px_per_m * std::sin(cloest_obs.dir_delta));
-  cv::Point2f endpt(200.5f + cloest_obs.range * px_per_m * std::cos(cloest_obs.dir_delta),
-                          200.5f - cloest_obs.range * px_per_m * std::sin(cloest_obs.dir_delta));
-  cv::line(im, startpt * 16, endpt * 16, cv::Scalar(0, 255, 0, 0), 1,
-        cv::LINE_AA, 4);
-
 
   //Draw Current Direction 
   cv::Point2f start_dir(200.5f + range_min * px_per_m * std::cos(0),
@@ -167,10 +141,11 @@ int main(int _argc, char **_argv)
   if (not engine->isReady(&status))
       throw fl::Exception("[engine error] engine is not ready:n" + status, FL_AT);
 
-  fl::InputVariable* obs_dir      = engine->getInputVariable("obstacle_dir"); // 
-  fl::InputVariable* obs_dist     = engine->getInputVariable("obstacle_dist"); // 
-  fl::OutputVariable* robot_dir   = engine->getOutputVariable("robot_dir"); // 
-  fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed"); //
+  fl::InputVariable* obs_dist_s     = engine->getInputVariable("obs_dist_forward");  // 
+  fl::InputVariable* obs_dist_r     = engine->getInputVariable("obs_dist_right");  // 
+  fl::InputVariable* obs_dist_l     = engine->getInputVariable("obs_dist_left");  // 
+  fl::OutputVariable* robot_dir     = engine->getOutputVariable("robot_dir");       // 
+  fl::OutputVariable* robot_speed   = engine->getOutputVariable("robot_speed");     //
 
   // Load gazebo
   gazebo::client::setup(_argc, _argv);
@@ -228,26 +203,17 @@ int main(int _argc, char **_argv)
 
     if (key == key_esc)
       break;
-    
-    obs_dir->setValue(cloest_obs.dir_delta);
-    obs_dist->setValue(cloest_obs.range);
 
-    //std::cout << cloest_obs.dir_delta << std::endl;
-    //std::cout << cloest_obs.range << std::endl;
-
+    //Sends data to fuzzy controller.
+    obs_dist_s->setValue(cloest_obs_front.range);
+    obs_dist_l->setValue(cloest_obs_left.range);
+    obs_dist_r->setValue(cloest_obs_right.range);
     engine->process();
-
     double set_speed = static_cast<double>(robot_speed->getValue());
     double set_dir   = static_cast<double>(robot_dir->getValue());
-
-    std::cout << "Obstacle Dir: " << cloest_obs.dir_delta << std::endl;
-    std::cout << "Obstacle Range: "<< cloest_obs.range << std::endl;
-    std::cout << "Speed: " << set_speed << std::endl;
-    std::cout << "Dir: " << set_dir << std::endl;
     
     // Generate a pose
     ignition::math::Pose3d pose(set_speed, 0, 0, 0, 0, set_dir);
-
 
     // Convert to a pose message
     gazebo::msgs::Pose msg;
@@ -260,20 +226,27 @@ int main(int _argc, char **_argv)
   gazebo::client::shutdown();
 }
 
-/*
+void min_range(closest_obstacle & cloest_obs, float range_min, float range_max, float px_per_m, float angle, cv::Mat & im, ConstLaserScanStampedPtr &msg, int i, float compare1, float compare2)
+{
+  //Not using full RoM for the LIDAR.
+  if ( angle < compare1 && angle > compare2 )
+  {
+      float range = std::min(float(msg->scan().ranges(i)), range_max);
 
-    if ((key == key_up) && (speed <= 1.2f))
-      speed += 0.05;
-    else if ((key == key_down) && (speed >= -1.2f))
-      speed -= 0.05;
-    else if ((key == key_right) && (dir <= 0.4f))
-      dir += 0.05;
-    else if ((key == key_left) && (dir >= -0.4f))
-      dir -= 0.05;
-    else {
-      // slow down
-      //      speed *= 0.1;
-      //      dir *= 0.1;
+      cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
+                          200.5f - range_min * px_per_m * std::sin(angle));
+      cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
+                        200.5f - range * px_per_m * std::sin(angle));
+      cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
+              cv::LINE_AA, 4);
+
+      //Find Shortest Obstacle
+      if (  cloest_obs.range > range )
+      {
+            cloest_obs.range = range;
+            cloest_obs.dir_delta = angle;
+        }
     }
+}
 
-*/
+  
