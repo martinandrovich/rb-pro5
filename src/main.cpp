@@ -202,12 +202,11 @@ int main(int _argc, char **_argv)
     if (key == key_esc)
       break;
 
+    //Sends data to fuzzy controller.
     obs_dist_s->setValue(cloest_obs_front.range);
     obs_dist_l->setValue(cloest_obs_left.range);
     obs_dist_r->setValue(cloest_obs_right.range);
-
     engine->process();
-
     double set_speed = static_cast<double>(robot_speed->getValue());
     double set_dir   = static_cast<double>(robot_dir->getValue());
     
