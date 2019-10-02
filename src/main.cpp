@@ -158,8 +158,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 
 int main(int _argc, char **_argv) 
 {
-
-  fl::Engine* engine = fl::FllImporter().fromFile("ObstacleAvoidancev2.fll");
+  
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // not sure if correct path
+  fl::Engine* engine = fl::FllImporter().fromFile("../assets/ObstacleAvoidancev2.fll");
 
   std::string status;
   if (not engine->isReady(&status))
