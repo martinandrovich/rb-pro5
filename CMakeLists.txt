@@ -12,8 +12,8 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic")
 
 # source folder (.cpp + .h files)
 file(GLOB SOURCES src/*.cpp)
-include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${PROJECT_SOURCE_DIR}/src/modules)
+include_directories(${PROJECT_SOURCE_DIR}/src/)
+include_directories(${PROJECT_SOURCE_DIR}/src/modules/)
 
 # executable
 add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})

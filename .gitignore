@@ -5,9 +5,8 @@ CMakeFiles/
 # VSCode folders
 .vscode/
 
-
 # executables
+bin/
 *.o
 *.out
 *.exe
-bin/rb-pro5
