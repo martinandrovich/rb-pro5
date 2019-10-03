@@ -10,8 +10,9 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <opencv2/opencv.hpp>
+#include <fl/Headers.h>
 
-#include "fl/Headers.h"
+#include "core-common.h"
 
 // public declarations for core
 
@@ -23,16 +24,3 @@ namespace core
 	void
 	run();
 }
-
-// public declarations for core::data
-
-namespace core { namespace data
-{
-
-	struct lidar_t
-	{
-		std::mutex mutex;
-		ConstLaserScanStampedPtr data;
-	};
-
-}}
