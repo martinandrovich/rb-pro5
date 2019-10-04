@@ -135,17 +135,17 @@ int main(int _argc, char **_argv)
   
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // not sure if correct path
-  fl::Engine* engine = fl::FllImporter().fromFile("../assets/ObstacleAvoidancev2.fll");
+  fl::Engine* engine = fl::FllImporter().fromFile("../assets/ObstacleAvoidance.fll");
 
   std::string status;
   if (not engine->isReady(&status))
       throw fl::Exception("[engine error] engine is not ready:n" + status, FL_AT);
 
-  fl::InputVariable* obs_dist_s     = engine->getInputVariable("obs_dist_forward");  // 
-  fl::InputVariable* obs_dist_r     = engine->getInputVariable("obs_dist_right");  // 
-  fl::InputVariable* obs_dist_l     = engine->getInputVariable("obs_dist_left");  // 
-  fl::OutputVariable* robot_dir     = engine->getOutputVariable("robot_dir");       // 
-  fl::OutputVariable* robot_speed   = engine->getOutputVariable("robot_speed");     //
+  fl::InputVariable* obs_dist_s     = engine->getInputVariable("forward");  // 
+  fl::InputVariable* obs_dist_r     = engine->getInputVariable("right");  // 
+  fl::InputVariable* obs_dist_l     = engine->getInputVariable("left");  // 
+  fl::OutputVariable* robot_dir     = engine->getOutputVariable("omega");       // 
+  fl::OutputVariable* robot_speed   = engine->getOutputVariable("velocity");     //
 
   // Load gazebo
   gazebo::client::setup(_argc, _argv);
@@ -204,6 +204,10 @@ int main(int _argc, char **_argv)
     if (key == key_esc)
       break;
 
+    std::cout << "cloest_obs_front.range: " << cloest_obs_front.range << std::endl;
+    std::cout << "cloest_obs_left.range: " << cloest_obs_left.range << std::endl;
+    std::cout << "cloest_obs_right.range: " << cloest_obs_right.range << std::endl;
+
     //Sends data to fuzzy controller.
     obs_dist_s->setValue(cloest_obs_front.range);
     obs_dist_l->setValue(cloest_obs_left.range);
@@ -211,6 +215,9 @@ int main(int _argc, char **_argv)
     engine->process();
     double set_speed = static_cast<double>(robot_speed->getValue());
     double set_dir   = static_cast<double>(robot_dir->getValue());
+
+    std::cout << "Set Speed: " << set_speed << std::endl;
+    std::cout << "Set Dir: " <<  set_dir << std::endl;
     
     // Generate a pose
     ignition::math::Pose3d pose(set_speed, 0, 0, 0, 0, set_dir);
