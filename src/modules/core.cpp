@@ -7,13 +7,19 @@ namespace core
 
 	// private members
 
+	bool initialized = false;
+
+	std::mutex cv_mutex;
+
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::PublisherPtr pub_movement;
 	gazebo::transport::PublisherPtr pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
-	bool initialized = false;
-	std::mutex cv_mutex;
+	fl::Engine* fl_engine;
+
+	lidar_t lidar_data;
+	trajectory_t traj_data;
 
 	// private methods
 	
@@ -24,7 +30,10 @@ namespace core
 	callback_camera(ConstImageStampedPtr& msg);
 
 	void
-	publish_pos();
+	process_data();
+
+	void
+	publish_pose();
 
 	void
 	fuzzy_controller();
@@ -38,17 +47,28 @@ namespace core
 void
 core::callback_lidar(ConstLaserScanStampedPtr& msg)
 {
-	return;
+
+	lidar_data.mutex.lock();
+
+	lidar_data.angle_min = float(msg->scan().angle_min());
+	lidar_data.angle_max = msg->scan().angle_max();
+	lidar_data.angle_increment = float(msg->scan().angle_step());
+	lidar_data.range_min = float(msg->scan().range_min());
+	lidar_data.range_max = float(msg->scan().range_max());
+
+	assert(lidar_data.nranges == lidar_data.nintensities);
+
+	lidar_data.sec = msg->time().sec();
+	lidar_data.nsec = msg->time().nsec();
+	lidar_data.nranges = msg->scan().ranges_size();
+	lidar_data.nintensities = msg->scan().intensities_size();
+
+	lidar_data.mutex.unlock();
+
 }
 
 void
 core::callback_camera(ConstImageStampedPtr& msg)
-{
-	return;
-}
-
-void
-core::publish_pos()
 {
 	return;
 }
@@ -92,9 +112,6 @@ core::init(int argc, char** argv)
 	core::pub_world->WaitForConnection();
 	core::pub_world->Publish(core::ctrl_msg);
 
-	// test
-	core::data::lidar_t lidar_data;
-
 	// set initialization status
 	core::initialized = true;
 }
@@ -104,7 +121,7 @@ core::run()
 {
 	
 	// assert that system is initialized
-	if (!core::initialized)
+	if (not core::initialized)
 		throw std::runtime_error("System is not initialized.");
 
 	// loop
@@ -118,23 +135,67 @@ core::run()
 		// check for ESC key
 		if (key == 27) break;
 
+		// process data
+		core::process_data();
+
 		// implement controller
 		core::fuzzy_controller();
 
-		// log debug data
-		;
+		// publish data
+		core::publish_pose();
 
 	}
 
 	// shutdown gazebo
-  	gazebo::client::shutdown();
+	gazebo::client::shutdown();
+}
+
+void
+core::process_data()
+{	
+	lidar_data.mutex.lock();
+
+	std::cout << lidar_data.nranges << std::endl;
+
+	lidar_data.mutex.unlock();
+}
+
+void
+core::publish_pose()
+{
+	// generate a pose
+	ignition::math::Pose3d pose(traj_data.speed, 0, 0, 0, 0, traj_data.dir);
+
+	// convert to a pose message
+	gazebo::msgs::Pose msg;
+	gazebo::msgs::Set(&msg, pose);
+
+	// publish
+	core::pub_movement->Publish(msg);
 }
 
 void
 core::fuzzy_controller()
 {
-	// just testing
-	core::data::nearst_obs_t nearest_obs(10,10);
+	// check enginge
+	if (std::string status; not fl_engine->isReady(&status))
+		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
 
-	return;
+	// variables (loaded once)
+	static fl::InputVariable* obs_dist_s     = fl_engine->getInputVariable("obs_dist_forward");
+	static fl::InputVariable* obs_dist_r     = fl_engine->getInputVariable("obs_dist_right");
+	static fl::InputVariable* obs_dist_l     = fl_engine->getInputVariable("obs_dist_left");
+	static fl::OutputVariable* robot_dir     = fl_engine->getOutputVariable("robot_dir");
+	static fl::OutputVariable* robot_speed   = fl_engine->getOutputVariable("robot_speed");
+
+	// apply inputs
+	// obs_dist_s->setValue(cloest_obs_front.range);
+	// obs_dist_l->setValue(cloest_obs_left.range);
+	// obs_dist_r->setValue(cloest_obs_right.range);
+
+	// process data
+	fl_engine->process();
+
+	// export outputs
+	core::traj_data = { (float)robot_dir->getValue(), (float)robot_speed->getValue() };
 }

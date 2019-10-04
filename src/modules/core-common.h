@@ -19,21 +19,28 @@ namespace core
 	
 	constexpr std::string_view filepath = "/root/da.jpg";
 
-	// whatever else
-	
-}
-
-// --------------------------------------------------------------------------------
-// common declarations for ::core::data
-// --------------------------------------------------------------------------------
-
-namespace core { namespace data
-{
+	// structures
 
 	struct lidar_t
 	{
 		std::mutex mutex;
-		ConstLaserScanStampedPtr data;
+
+		float angle_min;
+		float angle_max;
+		float angle_increment;
+		float range_min;
+		float range_max;
+
+		int32_t sec;
+		int32_t nsec;
+		int32_t nranges;
+		int32_t nintensities;
+	};
+
+	struct trajectory_t
+	{
+		float dir;
+		float speed;
 	};
 
 	struct nearst_obs_t
@@ -42,6 +49,5 @@ namespace core { namespace data
 
 		float dir_delta;
 		float range;
-	};
-
-}}
+	};	
+}
