@@ -12,14 +12,20 @@ namespace core
 	std::mutex cv_mutex;
 
 	gazebo::transport::SubscriberPtr sub_lidar;
-	gazebo::transport::PublisherPtr pub_movement;
+	gazebo::transport::SubscriberPtr sub_camera;
+	gazebo::transport::SubscriberPtr sub_pose;
+	gazebo::transport::PublisherPtr pub_velcmd;
 	gazebo::transport::PublisherPtr pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
 	fl::Engine* fl_engine;
 
 	lidar_t lidar_data;
-	trajectory_t traj_data;
+	camera_t camera_data;
+	pose_t pose_data;
+	vel_t vel_data;
+
+	ctrl_state_t state = ctrl_state_t::simple_nav;
 
 	// private methods
 	
@@ -30,13 +36,16 @@ namespace core
 	callback_camera(ConstImageStampedPtr& msg);
 
 	void
-	process_data();
+	callback_pose(ConstPosesStampedPtr& msg);
 
 	void
-	publish_pose();
+	publish_velcmd();
 
 	void
-	fuzzy_controller();
+	flctrl();
+
+	void
+	flctrl_obs_avoid();
 
 }
 
@@ -47,30 +56,62 @@ namespace core
 void
 core::callback_lidar(ConstLaserScanStampedPtr& msg)
 {
-
 	lidar_data.mutex.lock();
 
-	lidar_data.angle_min = float(msg->scan().angle_min());
-	lidar_data.angle_max = msg->scan().angle_max();
-	lidar_data.angle_increment = float(msg->scan().angle_step());
-	lidar_data.range_min = float(msg->scan().range_min());
-	lidar_data.range_max = float(msg->scan().range_max());
+	auto& scan = msg->scan();
+
+	lidar_data.scan = scan;
+	lidar_data.angle_min = float(scan.angle_min());
+	lidar_data.angle_max = scan.angle_max();
+	lidar_data.angle_increment = float(scan.angle_step());
+	lidar_data.range_min = float(scan.range_min());
+	lidar_data.range_max = float(scan.range_max());
 
 	assert(lidar_data.nranges == lidar_data.nintensities);
 
 	lidar_data.sec = msg->time().sec();
 	lidar_data.nsec = msg->time().nsec();
-	lidar_data.nranges = msg->scan().ranges_size();
-	lidar_data.nintensities = msg->scan().intensities_size();
+	lidar_data.nranges = scan.ranges_size();
+	lidar_data.nintensities = scan.intensities_size();
 
 	lidar_data.mutex.unlock();
-
 }
 
 void
 core::callback_camera(ConstImageStampedPtr& msg)
 {
-	return;
+	camera_data.mutex.lock();
+
+	camera_data.width  = msg->image().width();
+	camera_data.height = msg->image().height();
+	camera_data.data   = msg->image().data().c_str();
+
+	camera_data.mutex.unlock();
+}
+
+void
+core::callback_pose(ConstPosesStampedPtr& msg)
+{
+	for (int i = 0; i < msg->pose_size(); i++)
+	{
+		auto& pose = msg->pose(i);
+
+		if (pose.name() == "pioneer2dx")
+		{
+			pose_data.mutex.lock();
+
+			pose_data.position.x = pose.position().x();
+			pose_data.position.y = pose.position().y();
+			pose_data.position.z = pose.position().z();
+
+			pose_data.orientation.w = pose.orientation().w();
+			pose_data.orientation.x = pose.orientation().x();
+			pose_data.orientation.y = pose.orientation().y();
+			pose_data.orientation.z = pose.orientation().z();
+
+			pose_data.mutex.unlock();
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -92,18 +133,14 @@ core::init(int argc, char** argv)
 	gazebo::transport::NodePtr node(new gazebo::transport::Node());
 	node->Init();
 
-	// listen for gazebo topics (assign callbacks)
-
-	// lidar
-	core::sub_lidar = node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", core::callback_lidar);
+	// subsribe to gazebo topics (assign callbacks)
+	core::sub_lidar  = node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", core::callback_lidar);
+	core::sub_pose   = node->Subscribe("~/pose/info", core::callback_pose);
+	core::sub_camera = node->Subscribe("~/pioneer2dx/camera/link/camera/image", core::callback_camera);
 
 	// setup gazebo publishers
-
-	// movement
-	core::pub_movement = node->Advertise<gazebo::msgs::Pose>("~/pioneer2dx/vel_cmd");
-
-	// world
-	core::pub_world = node->Advertise<gazebo::msgs::WorldControl>("~/world_control");
+	core::pub_velcmd = node->Advertise<gazebo::msgs::Pose>("~/pioneer2dx/vel_cmd");
+	core::pub_world  = node->Advertise<gazebo::msgs::WorldControl>("~/world_control");
 
 	//
 	core::ctrl_msg.mutable_reset()->set_all(true);
@@ -111,6 +148,9 @@ core::init(int argc, char** argv)
 	// publish control message
 	core::pub_world->WaitForConnection();
 	core::pub_world->Publish(core::ctrl_msg);
+
+	// load fuzzy engine
+	core::fl_engine = fl::FllImporter().fromFile(PATH_FUZZY_OBS_AVOID);
 
 	// set initialization status
 	core::initialized = true;
@@ -127,23 +167,24 @@ core::run()
 	// loop
 	while (true)
 	{
-		// acquire key input from opencv; guarded by mutex
-		core::cv_mutex.lock();
-		auto key = cv::waitKey(1);
-		core::cv_mutex.unlock();
+		// sleep
+		std::this_thread::sleep_for(RUN_FREQ_MS);
 
-		// check for ESC key
-		if (key == 27) break;
+		// acquire key input from opencv and draw any imshow() windows
+		// close app if ESC key has been pressed
+		if (cv::waitKey(1) == 27) break;
 
-		// process data
-		core::process_data();
+		// show lidar outout
+		cv::imshow(WNDW_LIDAR, lidar_data.get_img_safe());
+		
+		// show camera output
+		cv::imshow(WNDW_CAMERA, camera_data.get_img_safe());		
 
-		// implement controller
-		core::fuzzy_controller();
+		// run fuzzy lite controller
+		core::flctrl();
 
-		// publish data
-		core::publish_pose();
-
+		// publish velocity command
+		core::publish_velcmd();
 	}
 
 	// shutdown gazebo
@@ -151,51 +192,58 @@ core::run()
 }
 
 void
-core::process_data()
-{	
+core::publish_velcmd()
+{
+	// convert pose to message; using the global velocity info
+	static gazebo::msgs::Pose msg;
+	gazebo::msgs::Set(&msg, vel_data.pose());
+
+	// publish the velocity command
+	core::pub_velcmd->Publish(msg);
+}
+
+void
+core::flctrl()
+{
+	// process data
 	lidar_data.mutex.lock();
+
+	// extract dist and dir of nearest obstacle
+	;
 
 	std::cout << lidar_data.nranges << std::endl;
 
 	lidar_data.mutex.unlock();
+
+	// select appropriate fuzzy controller
+	//if (core::state == simple_nav) flctrl_simple_nav();
+	//if (core::state == obs_avoid)  flctrl_obs_avoid();
 }
 
 void
-core::publish_pose()
+core::flctrl_obs_avoid()
 {
-	// generate a pose
-	ignition::math::Pose3d pose(traj_data.speed, 0, 0, 0, 0, traj_data.dir);
+	// load engine
+	// core::fl_engine = fl::FllImporter().fromFile(PATH_FUZZY_OBS_AVOID);
 
-	// convert to a pose message
-	gazebo::msgs::Pose msg;
-	gazebo::msgs::Set(&msg, pose);
-
-	// publish
-	core::pub_movement->Publish(msg);
-}
-
-void
-core::fuzzy_controller()
-{
 	// check enginge
 	if (std::string status; not fl_engine->isReady(&status))
 		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
 
 	// variables (loaded once)
-	static fl::InputVariable* obs_dist_s     = fl_engine->getInputVariable("obs_dist_forward");
-	static fl::InputVariable* obs_dist_r     = fl_engine->getInputVariable("obs_dist_right");
-	static fl::InputVariable* obs_dist_l     = fl_engine->getInputVariable("obs_dist_left");
-	static fl::OutputVariable* robot_dir     = fl_engine->getOutputVariable("robot_dir");
-	static fl::OutputVariable* robot_speed   = fl_engine->getOutputVariable("robot_speed");
+	static fl::InputVariable*  obs_dir    = fl_engine->getInputVariable("obs_dir");
+	static fl::InputVariable*  obs_dist   = fl_engine->getInputVariable("obs_dist");
+	static fl::OutputVariable* rob_veldir = fl_engine->getOutputVariable("rob_veldir");
+	static fl::OutputVariable* rob_velrot = fl_engine->getOutputVariable("rob_velrot");
 
 	// apply inputs
-	// obs_dist_s->setValue(cloest_obs_front.range);
-	// obs_dist_l->setValue(cloest_obs_left.range);
-	// obs_dist_r->setValue(cloest_obs_right.range);
+	obs_dir->setValue(10.f);
+	obs_dist->setValue(10.f);
 
 	// process data
 	fl_engine->process();
 
 	// export outputs
-	core::traj_data = { (float)robot_dir->getValue(), (float)robot_speed->getValue() };
+	core::vel_data.dir = rob_veldir->getValue();
+	core::vel_data.rot = rob_velrot->getValue();
 }
