@@ -63,8 +63,8 @@ RuleBlock: mamdani
   rule: if forward is close and left is close and right is far then omega is vright and velocity is stop
 
   rule: if forward is close and left is middle and right is close then omega is vright and velocity is stop
-  rule: if forward is close and left is middle and right is middle then omega is vleft and velocity is stop
-  rule: if forward is close and left is middle and right is far then omega is vleft and velocity is stop
+  rule: if forward is close and left is middle and right is middle then omega is vright and velocity is stop
+  rule: if forward is close and left is middle and right is far then omega is vright and velocity is stop
 
   rule: if forward is close and left is far and right is close then omega is vright and velocity is stop
   rule: if forward is close and left is far and right is middle then omega is vright and velocity is stop
