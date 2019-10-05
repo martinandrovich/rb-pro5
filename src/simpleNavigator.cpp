@@ -10,7 +10,6 @@
 #include "fl/Headers.h"
 #include "modules/core.h"
 
-
 static std::mutex mutex;
 static std::mutex fuzzy_cont;
 
@@ -100,7 +99,6 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   {
 
     float angle = angle_min + i * angle_increment;
-     
       //Not using full RoM for the LIDAR.
     min_range(cloest_obs_front, range_min, range_max, px_per_m, angle, im, msg, i, 0.19, -0.19);
     min_range(cloest_obs_left, range_min, range_max, px_per_m, angle, im, msg, i, -1.37, -1.76);
@@ -125,10 +123,11 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
               cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
               cv::Scalar(255, 0, 0));
 
+  
+
   mutex.lock();
   cv::imshow("lidar", im);
   mutex.unlock();
-
 }
 
 int main(int _argc, char **_argv) 
@@ -136,17 +135,16 @@ int main(int _argc, char **_argv)
   
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // not sure if correct path
-  fl::Engine* engine = fl::FllImporter().fromFile("../assets/ObstacleAvoidance.fll");
+  fl::Engine* engine = fl::FllImporter().fromFile("../assets/ObstacleAvoidancev2.fll");
 
   std::string status;
   if (not engine->isReady(&status))
       throw fl::Exception("[engine error] engine is not ready:n" + status, FL_AT);
 
-  fl::InputVariable* obs_dist_s     = engine->getInputVariable("forward");  // 
-  fl::InputVariable* obs_dist_r     = engine->getInputVariable("right");  // 
-  fl::InputVariable* obs_dist_l     = engine->getInputVariable("left");  // 
-  fl::OutputVariable* robot_dir     = engine->getOutputVariable("omega");       // 
-  fl::OutputVariable* robot_speed   = engine->getOutputVariable("velocity");     //
+  fl::InputVariable* obs_dist    = engine->getInputVariable("obs_dist");  // 
+  fl::InputVariable* goal_dir    = engine->getInputVariable("goal_dir");  // 
+  fl::OutputVariable* robot_dir     = engine->getOutputVariable("robot_dir");       // 
+  fl::OutputVariable* robot_speed   = engine->getOutputVariable("robot_speed");     //
 
   // Load gazebo
   gazebo::client::setup(_argc, _argv);
@@ -159,7 +157,6 @@ int main(int _argc, char **_argv)
    gazebo::transport::SubscriberPtr statSubscriber =
       node->Subscribe("~/world_stats", statCallback);
 
-  
   /*
   gazebo::transport::SubscriberPtr poseSubscriber =
       node->Subscribe("~/pose/info", poseCallback);
@@ -168,9 +165,10 @@ int main(int _argc, char **_argv)
   gazebo::transport::SubscriberPtr cameraSubscriber =
       node->Subscribe("~/pioneer2dx/camera/link/camera/image", cameraCallback);
   */
+  
 
-  gazebo::transport::SubscriberPtr lidarSubscriber =
-      node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
+  //gazebo::transport::SubscriberPtr lidarSubscriber =
+  //    node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
 
   // Publish to the robot vel_cmd topic
   gazebo::transport::PublisherPtr movementPublisher =
@@ -186,8 +184,7 @@ int main(int _argc, char **_argv)
   worldPublisher->WaitForConnection();
   worldPublisher->Publish(controlMessage);
 
-  double set_dir = 0;
-  double set_speed = 0; 
+  const int key_esc = 27;
 
   fuzzy_cont.lock();
 
@@ -203,15 +200,16 @@ int main(int _argc, char **_argv)
     int key = cv::waitKey(1);
     mutex.unlock();
 
+    if (key == key_esc)
+      break;
+
     //Sends data to fuzzy controller.
     obs_dist_s->setValue(cloest_obs_front.range);
     obs_dist_l->setValue(cloest_obs_left.range);
     obs_dist_r->setValue(cloest_obs_right.range);
-
     engine->process();
-
-    set_speed = static_cast<double>(robot_speed->getValue());
-    set_dir   = static_cast<double>(robot_dir->getValue());
+    double set_speed = static_cast<double>(robot_speed->getValue());
+    double set_dir   = static_cast<double>(robot_dir->getValue());
     
     // Generate a pose
     ignition::math::Pose3d pose(set_speed, 0, 0, 0, 0, set_dir);
@@ -221,6 +219,7 @@ int main(int _argc, char **_argv)
     gazebo::msgs::Set(&msg, pose);
     movementPublisher->Publish(msg);
   }
+
 
   // Make sure to shut everything down.
   gazebo::client::shutdown();
@@ -247,6 +246,12 @@ void min_range(closest_obstacle & cloest_obs, float range_min, float range_max, 
             cloest_obs.dir_delta = angle;
         }
     }
+}
+
+
+void calc_dir()
+{
+  
 }
 
   
