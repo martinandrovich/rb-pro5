@@ -10,6 +10,7 @@
 #include "fl/Headers.h"
 #include "modules/core.h"
 
+
 static std::mutex mutex;
 static std::mutex fuzzy_cont;
 
@@ -99,6 +100,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   {
 
     float angle = angle_min + i * angle_increment;
+     
       //Not using full RoM for the LIDAR.
     min_range(cloest_obs_front, range_min, range_max, px_per_m, angle, im, msg, i, 0.19, -0.19);
     min_range(cloest_obs_left, range_min, range_max, px_per_m, angle, im, msg, i, -1.37, -1.76);
@@ -123,11 +125,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
               cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
               cv::Scalar(255, 0, 0));
 
-  
-
   mutex.lock();
   cv::imshow("lidar", im);
   mutex.unlock();
+
 }
 
 int main(int _argc, char **_argv) 
@@ -158,6 +159,7 @@ int main(int _argc, char **_argv)
    gazebo::transport::SubscriberPtr statSubscriber =
       node->Subscribe("~/world_stats", statCallback);
 
+  
   /*
   gazebo::transport::SubscriberPtr poseSubscriber =
       node->Subscribe("~/pose/info", poseCallback);
@@ -166,7 +168,6 @@ int main(int _argc, char **_argv)
   gazebo::transport::SubscriberPtr cameraSubscriber =
       node->Subscribe("~/pioneer2dx/camera/link/camera/image", cameraCallback);
   */
-  
 
   gazebo::transport::SubscriberPtr lidarSubscriber =
       node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
@@ -185,7 +186,8 @@ int main(int _argc, char **_argv)
   worldPublisher->WaitForConnection();
   worldPublisher->Publish(controlMessage);
 
-  const int key_esc = 27;
+  double set_dir = 0;
+  double set_speed = 0; 
 
   fuzzy_cont.lock();
 
@@ -201,23 +203,15 @@ int main(int _argc, char **_argv)
     int key = cv::waitKey(1);
     mutex.unlock();
 
-    if (key == key_esc)
-      break;
-
-    std::cout << "cloest_obs_front.range: " << cloest_obs_front.range << std::endl;
-    std::cout << "cloest_obs_left.range: " << cloest_obs_left.range << std::endl;
-    std::cout << "cloest_obs_right.range: " << cloest_obs_right.range << std::endl;
-
     //Sends data to fuzzy controller.
     obs_dist_s->setValue(cloest_obs_front.range);
     obs_dist_l->setValue(cloest_obs_left.range);
     obs_dist_r->setValue(cloest_obs_right.range);
-    engine->process();
-    double set_speed = static_cast<double>(robot_speed->getValue());
-    double set_dir   = static_cast<double>(robot_dir->getValue());
 
-    std::cout << "Set Speed: " << set_speed << std::endl;
-    std::cout << "Set Dir: " <<  set_dir << std::endl;
+    engine->process();
+
+    set_speed = static_cast<double>(robot_speed->getValue());
+    set_dir   = static_cast<double>(robot_dir->getValue());
     
     // Generate a pose
     ignition::math::Pose3d pose(set_speed, 0, 0, 0, 0, set_dir);
@@ -227,7 +221,6 @@ int main(int _argc, char **_argv)
     gazebo::msgs::Set(&msg, pose);
     movementPublisher->Publish(msg);
   }
-
 
   // Make sure to shut everything down.
   gazebo::client::shutdown();
