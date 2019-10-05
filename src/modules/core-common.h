@@ -9,6 +9,7 @@
 #include <gazebo/transport/transport.hh>
 #include <opencv2/opencv.hpp>
 #include <fl/Headers.h>
+#include <cmath>
 
 // --------------------------------------------------------------------------------
 // common declarations for ::core
@@ -20,6 +21,7 @@ namespace core
 	
 	const std::string PATH_ROOT = "";
 	const std::string PATH_FUZZY_OBS_AVOID = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
+	const std::string PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
@@ -114,8 +116,8 @@ namespace core
 			float y;
 			float z;
 		} orientation;
-
-		float dir() { return 4.f; }
+		// returns the angle between self and other.
+		float dir(pose_t& other) {return  atan2(other.position.y - this->position.y, other.position.x - this->position.x);}
 
 		friend std::ostream&
 		operator << (std::ostream& out, const pose_t& pose)

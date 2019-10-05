@@ -2,7 +2,7 @@
 Engine: simpleNavigaor
 
 
-InputVariable: obs_dist
+InputVariable: goal_dist
   enabled: true
   range: 0.0 10
   lock-range: false
@@ -55,9 +55,9 @@ RuleBlock: mamdani
   rule: if goal_dir is negative then robot_dir is positive
   rule: if goal_dir is zero then robot_dir is zero
 
-  rule: if obs_dist is close then robot_speed is slow
-  rule: if obs_dist is middle then robot_speed is normal
-  rule: if obs_dist is far then robot_speed is fast
+  rule: if goal_dist is close then robot_speed is slow
+  rule: if goal_dist is middle then robot_speed is normal
+  rule: if goal_dist is far then robot_speed is fast
 
 
 
