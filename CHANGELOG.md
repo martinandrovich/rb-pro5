@@ -6,19 +6,19 @@ All notable changes to this project will be documented in this file; a full list
 
 ## [Unreleased]
 
-#### Suggestions
-
-- Move all custom types into `modules/types/` with each type having own header.
-
 #### Milestones
 
-- Implement dual fuzzy controller for target navigation w/ obstacle avoidance
+- Implement dual fuzzy controller for target navigation w/ obstacle avoidance [\#M1]
+
+#### Suggestions
+
+- Move all custom types into `modules/types/` with each type having own header [\#2]
 
 #### Todos
 
-- Make all custom types (e.g. `camera_t`) atomic w/ `get()` and `set()` methods.
+- Make all custom types (e.g. `camera_t`) atomic w/ `get()` and `set()` methods [\#3]
 - Merge and refactor to `main.new.cpp` using `core.h`
-- Add issues and milestones to GitHub + update changelog ([androvich])
+- Add issues and milestones to GitHub + update changelog [\#1] ([androvich])
 - Fuzzy controller selector `core::flctrl()`
 - Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` ([daniel])([androvich])
 - Goal navigation fuzzy controller `core::flctr_goal_navigator()` ([slaxzer])
@@ -88,11 +88,18 @@ A small paragraph about the major changes in this version could be written here;
 [0.1.0]: https://github.com/martinandrovich/rb-pro5/releases/tag/v0.1.0
 [0.0.0]: #changelog
 
+<!-- -- Milestones----------------------------------------------------------------------------------------------------------------- -->
+
+[\#M1]:  https://github.com/martinandrovich/rb-pro5/milestone/1
+
 <!-- -- Issues -------------------------------------------------------------------------------------------------------------------- -->
 
-[\#19]: https://github.com/github-changelog-generator/github-changelog-generator/issues/19
-[\#14]: https://github.com/github-changelog-generator/github-changelog-generator/issues/19
-[\#0]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#14]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#3]:   https://github.com/martinandrovich/rb-pro5/issues/3
+[\#2]:   https://github.com/martinandrovich/rb-pro5/issues/2
+[\#1]:   https://github.com/martinandrovich/rb-pro5/issues/1
+[\#0]:   https://github.com/github-changelog-generator/github-changelog-generator/issues/19
 
 <!-- -- Identities ---------------------------------------------------------------------------------------------------------------- -->
 
