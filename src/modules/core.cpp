@@ -24,7 +24,7 @@ namespace core
 	camera_t camera_data;
 	pose_t pose_data;
 	vel_t vel_data = { 0.f, 0.f };
-	pos_t goal = { 0.f, 0.f, 0.f };
+	pos_t goal = { 5.f, 0.f, 0.f };
 
 	ctrl_state_t state = ctrl_state_t::simple_nav;
 
@@ -46,7 +46,7 @@ namespace core
 	flctrl();
 
 	void 
-	flctr_goal_navigator(core::pos_t goal);
+	flctr_goal_nav(pos_t& goal);
 
 	void
 	flctrl_obs_avoid();
@@ -152,7 +152,6 @@ core::run()
 	if (not core::initialized)
 		throw std::runtime_error("System is not initialized.");
 	
-	core::goal = { 5.0, 0.0, 0};
 	// loop
 	while (true)
 	{
@@ -183,10 +182,6 @@ core::run()
 void
 core::publish_velcmd()
 {	
-
-	//vel_data.trans = 0.5f;
-	//vel_data.ang_vel = 0.0;
-
 	// convert pose to message; using the global velocity info
 	static gazebo::msgs::Pose msg;
 	gazebo::msgs::Set(&msg, vel_data.pose());
@@ -198,11 +193,11 @@ core::publish_velcmd()
 void
 core::flctrl()
 {
-
 	// extract dist and  of nearest obstacle
 	//std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
+
 	// select appropriate fuzzy controller
-	if (core::state == simple_nav) flctr_goal_navigator(core::goal);
+	if (core::state == simple_nav) flctr_goal_nav(core::goal);
 	//if (core::state == obs_avoid)  flctrl_obs_avoid();
 }
 
@@ -234,15 +229,12 @@ core::flctrl_obs_avoid()
 	core::vel_data.ang_vel = rob_velrot->getValue();
 }
 
-
-
 void
-core::flctr_goal_navigator(core::pos_t goal)
+core::flctr_goal_nav(pos_t& goal)
 {
 	// load engine and check for readiness
+	static fl::Engine* engine = fl::FllImporter().fromFile(PATH_FUZZY_SIMPLE_NAVIGATOR);
 
-	static fl::Engine* engine;
-	engine = fl::FllImporter().fromFile(PATH_FUZZY_SIMPLE_NAVIGATOR);
 	if (std::string status; not engine->isReady(&status))
 		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
 	
@@ -251,27 +243,23 @@ core::flctr_goal_navigator(core::pos_t goal)
 	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("robot_dir");
 	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");	
 
-	//get inputs:
-
+	// get inputs
 	float dir = pose_data.dir(goal);
 	float dist = pose_data.dist(goal);
 
-	std::cout << pose_data.pos << std::endl;
-
-	//feed input to the fl engine
-
+	// feed input to the fl engine
 	goal_dir->setValue(dir);
 	goal_dist->setValue(dist);
-
-	std::cout << "goal dir, dist is: " << dir << " , " << dist << std::endl;
-	//process inputs
-
+	
+	// process inputs
 	engine->process();
 	
-	//Extract outputs
-	
+	// extract outputs
 	vel_data.trans = (float)robot_speed->getValue();
 	vel_data.ang_vel = (float)robot_dir->getValue();
 
-	std::cout << vel_data << std::endl;
+	// log data
+	std::cout << "position: " << pose_data.pos << std::endl;
+	std::cout << "goal dir: " << dir << " | goal dist: " << dist << std::endl;
+	std::cout << "vel: " << vel_data << std::endl;
 }
