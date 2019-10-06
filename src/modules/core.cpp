@@ -44,6 +44,9 @@ namespace core
 	void
 	flctrl();
 
+	void 
+	flctr_goal_navigator(core::pose_t goal);
+
 	void
 	flctrl_obs_avoid();
 
@@ -224,4 +227,29 @@ core::flctrl_obs_avoid()
 	// export outputs
 	core::vel_data.dir = rob_veldir->getValue();
 	core::vel_data.rot = rob_velrot->getValue();
+}
+
+
+
+void
+core::flctr_goal_navigator(core::pose_t goal)
+{
+	// load engine and check for readiness
+
+	static fl::Engine* engine;
+	engine = fl::FllImporter().fromFile(PATH_FUZZY_SIMPLE_NAVIGATOR);
+	if (std::string status; not engine->isReady(&status))
+		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
+	
+	static fl::InputVariable* goal_dist   = engine->getInputVariable("goal_dist");
+	static fl::InputVariable* goal_dir 	  = engine->getInputVariable("goal_dir");
+	static fl::InputVariable* robot_dir   = engine->getInputVariable("robot_dir");
+	static fl::InputVariable* robot_speed = engine->getInputVariable("robot_speed");
+
+	//get inputs:
+
+
+
+
+
 }

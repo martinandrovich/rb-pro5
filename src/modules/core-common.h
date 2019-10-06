@@ -9,6 +9,7 @@
 #include <gazebo/transport/transport.hh>
 #include <opencv2/opencv.hpp>
 #include <fl/Headers.h>
+#include <cmath>
 
 // --------------------------------------------------------------------------------
 // common declarations for ::core
@@ -20,6 +21,7 @@ namespace core
 	
 	const std::string PATH_ROOT = "";
 	const std::string PATH_FUZZY_OBS_AVOID = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
+	const std::string PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
@@ -79,7 +81,7 @@ namespace core
 		pos_t pos;
 		orient_t orient;
 
-		float dir() { return 4.f; }
+		float dir(const pose_t& other) { return atan2(other.pos.y - this->pos.y, other.pos.x - this->pos.x); }
 
 		friend std::ostream&
 		operator << (std::ostream& out, const pose_t& obj)
@@ -261,12 +263,12 @@ namespace core
 
 	private:
 
-		obs_t nearest_obs;
-		std::vector<ray_t> vec_rays;
-
-		size_t  img_width  = 400;
-		size_t  img_height = 400;
+		int32_t img_width  = 400;
+		int32_t img_height = 400;
 		cv::Mat img;
+
+		std::vector<ray_t> vec_rays;
+		obs_t nearest_obs;
 	};
 
 	struct camera_t
