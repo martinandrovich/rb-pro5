@@ -167,7 +167,7 @@ core::run()
 		// show camera output
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());		
 
-		// run fuzzy lite controller
+		// run fuzzy logic controller
 		core::flctrl();
 
 		// publish velocity command
@@ -265,10 +265,4 @@ core::flctr_goal_navigator(core::pos_t goal)
 	vel_data.dir = robot_dir->getValue();
 	vel_data.speed = robot_speed->getValue();
 
-	//Publish movement
-
-	gazebo::msgs::Pose msg;
-    gazebo::msgs::Set(&msg, vel_data.pose());
-    pub_velcmd->Publish(msg);
-	
 }
