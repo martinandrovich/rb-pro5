@@ -26,7 +26,7 @@ namespace core
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
 
-	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(10);
+	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(100);
 
 	// enumerations
 
@@ -72,6 +72,12 @@ namespace core
 		float ang_vel;
 
 		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang_vel); }
+
+		friend std::ostream&
+		operator << (std::ostream& out, const vel_t& obj)
+		{
+			return out << "trans: " << obj.trans << " | ang: " << obj.ang_vel;
+		}
 	};
 
 	struct pose_t

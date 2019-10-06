@@ -23,8 +23,8 @@ namespace core
 	lidar_t lidar_data;
 	camera_t camera_data;
 	pose_t pose_data;
-	vel_t vel_data;
-	pos_t goal;
+	vel_t vel_data = { 0.f, 0.f };
+	pos_t goal = { 0.f, 0.f, 0.f };
 
 	ctrl_state_t state = ctrl_state_t::simple_nav;
 
@@ -170,7 +170,7 @@ core::run()
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());		
 
 		// run fuzzy logic controller
-		core::flctrl();
+		// core::flctrl();
 
 		// publish velocity command
 		core::publish_velcmd();
@@ -184,7 +184,8 @@ void
 core::publish_velcmd()
 {	
 
-	vel_data.trans = 0.6;
+	//vel_data.trans = 0.5f;
+	//vel_data.ang_vel = 0.0;
 
 	// convert pose to message; using the global velocity info
 	static gazebo::msgs::Pose msg;
@@ -269,6 +270,8 @@ core::flctr_goal_navigator(core::pos_t goal)
 	
 	//Extract outputs
 	
-	vel_data.trans = (double)robot_speed->getValue();
-	vel_data.ang_vel = (double)robot_dir->getValue();
+	vel_data.trans = (float)robot_speed->getValue();
+	vel_data.ang_vel = (float)robot_dir->getValue();
+
+	std::cout << vel_data << std::endl;
 }
