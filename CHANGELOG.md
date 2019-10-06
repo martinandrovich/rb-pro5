@@ -18,10 +18,10 @@ All notable changes to this project will be documented in this file; a full list
 
 - Make all custom types (e.g. `camera_t`) atomic w/ `get()` and `set()` methods.
 - Merge and refactor to `main.new.cpp` using `core.h`
-- Add issues and milestones to GitHub + update changelog
+- Add issues and milestones to GitHub + update changelog ([androvich])
 - Fuzzy controller selector `core::flctrl()`
-- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()`
-- Goal navigation fuzzy controller `core::flctr_goal_navigator()`
+- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` ([daniel])([androvich])
+- Goal navigation fuzzy controller `core::flctr_goal_navigator()` ([slaxzer])
 - Write tests for dual fuzzy controller
 - Document dual fuzzy controller
 
