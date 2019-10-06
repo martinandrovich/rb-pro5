@@ -1,0 +1,101 @@
+# Changelog
+
+All notable changes to this project will be documented in this file; a full list of changes can be found at the [issues] page. This project adheres to [Semantic Versioning] and the changelog format is based on both [keep-a-changelog] and [github-changelog-generator].
+
+<!-- ------------------------------------------------------------------------------------------------------------------------------ -->
+
+## [Unreleased]
+
+#### Suggestions
+
+- Move all custom types into `modules/types/` with each type having own header.
+
+#### Milestones
+
+- Implement dual fuzzy controller for target navigation w/ obstacle avoidance
+
+#### Todos
+
+- Make all custom types (e.g. `camera_t`) atomic w/ `get()` and `set()` methods.
+- Merge and refactor to `main.new.cpp` using `core.h`
+- Add issues and milestones to GitHub + update changelog
+- Fuzzy controller selector `core::flctrl()`
+- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()`
+- Goal navigation fuzzy controller `core::flctr_goal_navigator()`
+- Write tests for dual fuzzy controller
+- Document dual fuzzy controller
+
+#### Features and enhancements
+
+- Velocity command publisher `core::publish_velcmd()`
+
+#### Bugfixes
+
+- Item.
+
+#### Closed issues
+
+- Item.
+
+<!-- ------------------------------------------------------------------------------------------------------------------------------ -->
+
+## [0.1.0] - 2019-10-01
+Setup the basic in-development project. Basic types defined in `core-common.h` and core functionality is defined in `core.h`, which can be initilazed from `main.cpp`.
+
+#### Features and enhancements
+
+- Add `pos_t` type
+- Add `orient_t` type
+- Add `vel_t` type
+- Add `pose_t` type
+- Add `obs_t` type
+- Add `lidar_t` type
+- Add `camera_t` type
+</br></br>
+- Implement open world obstacle avoidance in `main.cpp` [deprecated]
+- Implement `core::init()`
+- Implement `core::run()`
+- Implement gazebo callbacks; lidar, camera, pose
+
+<!-- ------------------------------------------------------------------------------------------------------------------------------ -->
+
+## [0.0.0] - 2019-10-01 (Example)
+A small paragraph about the major changes in this version could be written here; it should simply summarize the release and highlight any important issues.
+
+#### Features and enhancements
+
+- Add `lidar_t` type [\#19] ([slaxzer])
+
+#### Bugfixes
+
+- out of bounds exception in `core::init()` [\#14] ([daniel])
+
+#### Closed issues
+
+- How can be better structure the code? [\#0] ([androvich])
+
+<!-- Links ------------------------------------------------------------------------------------------------------------------------ -->
+
+<!-- -- External ------------------------------------------------------------------------------------------------------------------ -->
+
+[Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[keep-a-changelog]: https://github.com/olivierlacan/keep-a-changelog
+[github-changelog-generator]: https://github.com/github-changelog-generator/github-changelog-generator
+[issues]: https://github.com/martinandrovich/rb-pro5/issues
+
+<!-- -- Releases ------------------------------------------------------------------------------------------------------------------ -->
+
+[0.1.0]: #010---2019-12-01
+[0.0.0]: #changelog
+
+<!-- -- Issues -------------------------------------------------------------------------------------------------------------------- -->
+
+[\#19]: https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#14]: https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#0]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+
+<!-- -- Identities ---------------------------------------------------------------------------------------------------------------- -->
+
+[androvich]: https:/github.com/martinandrovich
+[daniel]: https://github.com/dscho15
+[slaxzer]: https://github.com/slaxzer96
