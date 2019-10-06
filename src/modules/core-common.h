@@ -26,7 +26,7 @@ namespace core
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
 
-	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(100);
+	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(10);
 
 	// enumerations
 

@@ -152,7 +152,7 @@ core::run()
 	if (not core::initialized)
 		throw std::runtime_error("System is not initialized.");
 	
-	core::goal = { 5, 5, 0};
+	core::goal = { 5.0, 0.0, 0};
 	// loop
 	while (true)
 	{
@@ -170,7 +170,7 @@ core::run()
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());		
 
 		// run fuzzy logic controller
-		// core::flctrl();
+		core::flctrl();
 
 		// publish velocity command
 		core::publish_velcmd();
@@ -249,21 +249,21 @@ core::flctr_goal_navigator(core::pos_t goal)
 	static fl::InputVariable* goal_dist    = engine->getInputVariable("goal_dist");
 	static fl::InputVariable* goal_dir 	   = engine->getInputVariable("goal_dir");
 	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("robot_dir");
-	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");
+	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");	
 
 	//get inputs:
 
 	float dir = pose_data.dir(goal);
 	float dist = pose_data.dist(goal);
 
-	//std::cout << pose_data.pos << std::endl;
+	std::cout << pose_data.pos << std::endl;
 
 	//feed input to the fl engine
 
 	goal_dir->setValue(dir);
 	goal_dist->setValue(dist);
 
-	//std::cout << "goal dir, dist is: " << dir << " , " << dist << std::endl;
+	std::cout << "goal dir, dist is: " << dir << " , " << dist << std::endl;
 	//process inputs
 
 	engine->process();
