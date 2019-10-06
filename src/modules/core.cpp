@@ -225,8 +225,8 @@ core::flctrl_obs_avoid()
 	fl_engine->process();
 
 	// export outputs
-	core::vel_data.speed = rob_veldir->getValue();
-	core::vel_data.dir = rob_velrot->getValue();
+	core::vel_data.trans = rob_veldir->getValue();
+	core::vel_data.ang_vel = rob_velrot->getValue();
 }
 
 
@@ -261,8 +261,7 @@ core::flctr_goal_navigator(core::pos_t goal)
 	engine->process();
 	
 	//Extract outputs
-
-	vel_data.dir = robot_dir->getValue();
-	vel_data.speed = robot_speed->getValue();
-
+	
+	vel_data.trans = robot_speed->getValue();
+	vel_data.ang_vel = robot_dir->getValue();
 }

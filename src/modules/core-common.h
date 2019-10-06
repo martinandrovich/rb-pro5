@@ -68,10 +68,10 @@ namespace core
 
 	struct vel_t
 	{
-		float speed;
-		float dir;
+		float trans;
+		float ang_vel;
 
-		auto pose() { return ignition::math::Pose3d(this->speed, 0, 0, 0, 0, this->dir); }
+		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang_vel); }
 	};
 
 	struct pose_t
