@@ -68,10 +68,10 @@ namespace core
 
 	struct vel_t
 	{
+		float speed;
 		float dir;
-		float rot;
 
-		auto pose() { return ignition::math::Pose3d(dir, 0, 0, 0, 0, this->rot); }
+		auto pose() { return ignition::math::Pose3d(this->speed, 0, 0, 0, 0, this->dir); }
 	};
 
 	struct pose_t
@@ -81,7 +81,10 @@ namespace core
 		pos_t pos;
 		orient_t orient;
 
-		float dir(const pose_t& other) { return atan2(other.pos.y - this->pos.y, other.pos.x - this->pos.x); }
+		float dir(const pos_t& other) { this->mutex.lock(); float dir = atan2(other.y - this->pos.y, other.x - this->pos.x); this->mutex.unlock(); return dir;  }
+		float dist(const pos_t& other) {this ->mutex.lock(); float dist = sqrt( pow(other.y - this->pos.y, 2) + pow( other.x - this->pos.x, 2)); this->mutex.unlock(); return dist; }
+
+		const pos_t& get_pos(){this->mutex.lock(); pos_t cpy = this->pos; this->mutex.unlock(); return std::move(cpy); }
 
 		friend std::ostream&
 		operator << (std::ostream& out, const pose_t& obj)

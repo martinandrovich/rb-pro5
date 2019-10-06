@@ -45,7 +45,7 @@ namespace core
 	flctrl();
 
 	void 
-	flctr_goal_navigator(core::pose_t goal);
+	flctr_goal_navigator(core::pos_t goal);
 
 	void
 	flctrl_obs_avoid();
@@ -193,7 +193,7 @@ void
 core::flctrl()
 {
 
-	// extract dist and dir of nearest obstacle
+	// extract dist and  of nearest obstacle
 	std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
 
 	// select appropriate fuzzy controller
@@ -225,14 +225,14 @@ core::flctrl_obs_avoid()
 	fl_engine->process();
 
 	// export outputs
-	core::vel_data.dir = rob_veldir->getValue();
-	core::vel_data.rot = rob_velrot->getValue();
+	core::vel_data.speed = rob_veldir->getValue();
+	core::vel_data.dir = rob_velrot->getValue();
 }
 
 
 
 void
-core::flctr_goal_navigator(core::pose_t goal)
+core::flctr_goal_navigator(core::pos_t goal)
 {
 	// load engine and check for readiness
 
@@ -241,15 +241,34 @@ core::flctr_goal_navigator(core::pose_t goal)
 	if (std::string status; not engine->isReady(&status))
 		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
 	
-	static fl::InputVariable* goal_dist   = engine->getInputVariable("goal_dist");
-	static fl::InputVariable* goal_dir 	  = engine->getInputVariable("goal_dir");
-	static fl::InputVariable* robot_dir   = engine->getInputVariable("robot_dir");
-	static fl::InputVariable* robot_speed = engine->getInputVariable("robot_speed");
+	static fl::InputVariable* goal_dist    = engine->getInputVariable("goal_dist");
+	static fl::InputVariable* goal_dir 	   = engine->getInputVariable("goal_dir");
+	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("robot_dir");
+	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");
 
 	//get inputs:
 
+	float dir = pose_data.dir(goal);
+	float dist = pose_data.dist(goal);
 
+	//feed input to the fl engine
 
+	goal_dir->setValue(dir);
+	goal_dist->setValue(dist);
 
+	//process inputs
 
+	engine->process();
+	
+	//Extract outputs
+
+	vel_data.dir = robot_dir->getValue();
+	vel_data.speed = robot_speed->getValue();
+
+	//Publish movement
+
+	gazebo::msgs::Pose msg;
+    gazebo::msgs::Set(&msg, vel_data.pose());
+    pub_velcmd->Publish(msg);
+	
 }
