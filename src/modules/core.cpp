@@ -10,7 +10,7 @@ namespace core
 	bool initialized = false;
 
 	std::mutex cv_mutex;
-
+	gazebo::transport::NodePtr node;
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::SubscriberPtr sub_camera;
 	gazebo::transport::SubscriberPtr sub_pose;
@@ -24,6 +24,7 @@ namespace core
 	camera_t camera_data;
 	pose_t pose_data;
 	vel_t vel_data;
+	pos_t goal;
 
 	ctrl_state_t state = ctrl_state_t::simple_nav;
 
@@ -117,8 +118,8 @@ core::init(int argc, char** argv)
 	gazebo::client::setup(argc, argv);
 
 	// create our node for communication
-	gazebo::transport::NodePtr node(new gazebo::transport::Node());
-	node->Init();
+	core::node = gazebo::transport::NodePtr(new gazebo::transport::Node());
+	core::node->Init();
 
 	// subsribe to gazebo topics (assign callbacks)
 	core::sub_lidar  = node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", core::callback_lidar);
@@ -150,7 +151,8 @@ core::run()
 	// assert that system is initialized
 	if (not core::initialized)
 		throw std::runtime_error("System is not initialized.");
-
+	
+	core::goal = { 5, 5, 0};
 	// loop
 	while (true)
 	{
@@ -180,7 +182,10 @@ core::run()
 
 void
 core::publish_velcmd()
-{
+{	
+
+	vel_data.trans = 0.6;
+
 	// convert pose to message; using the global velocity info
 	static gazebo::msgs::Pose msg;
 	gazebo::msgs::Set(&msg, vel_data.pose());
@@ -194,10 +199,9 @@ core::flctrl()
 {
 
 	// extract dist and  of nearest obstacle
-	std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
-
+	//std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
 	// select appropriate fuzzy controller
-	//if (core::state == simple_nav) flctrl_simple_nav();
+	if (core::state == simple_nav) flctr_goal_navigator(core::goal);
 	//if (core::state == obs_avoid)  flctrl_obs_avoid();
 }
 
@@ -251,17 +255,20 @@ core::flctr_goal_navigator(core::pos_t goal)
 	float dir = pose_data.dir(goal);
 	float dist = pose_data.dist(goal);
 
+	//std::cout << pose_data.pos << std::endl;
+
 	//feed input to the fl engine
 
 	goal_dir->setValue(dir);
 	goal_dist->setValue(dist);
 
+	//std::cout << "goal dir, dist is: " << dir << " , " << dist << std::endl;
 	//process inputs
 
 	engine->process();
 	
 	//Extract outputs
 	
-	vel_data.trans = robot_speed->getValue();
-	vel_data.ang_vel = robot_dir->getValue();
+	vel_data.trans = (double)robot_speed->getValue();
+	vel_data.ang_vel = (double)robot_dir->getValue();
 }
