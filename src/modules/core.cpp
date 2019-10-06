@@ -55,26 +55,10 @@ namespace core
 
 void
 core::callback_lidar(ConstLaserScanStampedPtr& msg)
-{
-	lidar_data.mutex.lock();
-
-	auto& scan = msg->scan();
-
-	lidar_data.scan = scan;
-	lidar_data.angle_min = float(scan.angle_min());
-	lidar_data.angle_max = scan.angle_max();
-	lidar_data.angle_increment = float(scan.angle_step());
-	lidar_data.range_min = float(scan.range_min());
-	lidar_data.range_max = float(scan.range_max());
-
-	assert(lidar_data.nranges == lidar_data.nintensities);
-
-	lidar_data.sec = msg->time().sec();
-	lidar_data.nsec = msg->time().nsec();
-	lidar_data.nranges = scan.ranges_size();
-	lidar_data.nintensities = scan.intensities_size();
-
-	lidar_data.mutex.unlock();
+{	
+	// populate lidar data
+	// guarded by mutex internally
+	lidar_data.set(msg);
 }
 
 void
@@ -82,9 +66,9 @@ core::callback_camera(ConstImageStampedPtr& msg)
 {
 	camera_data.mutex.lock();
 
-	camera_data.width  = msg->image().width();
-	camera_data.height = msg->image().height();
-	camera_data.data   = msg->image().data().c_str();
+	camera_data.img_width  = msg->image().width();
+	camera_data.img_height = msg->image().height();
+	camera_data.data       = msg->image().data().c_str();
 
 	camera_data.mutex.unlock();
 }
@@ -100,14 +84,14 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 		{
 			pose_data.mutex.lock();
 
-			pose_data.position.x = pose.position().x();
-			pose_data.position.y = pose.position().y();
-			pose_data.position.z = pose.position().z();
+			pose_data.pos.x = pose.position().x();
+			pose_data.pos.y = pose.position().y();
+			pose_data.pos.z = pose.position().z();
 
-			pose_data.orientation.w = pose.orientation().w();
-			pose_data.orientation.x = pose.orientation().x();
-			pose_data.orientation.y = pose.orientation().y();
-			pose_data.orientation.z = pose.orientation().z();
+			pose_data.orient.w = pose.orientation().w();
+			pose_data.orient.x = pose.orientation().x();
+			pose_data.orient.y = pose.orientation().y();
+			pose_data.orient.z = pose.orientation().z();
 
 			pose_data.mutex.unlock();
 		}
@@ -175,10 +159,10 @@ core::run()
 		if (cv::waitKey(1) == 27) break;
 
 		// show lidar outout
-		cv::imshow(WNDW_LIDAR, lidar_data.get_img_safe());
+		cv::imshow(WNDW_LIDAR, lidar_data.get_img());
 		
 		// show camera output
-		cv::imshow(WNDW_CAMERA, camera_data.get_img_safe());		
+		cv::imshow(WNDW_CAMERA, camera_data.get_img());		
 
 		// run fuzzy lite controller
 		core::flctrl();
@@ -205,15 +189,9 @@ core::publish_velcmd()
 void
 core::flctrl()
 {
-	// process data
-	lidar_data.mutex.lock();
 
 	// extract dist and dir of nearest obstacle
-	;
-
-	std::cout << lidar_data.nranges << std::endl;
-
-	lidar_data.mutex.unlock();
+	std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
 
 	// select appropriate fuzzy controller
 	//if (core::state == simple_nav) flctrl_simple_nav();
