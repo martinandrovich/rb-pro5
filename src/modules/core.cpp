@@ -23,7 +23,7 @@ namespace core
 	camera_t camera_data;
 	pose_t pose_data;
 	vel_t vel_data = { 0.f, 0.f };
-	pos_t goal = { 5.f, 0.f, 0.f };
+	pos_t goal = { 3.f, 3.f, 0.f };
 
 	ctrl_state_t state = ctrl_state_t::simple_nav;
 
