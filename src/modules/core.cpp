@@ -297,9 +297,4 @@ core::flctr_goal_nav(pos_t& goal)
 	// extract outputs
 	vel_data.trans = (float)robot_speed->getValue();
 	vel_data.ang = (float)robot_dir->getValue();
-
-	// log data
-	std::cout << "position: " << pose_data.pos << std::endl;
-	std::cout << "goal dir: " << dir << " | goal dist: " << dist << std::endl;
-	std::cout << "vel: " << vel_data << std::endl;
 }
