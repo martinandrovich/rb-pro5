@@ -9,7 +9,6 @@ namespace core
 
 	bool initialized = false;
 
-	std::mutex cv_mutex;
 	gazebo::transport::NodePtr node;
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::SubscriberPtr sub_camera;
@@ -29,6 +28,9 @@ namespace core
 	ctrl_state_t state = ctrl_state_t::simple_nav;
 
 	// private methods
+
+	void
+	debug_wndw();
 	
 	void
 	callback_lidar(ConstLaserScanStampedPtr& msg);
@@ -56,6 +58,42 @@ namespace core
 // --------------------------------------------------------------------------------
 // private method defintions for ::core
 // --------------------------------------------------------------------------------
+
+void
+core::debug_wndw()
+{
+	
+	static cv::Mat img_debug = cv::Mat(WNDW_DEBUG_H, WNDW_DEBUG_W, CV_8UC3);
+	
+	// settings
+	auto margin_l   = 10;
+	auto line_h     = 25;
+	auto char_w     = 0.f;
+	auto font_size  = .6f;
+	auto font_color = cv::Scalar(255, 255, 255);
+
+	// make image black
+	img_debug.setTo(0);
+
+	// output and line
+	std::stringstream out;
+	std::string line;
+
+	// fill output
+	// needs work
+	out << "hello world sdkofsdj sifjsdfiodjsfsdif sdofj sof 12222" << std::endl;
+	out << "hello world" << std::endl;
+
+	// put lines of text onto image
+	for (int i = 1; std::getline(out, line); i++)
+		cv::putText(img_debug, line, cv::Point(margin_l, line_h * i), CV_FONT_HERSHEY_SIMPLEX, font_size, font_color);
+
+	// check if window should be resized
+	;
+	
+	// draw image
+	cv::imshow(WNDW_DEBUG, img_debug);
+}
 
 void
 core::callback_lidar(ConstLaserScanStampedPtr& msg)
@@ -166,7 +204,10 @@ core::run()
 		cv::imshow(WNDW_LIDAR, lidar_data.get_img());
 		
 		// show camera output
-		cv::imshow(WNDW_CAMERA, camera_data.get_img());		
+		cv::imshow(WNDW_CAMERA, camera_data.get_img());	
+
+		// show debug information
+		core::debug_wndw();	
 
 		// run fuzzy logic controller
 		core::flctrl();
@@ -194,7 +235,7 @@ void
 core::flctrl()
 {
 	// extract dist and  of nearest obstacle
-	//std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
+	lidar_data.get_nearest_obs(pose_data.pos);
 
 	// select appropriate fuzzy controller
 	if (core::state == simple_nav) flctr_goal_nav(core::goal);
@@ -226,7 +267,7 @@ core::flctrl_obs_avoid()
 
 	// export outputs
 	core::vel_data.trans = rob_veldir->getValue();
-	core::vel_data.ang_vel = rob_velrot->getValue();
+	core::vel_data.ang = rob_velrot->getValue();
 }
 
 void
@@ -256,7 +297,7 @@ core::flctr_goal_nav(pos_t& goal)
 	
 	// extract outputs
 	vel_data.trans = (float)robot_speed->getValue();
-	vel_data.ang_vel = (float)robot_dir->getValue();
+	vel_data.ang = (float)robot_dir->getValue();
 
 	// log data
 	std::cout << "position: " << pose_data.pos << std::endl;

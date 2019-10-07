@@ -25,6 +25,10 @@ namespace core
 
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
+	const std::string WNDW_DEBUG  = "debug";
+
+	const auto WNDW_DEBUG_H = 400;
+	const auto WNDW_DEBUG_W = 700;
 
 	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(50);
 
@@ -69,14 +73,14 @@ namespace core
 	struct vel_t
 	{
 		float trans;
-		float ang_vel;
+		float ang;
 
-		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang_vel); }
+		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang); }
 
 		friend std::ostream&
 		operator << (std::ostream& out, const vel_t& obj)
 		{
-			return out << "trans: " << obj.trans << " | ang: " << obj.ang_vel;
+			return out << "trans: " << obj.trans << " | ang: " << obj.ang;
 		}
 	};
 
@@ -201,11 +205,11 @@ namespace core
 		std::vector<ray_t>
 		get_vec_rays()
 		{
-			mutex.lock(); // CRITICAL SECTION BEGIN
-			auto vec_rays_copy = vec_rays;
-			mutex.unlock(); // CRITICAL SECTION END
+			// scope based mutex; unlocks when in goes out of scope
+			std::lock_guard<std::mutex> lock(this->mutex);
 
-			return std::move(vec_rays_copy);
+			// return copy
+			return vec_rays; 
 		}
 
 		std::vector<obs_t>
@@ -231,12 +235,12 @@ namespace core
 			return std::move(vec_obs);
 		}
 
-		inline obs_t&
+		inline obs_t
 		get_nearest_obs(pos_t& robot_pos)
 		{
 			auto vec_obs = get_vec_obs(robot_pos);
 
-			assert(vec_obs.size() != 0);
+			if (vec_obs.size() == 0) return obs_t();
 			
 			nearest_obs =  *std::min_element(vec_obs.begin(), vec_obs.end(), [](auto& a, auto& b){
 				return a.dist < b.dist;
