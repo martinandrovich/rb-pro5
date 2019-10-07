@@ -26,7 +26,7 @@ namespace core
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
 
-	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(10);
+	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(50);
 
 	// enumerations
 
@@ -87,8 +87,19 @@ namespace core
 		pos_t pos;
 		orient_t orient;
 
-		float dir(const pos_t& other) { this->mutex.lock(); float dir = atan2(other.y - this->pos.y, other.x - this->pos.x); this->mutex.unlock(); return dir;  }
-		float dist(const pos_t& other) {this ->mutex.lock(); float dist = sqrt( pow(other.y - this->pos.y, 2) + pow( other.x - this->pos.x, 2)); this->mutex.unlock(); return dist; }
+		float dir(const pos_t& other) 
+		{
+			std::lock_guard<std::mutex> lock(this->mutex); 		
+			float dir = atan2(other.y - this->pos.y, other.x - this->pos.x); 
+			float dif_in_orientation =  dir - this->orient.z;
+			return dif_in_orientation;  
+		}
+		float dist(const pos_t& other) 
+		{
+			std::lock_guard<std::mutex> lock(this->mutex); 	 
+			float dist = sqrt(pow(other.y - this->pos.y, 2) + pow( other.x - this->pos.x, 2));			
+			return dist;
+		}
 
 		const pos_t& get_pos(){this->mutex.lock(); pos_t cpy = this->pos; this->mutex.unlock(); return std::move(cpy); }
 
