@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file; a full list
 #### Features and enhancements
 
 - Velocity command publisher `core::publish_velcmd()`
+- Rename of vel_t members [\#4]
 
 #### Bugfixes
 
@@ -96,6 +97,7 @@ A small paragraph about the major changes in this version could be written here;
 
 [\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
 [\#14]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#4]:   https://github.com/martinandrovich/rb-pro5/issues/4
 [\#3]:   https://github.com/martinandrovich/rb-pro5/issues/3
 [\#2]:   https://github.com/martinandrovich/rb-pro5/issues/2
 [\#1]:   https://github.com/martinandrovich/rb-pro5/issues/1
