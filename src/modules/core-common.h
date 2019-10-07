@@ -17,6 +17,43 @@
 
 namespace core 
 {
+	// prototypes
+	
+	constexpr size_t WNDW_ORIGIN[] = { 50, 50 };
+	constexpr auto   WNDW_MARGIN   = 20;
+
+	struct wndw_t
+	{
+		wndw_t(std::string name, size_t width, size_t height) : name(name), width(width), height(height)
+		{
+			if (handles == nullptr)
+				handles = new std::vector<wndw_t*>;
+
+			handles->push_back(this);
+		}
+
+		std::string name;
+		size_t width;
+		size_t height;
+
+		void
+		show(const cv::Mat& img) const { cv::imshow(this->name, img); }
+		
+		static void
+		align_windows()
+		{
+			size_t total_x = 0;
+			for (const auto& w : *handles)
+			{
+				cv::moveWindow(w->name, WNDW_ORIGIN[0] + total_x, WNDW_ORIGIN[1] );
+				total_x += (w->width + WNDW_MARGIN);
+			}
+		}
+
+	private:
+		static std::vector<wndw_t*>* handles;
+	};
+
 	// constants
 	
 	const std::string PATH_ROOT = "";
@@ -24,19 +61,17 @@ namespace core
 	const std::string PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 	const std::string PATH_FONT_CONSOLAS = PATH_ROOT + "assets/data/consolas.ttf";
 
-	const std::string WNDW_CAMERA = "camera";
-	const std::string WNDW_LIDAR  = "lidar";
-	const std::string WNDW_DEBUG  = "debug";
+	constexpr auto    RUN_FREQ_MS = std::chrono::milliseconds(10);
 
-	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(10);
-
-	// enumerations
-
-	enum ctrl_state_t
-	{
-		simple_nav,
-		obs_avoid
-	};
+	// const wndw_t      WNDW_DEBUG  = { "debug",  700, 400 };
+	// const wndw_t      WNDW_LIDAR  = { "lidar",  400, 400 };
+	// const wndw_t      WNDW_CAMERA = { "camera", 200, 200 };
+	
+	const std::string WNDW_CAMERA   = "camera";
+	const std::string WNDW_LIDAR    = "lidar";
+	const std::string WNDW_DEBUG    = "debug";
+	const auto		  WNDW_HANDLES  = { WNDW_DEBUG, WNDW_LIDAR, WNDW_CAMERA };
+	const size_t      WNDW_WIDTHS[] = { 700, 400, 200 };
 
 	// structures
 

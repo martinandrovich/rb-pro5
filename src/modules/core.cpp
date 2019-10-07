@@ -9,6 +9,8 @@ namespace core
 
 	bool initialized = false;
 
+	std::vector<wndw_t*>* wndw_t::handles = 0;
+
 	gazebo::transport::NodePtr node;
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::SubscriberPtr sub_camera;
@@ -31,6 +33,9 @@ namespace core
 
 	void
 	make_debug_data();
+
+	void
+	align_windows();
 	
 	void
 	callback_lidar(ConstLaserScanStampedPtr& msg);
@@ -67,6 +72,18 @@ core::make_debug_data()
 		<< std::setw(20) << "Position:"    << std::left << core::pose_data.pos << "\n"
 		<< std::setw(20) << "Orientation:" << std::left << core::pose_data.pos << "\n"
 		<< std::setw(20) << "Velocity:"    << std::left << core::vel_data << "\n";
+}
+
+void
+core::align_windows()
+{
+	// needs newer version of OpenCV to implement this method dynamically
+	size_t i = 0, total_x = 0;
+	for (const auto& wndw : WNDW_HANDLES)
+	{
+		cv::moveWindow(wndw, WNDW_ORIGIN[0] + total_x, WNDW_ORIGIN[1] );
+		total_x += (WNDW_WIDTHS[i++] + WNDW_MARGIN);
+	}
 }
 
 void
@@ -175,10 +192,12 @@ core::run()
 		if (cv::waitKey(1) == 27) break;
 
 		// show lidar outout
+		//WNDW_LIDAR.show(lidar_data.get_img());
 		cv::imshow(WNDW_LIDAR, lidar_data.get_img());
 		
 		// show camera output
-		cv::imshow(WNDW_CAMERA, camera_data.get_img());	
+		// WNDW_CAMERA.show(camera_data.get_img());
+		cv::imshow(WNDW_CAMERA, camera_data.get_img());
 
 		// run fuzzy logic controller
 		core::flctrl();
@@ -190,6 +209,10 @@ core::run()
 
 		// show debug information
 		debug::show(&core::make_debug_data);
+
+		// align windows
+		//wndw_t::align_windows();
+		core::align_windows();
 	}
 
 	// shutdown gazebo

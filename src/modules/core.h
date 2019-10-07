@@ -12,6 +12,7 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
 #include <fl/Headers.h>
 
 #include "core-common.h"
@@ -26,4 +27,10 @@ namespace core
 
 	void
 	run();
+
+	enum ctrl_state_t
+	{
+		simple_nav,
+		obs_avoid
+	};
 }
