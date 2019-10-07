@@ -40,13 +40,7 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [releases on this repository](https://github.com/martinandrovich/rb-pro5/releases). Furthermore, this [changelog](https://github.com/martinandrovich/rb-pro5/blob/master/CHANGELOG.md) documents the most relevant changes.
 
 ## License
 
@@ -56,6 +50,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 Thanks to the supervisors at Southern University of Danmark, particulary:
 
-* [Thomas F. Iversen](https://github.com/jakobwilm)
-* [Anders L. Christensen](https://github.com/jakobwilm)
+* Thomas F. Iversen
+* [Anders L. Christensen](http://home.iscte-iul.pt/~alcen/)
 * [Jakob Wilm](https://github.com/jakobwilm)
