@@ -67,7 +67,7 @@ namespace core
 inline void
 core::make_debug_data()
 {
-	debug::dout
+	debug::dout << std::left
 		<< std::setw(20) << "Goal:"        << std::left << core::goal << "\n"
 		<< std::setw(20) << "Position:"    << std::left << core::pose_data.pos << "\n"
 		<< std::setw(20) << "Orientation:" << std::left << core::pose_data.pos << "\n"

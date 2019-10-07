@@ -113,7 +113,8 @@ namespace core
 		friend std::ostream&
 		operator << (std::ostream& out, const vel_t& obj)
 		{
-			return out << "trans: " << obj.trans << " | ang: " << obj.ang;
+			//return out << "trans: " << obj.trans << " | ang: " << obj.ang;
+			return out << "x: " << obj.trans << " | w: " << obj.ang;
 		}
 	};
 

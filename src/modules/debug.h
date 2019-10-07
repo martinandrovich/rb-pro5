@@ -51,7 +51,8 @@ debug::show()
 	std::stringstream out;
 
 	// apply settings to debug stream
-	debug::dout.setf(std::ios::fixed, std::ios::floatfield);
+	//debug::dout.setf(std::ios::fixed, std::ios::floatfield);
+	debug::dout.flags(std::ios::showpos | std::ios::fixed);
 	debug::dout.precision(DOUT_PRECISION);
 
 	// fill with default data
