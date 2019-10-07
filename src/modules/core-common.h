@@ -71,12 +71,12 @@ namespace core
 		float trans;
 		float ang;
 
-		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang); }
+		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang_vel); }
 
 		friend std::ostream&
 		operator << (std::ostream& out, const vel_t& obj)
 		{
-			return out << "trans: " << obj.trans << " | ang: " << obj.ang;
+			return out << "trans: " << obj.trans << " | ang: " << obj.ang_vel;
 		}
 	};
 
@@ -190,11 +190,11 @@ namespace core
 		std::vector<ray_t>
 		get_vec_rays()
 		{
-			mutex.lock(); // CRITICAL SECTION BEGIN
-			auto vec_rays_copy = vec_rays;
-			mutex.unlock(); // CRITICAL SECTION END
+			// scope based mutex; unlocks when in goes out of scope
+			std::lock_guard<std::mutex> lock(this->mutex);
 
-			return std::move(vec_rays_copy);
+			// return copy
+			return vec_rays; 
 		}
 
 		std::vector<obs_t>

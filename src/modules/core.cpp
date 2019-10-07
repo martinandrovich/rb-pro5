@@ -194,7 +194,7 @@ void
 core::flctrl()
 {
 	// extract dist and  of nearest obstacle
-	//std::cout << lidar_data.get_nearest_obs(pose_data.pos) << std::endl;
+	lidar_data.get_nearest_obs(pose_data.pos);
 
 	// select appropriate fuzzy controller
 	if (core::state == simple_nav) flctr_goal_nav(core::goal);
