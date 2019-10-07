@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file; a full list
 #### Suggestions
 
 - Move all custom types into `modules/types/` with each type having own header [\#2]
+- Upgrade to OpenCV4 [\#10]
 
 #### Todos
 
@@ -98,6 +99,7 @@ A small paragraph about the major changes in this version could be written here;
 
 [\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
 [\#14]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#10]:  https://github.com/martinandrovich/rb-pro5/issues/10
 [\#8]:   https://github.com/martinandrovich/rb-pro5/issues/8
 [\#7]:   https://github.com/martinandrovich/rb-pro5/issues/7
 [\#6]:   https://github.com/martinandrovich/rb-pro5/issues/6
