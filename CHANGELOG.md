@@ -16,9 +16,8 @@ All notable changes to this project will be documented in this file; a full list
 
 #### Todos
 
-- Make all custom types (e.g. `camera_t`) atomic w/ `get()` and `set()` methods [\#3]
+- Make all custom types atomic with get() and get() methods [\#3]
 - Merge and refactor to `main.new.cpp` using `core.h` [\#6]
-- Add issues and milestones to GitHub + update changelog [\#1] ([androvich])
 - Fuzzy controller selector `core::flctrl()` [\#7]
 - Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` ([daniel])([androvich])
 - Goal navigation fuzzy controller `core::flctr_goal_navigator()` [\#8] ([slaxzer])
@@ -28,8 +27,9 @@ All notable changes to this project will be documented in this file; a full list
 #### Features and enhancements
 
 - Velocity command publisher `core::publish_velcmd()`
-- Rename of vel_t members [\#4]
+- Rename of vel_t members [\#4] ([slaxzer])
 - Debug window [\#5] ([androvich])
+- Add issues and milestones to GitHub + update changelog [\#1] ([androvich])
 
 #### Bugfixes
 
