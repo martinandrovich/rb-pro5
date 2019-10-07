@@ -226,7 +226,7 @@ core::flctrl_obs_avoid()
 
 	// export outputs
 	core::vel_data.trans = rob_veldir->getValue();
-	core::vel_data.ang_vel = rob_velrot->getValue();
+	core::vel_data.ang = rob_velrot->getValue();
 }
 
 void
@@ -256,7 +256,7 @@ core::flctr_goal_nav(pos_t& goal)
 	
 	// extract outputs
 	vel_data.trans = (float)robot_speed->getValue();
-	vel_data.ang_vel = (float)robot_dir->getValue();
+	vel_data.ang = (float)robot_dir->getValue();
 
 	// log data
 	std::cout << "position: " << pose_data.pos << std::endl;

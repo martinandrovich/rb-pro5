@@ -69,14 +69,14 @@ namespace core
 	struct vel_t
 	{
 		float trans;
-		float ang_vel;
+		float ang;
 
-		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang_vel); }
+		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang); }
 
 		friend std::ostream&
 		operator << (std::ostream& out, const vel_t& obj)
 		{
-			return out << "trans: " << obj.trans << " | ang: " << obj.ang_vel;
+			return out << "trans: " << obj.trans << " | ang: " << obj.ang;
 		}
 	};
 
