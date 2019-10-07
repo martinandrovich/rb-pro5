@@ -16,13 +16,12 @@ All notable changes to this project will be documented in this file; a full list
 
 #### Todos
 
-- Debug window [\#5] ([androvich])
 - Make all custom types (e.g. `camera_t`) atomic w/ `get()` and `set()` methods [\#3]
 - Merge and refactor to `main.new.cpp` using `core.h` [\#6]
 - Add issues and milestones to GitHub + update changelog [\#1] ([androvich])
 - Fuzzy controller selector `core::flctrl()` [\#7]
 - Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` ([daniel])([androvich])
-- Goal navigation fuzzy controller `core::flctr_goal_navigator()` ([slaxzer])
+- Goal navigation fuzzy controller `core::flctr_goal_navigator()` [\#8] ([slaxzer])
 - Write tests for dual fuzzy controller
 - Document dual fuzzy controller
 
@@ -30,6 +29,7 @@ All notable changes to this project will be documented in this file; a full list
 
 - Velocity command publisher `core::publish_velcmd()`
 - Rename of vel_t members [\#4]
+- Debug window [\#5] ([androvich])
 
 #### Bugfixes
 
@@ -98,6 +98,7 @@ A small paragraph about the major changes in this version could be written here;
 
 [\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
 [\#14]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#8]:   https://github.com/martinandrovich/rb-pro5/issues/8
 [\#7]:   https://github.com/martinandrovich/rb-pro5/issues/7
 [\#6]:   https://github.com/martinandrovich/rb-pro5/issues/6
 [\#5]:   https://github.com/martinandrovich/rb-pro5/issues/5
