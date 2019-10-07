@@ -30,7 +30,7 @@ namespace core
 	// private methods
 
 	void
-	debug_wndw();
+	make_debug_data();
 	
 	void
 	callback_lidar(ConstLaserScanStampedPtr& msg);
@@ -59,40 +59,14 @@ namespace core
 // private method defintions for ::core
 // --------------------------------------------------------------------------------
 
-void
-core::debug_wndw()
+inline void
+core::make_debug_data()
 {
-	
-	static cv::Mat img_debug = cv::Mat(WNDW_DEBUG_H, WNDW_DEBUG_W, CV_8UC3);
-	
-	// settings
-	auto margin_l   = 10;
-	auto line_h     = 25;
-	auto char_w     = 0.f;
-	auto font_size  = .6f;
-	auto font_color = cv::Scalar(255, 255, 255);
-
-	// make image black
-	img_debug.setTo(0);
-
-	// output and line
-	std::stringstream out;
-	std::string line;
-
-	// fill output
-	// needs work
-	out << "hello world sdkofsdj sifjsdfiodjsfsdif sdofj sof 12222" << std::endl;
-	out << "hello world" << std::endl;
-
-	// put lines of text onto image
-	for (int i = 1; std::getline(out, line); i++)
-		cv::putText(img_debug, line, cv::Point(margin_l, line_h * i), CV_FONT_HERSHEY_SIMPLEX, font_size, font_color);
-
-	// check if window should be resized
-	;
-	
-	// draw image
-	cv::imshow(WNDW_DEBUG, img_debug);
+	debug::dout
+		<< std::setw(20) << "Goal:"        << std::left << core::goal << "\n"
+		<< std::setw(20) << "Position:"    << std::left << core::pose_data.pos << "\n"
+		<< std::setw(20) << "Orientation:" << std::left << core::pose_data.pos << "\n"
+		<< std::setw(20) << "Velocity:"    << std::left << core::vel_data << "\n";
 }
 
 void
@@ -206,14 +180,16 @@ core::run()
 		// show camera output
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());	
 
-		// show debug information
-		core::debug_wndw();	
-
 		// run fuzzy logic controller
 		core::flctrl();
 
 		// publish velocity command
 		core::publish_velcmd();
+
+		debug::cout << "some more information\n";
+
+		// show debug information
+		debug::show(&core::make_debug_data);
 	}
 
 	// shutdown gazebo

@@ -22,13 +22,11 @@ namespace core
 	const std::string PATH_ROOT = "";
 	const std::string PATH_FUZZY_OBS_AVOID = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
 	const std::string PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
+	const std::string PATH_FONT_CONSOLAS = PATH_ROOT + "assets/data/consolas.ttf";
 
 	const std::string WNDW_CAMERA = "camera";
 	const std::string WNDW_LIDAR  = "lidar";
 	const std::string WNDW_DEBUG  = "debug";
-
-	const auto WNDW_DEBUG_H = 400;
-	const auto WNDW_DEBUG_W = 700;
 
 	constexpr auto RUN_FREQ_MS = std::chrono::milliseconds(10);
 

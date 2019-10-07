@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <ostream>
 #include <math.h>
 #include <thread>
 #include <chrono>
@@ -14,6 +15,7 @@
 #include <fl/Headers.h>
 
 #include "core-common.h"
+#include "debug.h"
 
 // public declarations for core
 
