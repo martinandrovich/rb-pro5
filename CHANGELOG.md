@@ -20,8 +20,8 @@ All notable changes to this project will be documented in this file; a full list
 - Make all custom types atomic with get() and get() methods [\#3]
 - Merge and refactor to `main.new.cpp` using `core.h` [\#6]
 - Fuzzy controller selector `core::flctrl()` [\#7]
-- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` ([daniel])([androvich])
-- Goal navigation fuzzy controller `core::flctr_goal_navigator()` [\#8] ([slaxzer])
+- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` [\#11] ([daniel])([androvich])
+- Goal navigation fuzzy controller `core::flctr_goal_nav()` [\#8] ([slaxzer])
 - Write tests for dual fuzzy controller
 - Document dual fuzzy controller
 
@@ -99,6 +99,7 @@ A small paragraph about the major changes in this version could be written here;
 
 [\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
 [\#14]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#11]:  https://github.com/martinandrovich/rb-pro5/issues/11
 [\#10]:  https://github.com/martinandrovich/rb-pro5/issues/10
 [\#8]:   https://github.com/martinandrovich/rb-pro5/issues/8
 [\#7]:   https://github.com/martinandrovich/rb-pro5/issues/7
