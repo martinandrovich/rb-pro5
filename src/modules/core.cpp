@@ -244,7 +244,7 @@ core::flctrl()
 	if (nearest_obs.dist < MAX_DIST_TO_OBSTACLE)
 	{
 		state = obs_avoid;
-		//flctrl_obs_avoid();
+		flctrl_obs_avoid();
 	}
 	else
 	{
@@ -265,8 +265,8 @@ core::flctrl_obs_avoid()
 	// variables (loaded once)
 	static fl::InputVariable*  obs_dir    = engine->getInputVariable("obs_dir");
 	static fl::InputVariable*  obs_dist   = engine->getInputVariable("obs_dist");
-	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("rob_veldir");
-	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("rob_velrot");
+	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("rob_vel");
+	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("rob_angvel");
 
 	// apply inputs
 	obs_dir->setValue(core::nearest_obs.dir);
@@ -276,8 +276,8 @@ core::flctrl_obs_avoid()
 	engine->process();
 
 	// export outputs
-	core::vel_data.trans = (float)rob_vel->getValue();
-	core::vel_data.ang   = (float)rob_angvel->getValue();
+	core::vel_data.trans = scaling_factor * (float)rob_vel->getValue();
+	core::vel_data.ang   = scaling_factor * (float)rob_angvel->getValue();
 }
 
 void
@@ -306,6 +306,6 @@ core::flctr_goal_nav(pos_t& goal)
 	engine->process();
 	
 	// extract outputs
-	vel_data.trans = core::scaling_factor * (float)robot_speed->getValue();
-	vel_data.ang   = core::scaling_factor * (float)robot_dir->getValue();
+	vel_data.trans = scaling_factor * (float)robot_speed->getValue();
+	vel_data.ang   = scaling_factor * (float)robot_dir->getValue();
 }
