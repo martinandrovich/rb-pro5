@@ -27,10 +27,4 @@ namespace core
 
 	void
 	run();
-
-	enum ctrl_state_t
-	{
-		simple_nav,
-		obs_avoid
-	};
 }

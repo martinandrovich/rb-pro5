@@ -17,43 +17,6 @@
 
 namespace core 
 {
-	// prototypes
-	
-	constexpr size_t WNDW_ORIGIN[] = { 50, 50 };
-	constexpr auto   WNDW_MARGIN   = 20;
-
-	struct wndw_t
-	{
-		wndw_t(std::string name, size_t width, size_t height) : name(name), width(width), height(height)
-		{
-			if (handles == nullptr)
-				handles = new std::vector<wndw_t*>;
-
-			handles->push_back(this);
-		}
-
-		std::string name;
-		size_t width;
-		size_t height;
-
-		void
-		show(const cv::Mat& img) const { cv::imshow(this->name, img); }
-		
-		static void
-		align_windows()
-		{
-			size_t total_x = 0;
-			for (const auto& w : *handles)
-			{
-				cv::moveWindow(w->name, WNDW_ORIGIN[0] + total_x, WNDW_ORIGIN[1] );
-				total_x += (w->width + WNDW_MARGIN);
-			}
-		}
-
-	private:
-		static std::vector<wndw_t*>* handles;
-	};
-
 	// constants
 	
 	const std::string PATH_ROOT = "";
@@ -62,16 +25,30 @@ namespace core
 	const std::string PATH_FONT_CONSOLAS = PATH_ROOT + "assets/data/consolas.ttf";
 
 	constexpr auto    RUN_FREQ_MS = std::chrono::milliseconds(10);
-
-	// const wndw_t      WNDW_DEBUG  = { "debug",  700, 400 };
-	// const wndw_t      WNDW_LIDAR  = { "lidar",  400, 400 };
-	// const wndw_t      WNDW_CAMERA = { "camera", 200, 200 };
 	
 	const std::string WNDW_CAMERA   = "camera";
 	const std::string WNDW_LIDAR    = "lidar";
 	const std::string WNDW_DEBUG    = "debug";
 	const auto		  WNDW_HANDLES  = { WNDW_DEBUG, WNDW_LIDAR, WNDW_CAMERA };
 	const size_t      WNDW_WIDTHS[] = { 700, 400, 200 };
+	constexpr size_t  WNDW_ORIGIN[] = { 50, 50 };
+	constexpr auto    WNDW_MARGIN   = 20;
+
+	constexpr auto    MAX_DIST_TO_OBSTACLE = 0.5f; // meters
+	
+	// enumerations
+
+	enum ctrl_state_t
+	{
+		goal_nav,
+		obs_avoid
+	};
+
+	constexpr std::string_view ctrl_state_names[] =
+	{
+		[goal_nav]   = "goal navigator",
+		[obs_avoid]  = "obstacle avoidance"
+	};
 
 	// structures
 
@@ -101,12 +78,18 @@ namespace core
 		{
 			return (lhs.w == rhs.w && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z);
 		}
+
+		friend std::ostream&
+		operator << (std::ostream& out, const orient_t& obj)
+		{
+			return out << "w: " << obj.w << "x: " << obj.x << " | y: " << obj.y << " | z: " << obj.z;
+		}
 	};
 
 	struct vel_t
 	{
-		float trans;
-		float ang;
+		float trans = 0.f;
+		float ang   = 0.f;
 
 		auto pose() { return ignition::math::Pose3d(this->trans, 0, 0, 0, 0, this->ang); }
 
@@ -174,7 +157,7 @@ namespace core
 		friend std::ostream&
 		operator << (std::ostream& out, const obs_t& obj)
 		{
-			return out << "dir: " << obj.dir << " | dist: " << obj.dist << " @ " << obj.pos;
+			return out << "a: " << obj.dir << " | d: " << obj.dist << " @ " << obj.pos;
 		}
 	};
 
