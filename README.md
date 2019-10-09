@@ -12,8 +12,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 This project is compiled using CMake and built with:
 
-* [OpenCV](https://opencv.org/) - used for computer vision
-* [Gazebo](http://gazebosim.org/) - used for simulation environment
+* [OpenCV 3.2](https://opencv.org/) - used for computer vision
+* [Gazebo 9](http://gazebosim.org/) - used for simulation environment
 * [FuzzyLite](https://fuzzylite.com/) - used for fuzzy control
 
 ### Installing
@@ -21,7 +21,8 @@ This project is compiled using CMake and built with:
 The dependencies can be installed on Linux (Ubuntu 18.04) with the following commands:
 
 ```bash
-sudo apt-get install libopenv-dev
+sudo apt-get install libopencv-dev
+sudo apt-get install libopencv-contrib-dev
 curl -sSL http://get.gazebosim.org | sh
 ```
 
