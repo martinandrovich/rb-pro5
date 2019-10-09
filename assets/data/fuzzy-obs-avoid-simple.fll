@@ -1,0 +1,55 @@
+#File: fuzzy-obs-avoid.fll
+Engine: fuzzy-obs-avoid
+
+InputVariable: obs_dir
+  enabled: true
+  range: -3.14 3.14
+  lock-range: false
+
+  term: left  Triangle  0.000  1.760  3.140
+  term: right Triangle -3.140 -1.760  0.000
+
+InputVariable: obs_dist
+  enabled: true
+  range: 0.00 10
+  lock-range: false
+
+  term: close Triangle  0.000  1.500  3.000  
+  term: far   Ramp      1.500  4.500  
+
+OutputVariable: rob_vel
+  enabled: true
+  range: -0.100 1.000
+  lock-range: false
+  aggregation: Maximum
+  defuzzifier: Centroid 1000
+  default: nan
+  lock-previous: false
+
+  term: stop  Triangle  -0.100  0.000  0.100
+  term: fast  Ramp       0.100  1.000
+
+OutputVariable: rob_angvel
+  enabled: true
+  range: -0.4 0.4
+  lock-range: false
+  aggregation: Maximum
+  defuzzifier: Centroid 100
+  default: nan
+  lock-previous: false
+
+  term: right  Triangle  0.000  0.300  0.400
+  term: left   Triangle -0.400 -0.300  0.000
+
+RuleBlock: mamdani
+  enabled: true
+  conjunction: Minimum
+  disjunction: none
+  implication: AlgebraicProduct
+  activation: General
+
+  rule: if obs_dir is right then rob_angvel is left
+  rule: if obs_dir is left  then rob_angvel is right
+
+  rule: if obs_dist is close then rob_vel is stop
+  rule: if obs_dist is far   then rob_vel is fast

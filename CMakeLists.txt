@@ -17,8 +17,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 include_directories(${PROJECT_SOURCE_DIR}/src/modules/)
 
 # executable
-#add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
-add_executable(${PROJECT_NAME} src/main.new.cpp ${SOURCES})
+add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 
 # dependencies
 

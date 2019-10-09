@@ -1,45 +1,55 @@
-#File: simpleNavigaor.fll
-Engine: simpleNavigaor
+#File: ObstacleAvoidance.fll
+Engine: ObstacleAvoidance
 
-InputVariable: obs_dir
+InputVariable: forward
   enabled: true
-  range: -3.14 3.14
+  range: 0.10 10
   lock-range: false
+  term: close Ramp      2.0 0.5
+  term: middle Triangle 0.5 2.0 4.0
+  term: far Ramp        2.0 4.0
 
-  term: left  Triangle  0.000  1.760  3.140
-  term: right Triangle -3.140 -1.760  0.000
-
-InputVariable: obs_dist
+InputVariable: right
   enabled: true
-  range: 0.00 10
+  range: 0.10 10
   lock-range: false
+  term: close Ramp      2.0 0.5
+  term: middle Triangle 0.5 2.0 4.0
+  term: far Ramp        2.0 4.0
 
-  term: close Triangle  0.000  1.500  3.000  
-  term: far   Ramp      1.500  4.500  
-
-OutputVariable: rob_vel
+InputVariable: left
   enabled: true
-  range: 0 1.000
+  range: 0.10 10
   lock-range: false
-  aggregation: Maximum
-  defuzzifier: Centroid 1000
-  default: nan
-  lock-previous: false
+  term: close Ramp      2.0 0.5
+  term: middle Triangle 0.5 2.0 4.0
+  term: far Ramp        2.0 4.0
 
-  term: slow  Triangle   0.000  0.100  0.200 
-  term: fast  Triangle   0.100  0.200  0.500
-
-OutputVariable: rob_angvel
+OutputVariable: omega
   enabled: true
-  range: -0.4 0.4
+  range: -0.6 0.6
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
+  term: vleft  Triangle    -0.2 -0.4 -0.6
+  term: left  Triangle     0.0 -0.2 -0.4
+  term: forward Triangle  -0.2 0.0 0.2
+  term: right Triangle     0.0 0.2 0.4
+  term: vright Triangle    0.2 0.4 0.6
 
-  term: right  Triangle  0.000  0.300  0.400
-  term: left   Triangle -0.400 -0.300  0.000
+OutputVariable: velocity
+  enabled: true
+  range: -0.600 1.200
+  lock-range: false
+  aggregation: Maximum
+  defuzzifier: Centroid 100
+  default: nan
+  lock-previous: false
+  term: stop Triangle   -0.6 0.0 0.6
+  term: normal Triangle 0.0 0.6 1.2
+  term: fast Ramp       0.6 1.2
 
 RuleBlock: mamdani
   enabled: true
@@ -48,12 +58,38 @@ RuleBlock: mamdani
   implication: AlgebraicProduct
   activation: General
 
-  rule: if obs_dir is right then rob_angvel is left
-  rule: if obs_dir is left  then rob_angvel is right
+  rule: if forward is close and left is close and right is close then omega is vright and velocity is stop
+  rule: if forward is close and left is close and right is middle then omega is vright and velocity is stop
+  rule: if forward is close and left is close and right is far then omega is vright and velocity is stop
 
-  rule: if obs_dist is close then rob_vel is slow
-  rule: if obs_dist is far   then rob_vel is fast
+  rule: if forward is close and left is middle and right is close then omega is vright and velocity is stop
+  rule: if forward is close and left is middle and right is middle then omega is vright and velocity is stop
+  rule: if forward is close and left is middle and right is far then omega is vright and velocity is stop
 
+  rule: if forward is close and left is far and right is close then omega is vright and velocity is stop
+  rule: if forward is close and left is far and right is middle then omega is vright and velocity is stop
+  rule: if forward is close and left is far and right is far then omega is vright and velocity is stop
 
+  rule: if forward is middle and left is close and right is close then omega is forward and velocity is normal
+  rule: if forward is middle and left is close and right is middle then omega is forward and velocity is normal
+  rule: if forward is middle and left is close and right is far then omega is forward and velocity is normal
 
+  rule: if forward is middle and left is middle and right is close then omega is forward and velocity is normal
+  rule: if forward is middle and left is middle and right is middle then omega is forward and velocity is normal
+  rule: if forward is middle and left is middle and right is far then omega is forward and velocity is normal
 
+  rule: if forward is middle and left is far and right is close then omega is forward and velocity is normal
+  rule: if forward is middle and left is far and right is middle then omega is forward and velocity is normal
+  rule: if forward is middle and left is far and right is far then omega is forward and velocity is normal
+
+  rule: if forward is far and left is close and right is close then omega is forward and velocity is fast
+  rule: if forward is far and left is close and right is middle then omega is forward and velocity is fast
+  rule: if forward is far and left is close and right is far then omega is forward and velocity is fast
+
+  rule: if forward is far and left is middle and right is close then omega is forward and velocity is fast
+  rule: if forward is far and left is middle and right is middle then omega is forward and velocity is fast
+  rule: if forward is far and left is middle and right is far then omega is forward and velocity is fast
+
+  rule: if forward is far and left is far and right is close then omega is forward and velocity is fast
+  rule: if forward is far and left is far and right is middle then omega is forward and velocity is fast
+  rule: if forward is far and left is far and right is far then omega is forward and velocity is fast

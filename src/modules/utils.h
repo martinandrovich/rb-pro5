@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <filesystem>
 
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>

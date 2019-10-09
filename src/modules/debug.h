@@ -64,8 +64,8 @@ debug::show()
 	out << debug::cout.str();
 
 	// clear global stream for next iteration
-	debug::cout.str("");
-	debug::dout.str("");
+	debug::cout.str(""); debug::cout.clear();
+	debug::dout.str(""); debug::dout.clear();
 
 	// put lines of text onto image
 	for (auto [i, line] = std::tuple{ 1, std::string() }; std::getline(out, line); i++)

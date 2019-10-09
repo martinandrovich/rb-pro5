@@ -10,8 +10,6 @@ namespace core
 	bool initialized = false;
 	ctrl_state_t state;
 
-	float scaling_factor = 0.10f;
-
 	gazebo::transport::NodePtr node;
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::SubscriberPtr sub_camera;
@@ -20,12 +18,12 @@ namespace core
 	gazebo::transport::PublisherPtr pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
-	lidar_t  lidar_data;
-	camera_t camera_data;
-	pose_t   pose_data;
-	vel_t    vel_data;
-	pos_t    goal = { 3.f, 3.f, 0.f };
-	obs_t    nearest_obs;
+	lidar_t    lidar_data;
+	camera_t   camera_data;
+	pose_t     pose_data;
+	vel_t      vel_data;
+	pos_t      goal;
+	obs_list_t nearest_obs;
 
 	// private methods
 
@@ -48,13 +46,16 @@ namespace core
 	publish_velcmd();
 
 	void
-	flctrl();
+	controller();
+
+	void
+	flctrl_obs_avoid(obs_list_t& obs_list, vel_t& vel_cmd);
+
+	void
+	flctrl_obs_avoid_OLD();
 
 	void 
 	flctr_goal_nav(pos_t& goal);
-
-	void
-	flctrl_obs_avoid();
 
 }
 
@@ -74,8 +75,8 @@ core::make_debug_data()
 		<< std::setw(WIDTH) << "Velocity:"          << std::left << core::vel_data << "\n"
 		<< "\n"
 		<< std::setw(WIDTH) << "Goal:"              << std::left << core::goal << "\n"
-		<< std::setw(WIDTH) << "Nearest obstacle:"  << std::left << core::nearest_obs << "\n"
-		<< std::flush;
+		<< std::setw(WIDTH) << "Nearest obstacle:"  << std::left << nearest_obs["any"] << "\n"
+		<< "";
 }
 
 void
@@ -173,6 +174,9 @@ core::init(int argc, char** argv)
 	// set initial state
 	core::state = goal_nav;
 
+	// set goal
+	core::goal = { 3.f, 0.f, 0.f };
+
 	// set initialization status
 	core::initialized = true;
 }
@@ -201,13 +205,11 @@ core::run()
 		// show camera output
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());
 
-		// run fuzzy logic controller
-		core::flctrl();
+		// run main controller
+		core::controller();
 
 		// publish velocity command
 		core::publish_velcmd();
-
-		debug::cout << "some more information\n";
 
 		// show debug information
 		debug::show(&core::make_debug_data);
@@ -232,19 +234,20 @@ core::publish_velcmd()
 }
 
 void
-core::flctrl()
+core::controller()
 {
-	using namespace core;
-
-	// extract nearest obstacle
-	nearest_obs = lidar_data.get_nearest_obs(pose_data.pos);
+	// extract nearest obstacles
+	nearest_obs["center"] = lidar_data.get_nearest_obs(pose_data.pos, { 0.19, -0.19 });
+	nearest_obs["right"]  = lidar_data.get_nearest_obs(pose_data.pos, {-1.37, -1.76 });
+	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
+	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
 
 	// check distace no nearest obstacle
 	// select appropriate fuzzy controller
-	if (nearest_obs.dist < MAX_DIST_TO_OBSTACLE)
+	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE)
 	{
 		state = obs_avoid;
-		flctrl_obs_avoid();
+		flctrl_obs_avoid(nearest_obs, vel_data);
 	}
 	else
 	{
@@ -254,7 +257,7 @@ core::flctrl()
 }
 
 void
-core::flctrl_obs_avoid()
+core::flctrl_obs_avoid(obs_list_t& obs_list, vel_t& vel_cmd)
 {
 	// load engine and check for readiness
 	static fl::Engine* engine = fl::FllImporter().fromFile(PATH_FUZZY_OBS_AVOID);
@@ -263,21 +266,23 @@ core::flctrl_obs_avoid()
 		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
 
 	// variables (loaded once)
-	static fl::InputVariable*  obs_dir    = engine->getInputVariable("obs_dir");
-	static fl::InputVariable*  obs_dist   = engine->getInputVariable("obs_dist");
-	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("rob_vel");
-	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("rob_angvel");
+	static fl::InputVariable*  obs_c_dist = engine->getInputVariable("forward");
+	static fl::InputVariable*  obs_r_dist = engine->getInputVariable("right");
+	static fl::InputVariable*  obs_l_dist = engine->getInputVariable("left");
+	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("velocity");
+	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("omega");
 
 	// apply inputs
-	obs_dir->setValue(core::nearest_obs.dir);
-	obs_dist->setValue(core::nearest_obs.dist);
+	obs_c_dist->setValue(obs_list["center"].dist);
+	obs_r_dist->setValue(obs_list["right"].dist);
+	obs_l_dist->setValue(obs_list["left"].dist);
 
 	// process data
 	engine->process();
 
 	// export outputs
-	core::vel_data.trans = scaling_factor * (float)rob_vel->getValue();
-	core::vel_data.ang   = scaling_factor * (float)rob_angvel->getValue();
+	vel_cmd.trans = FUZZY_SCALING_FACTOR * (float)rob_vel->getValue();
+	vel_cmd.ang   = FUZZY_SCALING_FACTOR * (float)rob_angvel->getValue();
 }
 
 void
@@ -306,6 +311,33 @@ core::flctr_goal_nav(pos_t& goal)
 	engine->process();
 	
 	// extract outputs
-	vel_data.trans = scaling_factor * (float)robot_speed->getValue();
-	vel_data.ang   = scaling_factor * (float)robot_dir->getValue();
+	vel_data.trans = FUZZY_SCALING_FACTOR * (float)robot_speed->getValue();
+	vel_data.ang   = FUZZY_SCALING_FACTOR * (float)robot_dir->getValue();
+}
+
+void
+core::flctrl_obs_avoid_OLD()
+{
+	// load engine and check for readiness
+	static fl::Engine* engine = fl::FllImporter().fromFile(PATH_FUZZY_OBS_AVOID);
+
+	if (std::string status; not engine->isReady(&status))
+		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
+
+	// variables (loaded once)
+	static fl::InputVariable*  obs_dir    = engine->getInputVariable("obs_dir");
+	static fl::InputVariable*  obs_dist   = engine->getInputVariable("obs_dist");
+	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("rob_vel");
+	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("rob_angvel");
+
+	// apply inputs
+	obs_dir->setValue(nearest_obs["any"].dir);
+	obs_dist->setValue(nearest_obs["any"].dist);
+
+	// process data
+	engine->process();
+
+	// export outputs
+	core::vel_data.trans = FUZZY_SCALING_FACTOR * (float)rob_vel->getValue();
+	core::vel_data.ang   = FUZZY_SCALING_FACTOR * (float)rob_angvel->getValue();
 }

@@ -1,15 +1,18 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 #include <mutex>
 #include <iostream>
+#include <algorithm>
+#include <future>
+#include <map>
 
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 #include <opencv2/opencv.hpp>
 #include <fl/Headers.h>
-#include <cmath>
 
 // --------------------------------------------------------------------------------
 // common declarations for ::core
@@ -24,7 +27,13 @@ namespace core
 	const std::string PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 	const std::string PATH_FONT_CONSOLAS = PATH_ROOT + "assets/data/consolas.ttf";
 
-	constexpr auto    RUN_FREQ_MS = std::chrono::milliseconds(10);
+	constexpr auto    RUN_FREQ_MS = std::chrono::milliseconds(10); // ms
+	constexpr auto    MAX_DIST_TO_OBSTACLE = 0.2f; // meters
+	constexpr auto    LIDAR_RANGE_LIMIT = 10; // number of rays
+	constexpr auto    LIDAR_RANGE_F = { 0.19, -0.19 }; // radians
+	constexpr auto    LIDAR_RANGE_L = { 0.19, -0.19 }; // radians
+	constexpr auto    LIDAR_RANGE_R = { 0.19, -0.19 }; // radians
+	constexpr auto    FUZZY_SCALING_FACTOR = 0.50f;
 	
 	const std::string WNDW_CAMERA   = "camera";
 	const std::string WNDW_LIDAR    = "lidar";
@@ -34,8 +43,6 @@ namespace core
 	constexpr size_t  WNDW_ORIGIN[] = { 50, 50 };
 	constexpr auto    WNDW_MARGIN   = 20;
 
-	constexpr auto    MAX_DIST_TO_OBSTACLE = 0.5f; // meters
-	
 	// enumerations
 
 	enum ctrl_state_t
@@ -115,6 +122,7 @@ namespace core
 			float dif_in_orientation =  dir - this->orient.z;
 			return dif_in_orientation;  
 		}
+
 		float dist(const pos_t& other) 
 		{
 			std::lock_guard<std::mutex> lock(this->mutex); 	 
@@ -141,7 +149,7 @@ namespace core
 
 	struct obs_t
 	{
-		obs_t() : dir(0), dist(0), pos(pos_t{0, 0, 0}) {}
+		obs_t() : dir(INFINITY), dist(INFINITY), pos(pos_t{0, 0, 0}) {}
 		obs_t(float dir, float dist, pos_t pos) : dir(dir), dist(dist), pos(pos) {}
 
 		float dir;
@@ -165,9 +173,11 @@ namespace core
 	{	
 		std::mutex mutex;
 
-		struct ray_t
+		struct ray_t   { float angle, range; };
+		struct range_t
 		{
-			float angle, range;
+			float from,  to;
+			friend bool operator < (const range_t& lhs, const range_t& rhs) { return (lhs.from < rhs.from); }
 		};
 
 		float angle_min;
@@ -181,7 +191,7 @@ namespace core
 		int32_t num_ranges;
 		int32_t num_intensities;
 
-		int32_t range_limit = 50;
+		float px_per_m;
 
 		void
 		set(ConstLaserScanStampedPtr& msg)
@@ -202,13 +212,15 @@ namespace core
 			sec              = time.sec();
 			nsec             = time.nsec();
 
+			px_per_m = 200 / range_max;
+
 			// everything okay?
 			assert(num_ranges == num_intensities);
 
 			// popuate vector of rays
 			vec_rays.clear();
 
-			for (int i = 0 + range_limit; i < num_ranges - range_limit; i++)
+			for (int i = 0 + LIDAR_RANGE_LIMIT; i < num_ranges - LIDAR_RANGE_LIMIT; i++)
 			{
 				auto angle = angle_min + i * angle_increment;
 				auto range = std::min((float)scan.ranges(i), range_max);
@@ -266,6 +278,28 @@ namespace core
 			return nearest_obs;
 		}
 
+		inline obs_t
+		get_nearest_obs(pos_t& robot_pos, range_t range)
+		{
+			// get vector of obstacles
+			auto vec_obs = get_vec_obs(robot_pos);
+			if (vec_obs.size() == 0) return obs_t();
+
+			// find min element within given range
+			obs_t nearest_obs_min;
+
+			for (const auto& obs : vec_obs)
+			{
+				if (obs.dir < range.from && obs.dir > range.to && nearest_obs_min.dir > obs.dir)
+					nearest_obs_min = obs;
+			}
+
+			// store element into map
+			nearest_obs_range[range] = nearest_obs_min;
+
+			return nearest_obs_min;
+		}
+
 		const cv::Mat&
 		get_img()
 		{
@@ -278,8 +312,6 @@ namespace core
 
 			mutex.lock(); // CRITICAL SECTION BEGIN
 
-			float px_per_m = 200 / range_max;
-
 			// draw lidar data
 			for (const auto& ray : vec_rays)
 			{
@@ -289,6 +321,14 @@ namespace core
 				cv::Point2f pt_start(200.5f + range_min * px_per_m * std::cos(ray.angle), 200.5f - range_min * px_per_m * std::sin(ray.angle));
 				cv::Point2f pt_end(200.5f + ray.range * px_per_m * std::cos(ray.angle), 200.5f - ray.range * px_per_m * std::sin(ray.angle));
 				cv::line(img, pt_start * 16, pt_end * 16, line_color, 1, cv::LINE_AA, 4);
+			}
+
+			// draw (cached) obstacles
+			for (auto& [key, obs] : nearest_obs_range)
+			{
+				cv::Point2f pt_start(200.5f + range_min * px_per_m * std::cos(obs.dir), 200.5f - range_min * px_per_m * std::sin(obs.dir));
+				cv::Point2f pt_end(200.5f + obs.dist * px_per_m * std::cos(obs.dir), 200.5f - obs.dist * px_per_m * std::sin(obs.dir));
+				cv::line(img, pt_start * 16, pt_end * 16, cv::Scalar(0, 0, 255, 255), 1, cv::LINE_AA, 4);
 			}
 
 			// draw robot
@@ -310,6 +350,7 @@ namespace core
 
 		std::vector<ray_t> vec_rays;
 		obs_t nearest_obs;
+		std::map<range_t, obs_t> nearest_obs_range;
 	};
 
 	struct camera_t
@@ -348,5 +389,9 @@ namespace core
 	private:
 		cv::Mat img;
 	};
+
+
+	// redefinitions
 	
+	using obs_list_t = std::map<std::string, obs_t>;
 }
