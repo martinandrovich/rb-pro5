@@ -57,6 +57,9 @@ namespace core
 	void 
 	flctr_goal_nav(pos_t& goal);
 
+	void
+	stop_vehicle();
+
 }
 
 // --------------------------------------------------------------------------------
@@ -231,6 +234,9 @@ core::publish_velcmd()
 
 	// publish the velocity command
 	core::pub_velcmd->Publish(msg);
+
+	debug::cout << "yolodsfdsfdsf\n";
+	debug::dout << "yolo\n";
 }
 
 void
@@ -252,7 +258,13 @@ core::controller()
 	else
 	{
 		state = goal_nav;
-		flctr_goal_nav(goal);
+		//Stop fuzzy navigation if goal is "reached" 
+		if(pose_data.dist(goal) > 0.05) flctr_goal_nav(goal);
+		else
+		{
+			stop_vehicle();
+		}
+		
 	}
 }
 
@@ -340,4 +352,11 @@ core::flctrl_obs_avoid_OLD()
 	// export outputs
 	core::vel_data.trans = FUZZY_SCALING_FACTOR * (float)rob_vel->getValue();
 	core::vel_data.ang   = FUZZY_SCALING_FACTOR * (float)rob_angvel->getValue();
+}
+
+void
+core::stop_vehicle()
+{
+	core::vel_data.trans = 0.f;
+	core::vel_data.ang   = 0.f;
 }

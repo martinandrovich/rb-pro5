@@ -53,8 +53,8 @@ namespace core
 
 	constexpr std::string_view ctrl_state_names[] =
 	{
-		[goal_nav]   = "goal navigator",
-		[obs_avoid]  = "obstacle avoidance"
+		"goal navigator",
+		"obstacle avoidance"
 	};
 
 	// structures

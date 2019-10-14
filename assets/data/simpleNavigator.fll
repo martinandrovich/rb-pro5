@@ -5,7 +5,7 @@ InputVariable: goal_dist
   enabled: true
   range: 0.00 10
   lock-range: false
-  term: stop Ramp           0.100 -0.01
+  term: stop Ramp           0.100 0.01
   term: close Triangle      0.100 2.000 3.100  
   term: far Ramp            3.000 5.000  
 
