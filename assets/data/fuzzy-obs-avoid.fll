@@ -3,27 +3,24 @@ Engine: ObstacleAvoidance
 
 InputVariable: forward
   enabled: true
-  range: 0.10 10
+  range: 0.10 10.0
   lock-range: false
-  term: close Ramp      2.0 0.5
-  term: middle Triangle 0.5 2.0 4.0
-  term: far Ramp        2.0 4.0
+  term: close Ramp      1.0 0.5
+  term: middle Ramp     0.5 1.0
 
 InputVariable: right
   enabled: true
-  range: 0.10 10
+  range: 0.10 10.0
   lock-range: false
-  term: close Ramp      2.0 0.5
-  term: middle Triangle 0.5 2.0 4.0
-  term: far Ramp        2.0 4.0
+  term: close Ramp      1.0 0.5
+  term: middle Ramp     0.5 1.0
 
 InputVariable: left
   enabled: true
-  range: 0.10 10
+  range: 0.10 10.0
   lock-range: false
-  term: close Ramp      2.0 0.5
-  term: middle Triangle 0.5 2.0 4.0
-  term: far Ramp        2.0 4.0
+  term: close Ramp      1.0 0.5
+  term: middle Ramp     0.5 1.0
 
 OutputVariable: omega
   enabled: true
@@ -41,15 +38,14 @@ OutputVariable: omega
 
 OutputVariable: velocity
   enabled: true
-  range: -0.600 1.200
+  range: -0.3 0.6
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
-  term: stop Triangle   -0.6 0.0 0.6
-  term: normal Triangle 0.0 0.6 1.2
-  term: fast Ramp       0.6 1.2
+  term: stop Triangle   -0.15 0.0 0.15
+  term: slow Triangle 0.0 0.15 0.3
 
 RuleBlock: mamdani
   enabled: true
@@ -58,38 +54,14 @@ RuleBlock: mamdani
   implication: AlgebraicProduct
   activation: General
 
-  rule: if forward is close and left is close and right is close then omega is vright and velocity is stop
-  rule: if forward is close and left is close and right is middle then omega is vright and velocity is stop
-  rule: if forward is close and left is close and right is far then omega is vright and velocity is stop
+  rule: if forward is close and left is close and right is close then omega is     vright and velocity is stop
+  rule: if forward is close and left is close and right is middle then omega is    vright and velocity is stop
 
-  rule: if forward is close and left is middle and right is close then omega is vright and velocity is stop
-  rule: if forward is close and left is middle and right is middle then omega is vright and velocity is stop
-  rule: if forward is close and left is middle and right is far then omega is vright and velocity is stop
+  rule: if forward is close and left is middle and right is close then omega is     vleft and velocity is stop
+  rule: if forward is close and left is middle and right is middle then omega is   vright and velocity is stop
 
-  rule: if forward is close and left is far and right is close then omega is vright and velocity is stop
-  rule: if forward is close and left is far and right is middle then omega is vright and velocity is stop
-  rule: if forward is close and left is far and right is far then omega is vright and velocity is stop
+  rule: if forward is middle and left is close and right is close then omega is    vright and velocity is slow
+  rule: if forward is middle and left is close and right is middle then omega is   vright and velocity is slow
 
-  rule: if forward is middle and left is close and right is close then omega is forward and velocity is normal
-  rule: if forward is middle and left is close and right is middle then omega is forward and velocity is normal
-  rule: if forward is middle and left is close and right is far then omega is forward and velocity is normal
-
-  rule: if forward is middle and left is middle and right is close then omega is forward and velocity is normal
-  rule: if forward is middle and left is middle and right is middle then omega is forward and velocity is normal
-  rule: if forward is middle and left is middle and right is far then omega is forward and velocity is normal
-
-  rule: if forward is middle and left is far and right is close then omega is forward and velocity is normal
-  rule: if forward is middle and left is far and right is middle then omega is forward and velocity is normal
-  rule: if forward is middle and left is far and right is far then omega is forward and velocity is normal
-
-  rule: if forward is far and left is close and right is close then omega is forward and velocity is fast
-  rule: if forward is far and left is close and right is middle then omega is forward and velocity is fast
-  rule: if forward is far and left is close and right is far then omega is forward and velocity is fast
-
-  rule: if forward is far and left is middle and right is close then omega is forward and velocity is fast
-  rule: if forward is far and left is middle and right is middle then omega is forward and velocity is fast
-  rule: if forward is far and left is middle and right is far then omega is forward and velocity is fast
-
-  rule: if forward is far and left is far and right is close then omega is forward and velocity is fast
-  rule: if forward is far and left is far and right is middle then omega is forward and velocity is fast
-  rule: if forward is far and left is far and right is far then omega is forward and velocity is fast
+  rule: if forward is middle and left is middle and right is close then omega is    vleft and velocity is slow
+  rule: if forward is middle and left is middle and right is middle then omega is  vright and velocity is slow
