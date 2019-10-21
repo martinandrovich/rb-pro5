@@ -33,7 +33,7 @@ namespace core
 	//constexpr auto    LIDAR_RANGE_F = { 0.19, -0.19 }; // radians
 	//constexpr auto    LIDAR_RANGE_L = { 0.19, -0.19 }; // radians
 	//constexpr auto    LIDAR_RANGE_R = { 0.19, -0.19 }; // radians
-	constexpr auto    FUZZY_SCALING_FACTOR = 0.50f;
+	constexpr auto    FUZZY_SCALING_FACTOR = 0.1f;
 	
 	const std::string WNDW_CAMERA   = "camera";
 	const std::string WNDW_LIDAR    = "lidar";
@@ -134,7 +134,7 @@ namespace core
 
 		friend std::ostream&
 		operator << (std::ostream& out, const pose_t& obj)
-		{
+		{	
 			return out
 				<< std::setprecision(2) << std::fixed << std::setw(6)
 				<< obj.pos.x << std::setw(6)

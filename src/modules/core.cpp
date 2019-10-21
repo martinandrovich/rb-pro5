@@ -123,6 +123,8 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 	for (int i = 0; i < msg->pose_size(); i++)
 	{
 		auto& pose = msg->pose(i);
+		auto pose_euler = ignition::math::Quaternion<float>(pose.orientation().w(), pose.orientation().x(), pose.orientation().y(), pose.orientation().z() );
+		
 
 		if (pose.name() == "pioneer2dx")
 		{
@@ -135,7 +137,8 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 			pose_data.orient.w = pose.orientation().w();
 			pose_data.orient.x = pose.orientation().x();
 			pose_data.orient.y = pose.orientation().y();
-			pose_data.orient.z = pose.orientation().z();
+			pose_data.orient.z = pose_euler.Yaw(); //pose.orientation().z();
+			
 
 			pose_data.mutex.unlock();
 		}
@@ -181,7 +184,7 @@ core::init(int argc, char** argv)
 	core::state = goal_nav;
 
 	// set goal
-	core::goal = { 5.f, 0.f, 0.f };
+	core::goal = { 3.f, 0.f, 0.f };
 
 	// set initialization status
 	core::initialized = true;
@@ -255,20 +258,25 @@ core::controller()
 	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE)
 	{
 		state = obs_avoid;
-		flctrl_obs_avoid(nearest_obs, vel_data);
+		//flctrl_obs_avoid(nearest_obs, vel_data);
+		flctrl_obs_avoid_OLD();
 	}
 	else
 	{
 		state = goal_nav;
-		_test_orientation();
-		/*
-		//Stop fuzzy navigation if goal is "reached" 
+		//stop_vehicle();
+		//_test_orientation();
+		
+		//Stop fuzzy navigation if goal is "reached"
+		flctr_goal_nav(goal);
+		/* 
 		if(pose_data.dist(goal) > 0.05) flctr_goal_nav(goal);
 		else
 		{
 			stop_vehicle();
 		}
 		*/
+		
 		
 	}
 }
@@ -313,20 +321,24 @@ core::flctr_goal_nav(pos_t& goal)
 	
 	static fl::InputVariable* goal_dist    = engine->getInputVariable("goal_dist");
 	static fl::InputVariable* goal_dir 	   = engine->getInputVariable("goal_dir");
-	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("robot_dir");
+	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("ang_vel");
 	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");	
 
 	// get inputs
 	float dir = pose_data.dir(goal);
 	float dist = pose_data.dist(goal);
 
+
 	// feed input to the fl engine
 	goal_dir->setValue(dir);
 	goal_dist->setValue(dist);
-	
+	debug::cout << "dir_returned: "<< dir << std::endl;
+	debug::cout << "Current orientaiton: "<< pose_data.orient.z << std::endl;
+
 	// process inputs
 	engine->process();
 	
+	debug::cout << "Output_dir: "<< (float)robot_dir->getValue()<< std::endl;
 	// extract outputs
 	vel_data.trans = FUZZY_SCALING_FACTOR * (float)robot_speed->getValue();
 	vel_data.ang   = FUZZY_SCALING_FACTOR * (float)robot_dir->getValue();
@@ -336,7 +348,7 @@ void
 core::flctrl_obs_avoid_OLD()
 {
 	// load engine and check for readiness
-	static fl::Engine* engine = fl::FllImporter().fromFile(PATH_FUZZY_OBS_AVOID);
+	static fl::Engine* engine = fl::FllImporter().fromFile("assets/data/fuzzy-obs-avoid-simple.fll");
 
 	if (std::string status; not engine->isReady(&status))
 		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
@@ -372,7 +384,7 @@ core::_test_orientation()
 {
 	debug::cout << "Testing orientation...\n";
 	static float i = 0;	
-	i = 0.1;	
+	i = -0.3;	
 	core::vel_data.trans = 0.f;
 	core::vel_data.ang = i;		
 }
