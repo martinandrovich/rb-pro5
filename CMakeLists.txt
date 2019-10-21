@@ -32,9 +32,9 @@ include_directories(${GAZEBO_INCLUDE_DIRS} ${GAZEBO_PROTO_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${GAZEBO_LIBRARIES} ${GAZEBO_PROTO_LIBRARIES})
 
 ## python libs
-find_package(PythonLibs 2.7)
-include_directories(${PYTHON_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
+#find_package(PythonLibs 2.7)
+#include_directories(${PYTHON_INCLUDE_DIRS})
+#target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
 ## fuzzylite (static)
 include_directories(${PROJECT_SOURCE_DIR}/lib/fuzzylite/)

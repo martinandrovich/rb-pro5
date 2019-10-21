@@ -30,9 +30,9 @@ namespace core
 	constexpr auto    RUN_FREQ_MS = std::chrono::milliseconds(10); // ms
 	constexpr auto    MAX_DIST_TO_OBSTACLE = 0.2f; // meters
 	constexpr auto    LIDAR_RANGE_LIMIT = 10; // number of rays
-	constexpr auto    LIDAR_RANGE_F = { 0.19, -0.19 }; // radians
-	constexpr auto    LIDAR_RANGE_L = { 0.19, -0.19 }; // radians
-	constexpr auto    LIDAR_RANGE_R = { 0.19, -0.19 }; // radians
+	//constexpr auto    LIDAR_RANGE_F = { 0.19, -0.19 }; // radians
+	//constexpr auto    LIDAR_RANGE_L = { 0.19, -0.19 }; // radians
+	//constexpr auto    LIDAR_RANGE_R = { 0.19, -0.19 }; // radians
 	constexpr auto    FUZZY_SCALING_FACTOR = 0.50f;
 	
 	const std::string WNDW_CAMERA   = "camera";
