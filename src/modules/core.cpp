@@ -59,6 +59,9 @@ namespace core
 
 	void
 	stop_vehicle();
+	
+	void
+	_test_orientation();
 
 }
 
@@ -74,7 +77,7 @@ core::make_debug_data()
 	debug::dout << std::left      
 		<< std::setw(WIDTH) << "State:"             << std::left << core::ctrl_state_names[core::state] << "\n"
 		<< std::setw(WIDTH) << "Position:"          << std::left << core::pose_data.pos << "\n"
-		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.pos << "\n"
+		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.orient << "\n"
 		<< std::setw(WIDTH) << "Velocity:"          << std::left << core::vel_data << "\n"
 		<< "\n"
 		<< std::setw(WIDTH) << "Goal:"              << std::left << core::goal << "\n"
@@ -178,7 +181,7 @@ core::init(int argc, char** argv)
 	core::state = goal_nav;
 
 	// set goal
-	core::goal = { 3.f, 0.f, 0.f };
+	core::goal = { 5.f, 0.f, 0.f };
 
 	// set initialization status
 	core::initialized = true;
@@ -235,8 +238,7 @@ core::publish_velcmd()
 	// publish the velocity command
 	core::pub_velcmd->Publish(msg);
 
-	debug::cout << "yolodsfdsfdsf\n";
-	debug::dout << "yolo\n";
+	
 }
 
 void
@@ -258,12 +260,15 @@ core::controller()
 	else
 	{
 		state = goal_nav;
+		_test_orientation();
+		/*
 		//Stop fuzzy navigation if goal is "reached" 
 		if(pose_data.dist(goal) > 0.05) flctr_goal_nav(goal);
 		else
 		{
 			stop_vehicle();
 		}
+		*/
 		
 	}
 }
@@ -359,4 +364,15 @@ core::stop_vehicle()
 {
 	core::vel_data.trans = 0.f;
 	core::vel_data.ang   = 0.f;
+}
+
+
+void
+core::_test_orientation()
+{
+	debug::cout << "Testing orientation...\n";
+	static float i = 0;	
+	i = 0.1;	
+	core::vel_data.trans = 0.f;
+	core::vel_data.ang = i;		
 }
