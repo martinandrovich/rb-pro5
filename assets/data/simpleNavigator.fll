@@ -5,44 +5,44 @@ InputVariable: goal_dist
   enabled: true
   range: 0.00 10
   lock-range: false
-  term: stop Ramp           0.100 -0.01
-  term: close Triangle      0.100 2.000 3.100  
-  term: far Ramp            3.000 5.000  
+  term: stop Ramp           0.100 0.00
+  term: close Triangle      0.00 1.0 2.0 
+  term: far Ramp            1.0  2.0
 
 
 InputVariable: goal_dir
   enabled: true
   range: -3.14 3.14
   lock-range: false
-  term: positive Triangle -0.001 1.76  3.14
-  term: negative Triangle -3.14 -1.76  0.001
+  term: positive Ramp  0.00 3.14
+  term: zero Triangle -0.1 0.0 0.1
+  term: negative Ramp  0.00 -3.14
 
 
-OutputVariable: robot_dir
+OutputVariable: ang_vel
   enabled: true
-  range: -0.4 0.4
+  range: -0.8 0.8
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 100
   default: 0.0
   lock-previous: false
 
-  term: positive Triangle  0.099 0.200 0.400
+  term: positive Triangle  0.000 0.400 0.800
   term: zero Triangle     -0.100 0.000 0.100
-  term: negative Triangle -0.400 -0.200 -0.099 
+  term: negative Triangle -0.800 -0.400 -0.00 
 
 OutputVariable: robot_speed
   enabled: true
-  range: -0.2 1.900
+  range: -0.1 1.900
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 1000
   default: nan
   lock-previous: false
-  term: neg_slow Triangle -0.20 -0.10 0.00 
-  term: stop Triangle     0.000  0.050 0.100       
-  term: slow Triangle     0.100 0.300 0.500 
-  term: fast Triangle     0.500 1.200 1.900
+  term: stop Triangle    -0.100 0.000 0.100       
+  term: slow Triangle     0.000 0.200 0.400 
+  term: fast Triangle     0.200 1.000 1.800
   
 
 RuleBlock: mamdani
@@ -52,13 +52,10 @@ RuleBlock: mamdani
   implication: AlgebraicProduct
   activation: General
 
-  rule: if goal_dir is positive then robot_dir is negative
-  rule: if goal_dir is negative then robot_dir is positive
-  rule: if goal_dir is zero then robot_dir is zero
-  
-  #rule: if goal_dir is negative and goal_dist is stop then robot_speed is neg_slow
-  #rule: if goal_dir is positive and goal_dist is stop then robot_speed is neg_slow
-  
+  rule: if goal_dir is positive then ang_vel is negative
+  rule: if goal_dir is negative then ang_vel is positive
+  rule: if goal_dir is zero then ang_vel is zero
+    
   rule: if goal_dist is close then robot_speed is slow
   rule: if goal_dist is far then robot_speed is fast
   rule: if goal_dist is stop then robot_speed is stop
