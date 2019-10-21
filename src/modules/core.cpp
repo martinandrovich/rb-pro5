@@ -95,10 +95,7 @@ core::make_debug_data()
 		<< std::setw(WIDTH) << "State:"             << std::left << core::ctrl_state_names[core::state] << "\n"
 		<< std::setw(WIDTH) << "Position:"          << std::left << core::pose_data.pos << "\n"
 		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.orient << "\n"
-<<<<<<< HEAD
 		<< std::setw(WIDTH) << "Direction:"         << std::left << core::pose_data.orient.yaw << "\n"
-=======
->>>>>>> 7f36a47e1807e35db348d1d363948e138b778a39
 		<< std::setw(WIDTH) << "Velocity:"          << std::left << core::vel_data << "\n"
 		<< "\n"
 		<< std::setw(WIDTH) << "Goal:"              << std::left << core::goal << "\n"
@@ -137,6 +134,8 @@ core::callback_lidar(ConstLaserScanStampedPtr& msg)
 void
 core::callback_camera(ConstImageStampedPtr& msg)
 {
+	// populate camera data
+	// guarded by mutex internally
 	camera_data.set(msg);
 }
 
@@ -146,6 +145,9 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 	for (int i = 0; i < msg->pose_size(); i++)
 	{
 		auto& pose = msg->pose(i);	
+
+		// populate pose data
+		// guarded by mutex internally
 
 		if (pose.name() == "pioneer2dx")
 			pose_data.set(pose);
