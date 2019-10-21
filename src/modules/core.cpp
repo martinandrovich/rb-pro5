@@ -5,6 +5,20 @@
 namespace core
 {
 
+	// enumerations
+	
+	enum ctrl_state_t
+	{
+		goal_nav,
+		obs_avoid
+	};
+
+	constexpr std::string_view ctrl_state_names[] =
+	{
+		[goal_nav]   = "goal navigator",
+		[obs_avoid]  = "obstacle avoidance"
+	};
+
 	// private members
 
 	bool initialized = false;
@@ -29,6 +43,9 @@ namespace core
 
 	void
 	make_debug_data();
+
+	void
+	test_orientation();
 
 	void
 	align_windows();
@@ -71,12 +88,21 @@ core::make_debug_data()
 	debug::dout << std::left      
 		<< std::setw(WIDTH) << "State:"             << std::left << core::ctrl_state_names[core::state] << "\n"
 		<< std::setw(WIDTH) << "Position:"          << std::left << core::pose_data.pos << "\n"
-		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.pos << "\n"
+		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.orient << "\n"
+		<< std::setw(WIDTH) << "Direction:"         << std::left << core::pose_data.orient.yaw << "\n"
 		<< std::setw(WIDTH) << "Velocity:"          << std::left << core::vel_data << "\n"
 		<< "\n"
 		<< std::setw(WIDTH) << "Goal:"              << std::left << core::goal << "\n"
 		<< std::setw(WIDTH) << "Nearest obstacle:"  << std::left << nearest_obs["any"] << "\n"
 		<< "";
+}
+
+void
+core::test_orientation()
+{
+	debug::cout << "Testing orientation...\n";
+	core::vel_data.trans = 0.f;
+	core::vel_data.ang = 0.1f;
 }
 
 void
@@ -102,13 +128,7 @@ core::callback_lidar(ConstLaserScanStampedPtr& msg)
 void
 core::callback_camera(ConstImageStampedPtr& msg)
 {
-	camera_data.mutex.lock();
-
-	camera_data.img_width  = msg->image().width();
-	camera_data.img_height = msg->image().height();
-	camera_data.data       = msg->image().data().c_str();
-
-	camera_data.mutex.unlock();
+	camera_data.set(msg);
 }
 
 void
@@ -119,20 +139,7 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 		auto& pose = msg->pose(i);
 
 		if (pose.name() == "pioneer2dx")
-		{
-			pose_data.mutex.lock();
-
-			pose_data.pos.x = pose.position().x();
-			pose_data.pos.y = pose.position().y();
-			pose_data.pos.z = pose.position().z();
-
-			pose_data.orient.w = pose.orientation().w();
-			pose_data.orient.x = pose.orientation().x();
-			pose_data.orient.y = pose.orientation().y();
-			pose_data.orient.z = pose.orientation().z();
-
-			pose_data.mutex.unlock();
-		}
+			pose_data.set(pose);
 	}
 }
 
@@ -207,6 +214,7 @@ core::run()
 
 		// run main controller
 		core::controller();
+		//core::test_orientation();
 
 		// publish velocity command
 		core::publish_velcmd();
@@ -227,7 +235,7 @@ core::publish_velcmd()
 {	
 	// convert pose to message; using the global velocity info
 	static gazebo::msgs::Pose msg;
-	gazebo::msgs::Set(&msg, vel_data.pose());
+	gazebo::msgs::Set(&msg, vel_data.get_pose());
 
 	// publish the velocity command
 	core::pub_velcmd->Publish(msg);

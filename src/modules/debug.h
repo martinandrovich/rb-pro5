@@ -4,7 +4,7 @@
 #include <string>
 #include <opencv2/freetype.hpp>
 
-#include "core-common.h"
+#include "../constants.h"
 
 // interface
 
@@ -45,7 +45,7 @@ debug::show()
 	// font
 	// https://docs.opencv.org/4.1.1/d9/dfa/classcv_1_1freetype_1_1FreeType2.html
 	static cv::Ptr<cv::freetype::FreeType2> font = cv::freetype::createFreeType2();
-	font->loadFontData(core::PATH_FONT_CONSOLAS, 0);
+	font->loadFontData(PATH_FONT_CONSOLAS, 0);
 	
 	// create a stream for output
 	std::stringstream out;
