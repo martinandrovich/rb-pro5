@@ -243,7 +243,7 @@ void
 core::controller()
 {
 	// extract nearest obstacles
-	nearest_obs["center"] = lidar_data.get_nearest_obs(pose_data.pos, { 0.19, -0.19 });
+	nearest_obs["center"] = lidar_data.get_nearest_obs(pose_data.pos, { 0.38, -0.38 });
 	nearest_obs["right"]  = lidar_data.get_nearest_obs(pose_data.pos, {-1.37, -1.76 });
 	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
 	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
