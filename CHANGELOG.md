@@ -12,25 +12,18 @@ All notable changes to this project will be documented in this file; a full list
 
 #### Suggestions
 
-- Move all custom types into `modules/types/` with each type having own header [\#2]
 - Upgrade to OpenCV4 [\#10]
 
 #### Todos
 
 - Make all custom types atomic with get() and get() methods [\#3]
-- Merge and refactor to `main.new.cpp` using `core.h` [\#6]
-- Fuzzy controller selector `core::flctrl()` [\#7]
 - Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` [\#11] ([daniel])([androvich])
 - Goal navigation fuzzy controller `core::flctr_goal_nav()` [\#8] ([slaxzer])
-- Write tests for dual fuzzy controller
-- Document dual fuzzy controller
+- Document fuzzy controller
 
 #### Features and enhancements
 
-- Velocity command publisher `core::publish_velcmd()`
-- Rename of vel_t members [\#4] ([slaxzer])
-- Debug window [\#5] ([androvich])
-- Add issues and milestones to GitHub + update changelog [\#1] ([androvich])
+- Item.
 
 #### Bugfixes
 
@@ -39,6 +32,22 @@ All notable changes to this project will be documented in this file; a full list
 #### Closed issues
 
 - Item.
+
+<!-- ------------------------------------------------------------------------------------------------------------------------------ -->
+
+## [0.2.0] - 2019-10-22
+Refactor to new `core.h`, implement custom types in `modules/types/` (mostly atomic), add `debug.h` window + other minor improvements. Setup fuzzy control of goal navigation and local obstacle avoidance, located in `flctrl.h`.
+
+#### Features and enhancements
+
+- Merge and refactor to `main.new.cpp` using `core.h` [\#6]
+- Move all fuzzy control to separate file `flctrl.h` [\#14]
+- Move all custom types into `modules/types/` with each type having own header [\#2]
+- Fuzzy controller selector `core::flctrl()` [\#7]
+- Velocity command publisher `core::publish_velcmd()`
+- Rename of vel_t members [\#4] ([slaxzer])
+- Debug window [\#5] ([androvich])
+- Add issues and milestones to GitHub + update changelog [\#1] ([androvich])
 
 <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
 
@@ -88,6 +97,7 @@ A small paragraph about the major changes in this version could be written here;
 
 <!-- -- Releases ------------------------------------------------------------------------------------------------------------------ -->
 
+[0.2.0]: https://github.com/martinandrovich/rb-pro5/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/martinandrovich/rb-pro5/releases/tag/v0.1.0
 [0.0.0]: #changelog
 
@@ -98,7 +108,7 @@ A small paragraph about the major changes in this version could be written here;
 <!-- -- Issues -------------------------------------------------------------------------------------------------------------------- -->
 
 [\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
-[\#14]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#14]:  https://github.com/martinandrovich/rb-pro5/issues/14
 [\#11]:  https://github.com/martinandrovich/rb-pro5/issues/11
 [\#10]:  https://github.com/martinandrovich/rb-pro5/issues/10
 [\#8]:   https://github.com/martinandrovich/rb-pro5/issues/8
