@@ -5,14 +5,14 @@ InputVariable: goal_dist
   enabled: true
   range: 0.00 10
   lock-range: false
-  term: stop Ramp           0.100 0.00
-  term: close Triangle      0.00 1.0 2.0 
-  term: far Ramp            1.0  2.0
+  term: stop Ramp           0.1 0.05
+  term: close Triangle      0.1 1.0 1.9 
+  term: far Ramp            1.0 2.0
 
 
 InputVariable: goal_dir
   enabled: true
-  range: -3.14 3.14
+  range: -6.24 6.24
   lock-range: false
   term: positive Ramp  0.00 3.14
   term: zero Triangle -0.1 0.0 0.1
