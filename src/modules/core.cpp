@@ -66,15 +66,6 @@ namespace core
 	controller();
 
 	void
-	flctrl_obs_avoid(obs_list_t& obs_list, vel_t& vel_cmd);
-
-	void
-	flctrl_obs_avoid_OLD();
-
-	void 
-	flctr_goal_nav(pos_t& goal);
-
-	void
 	stop_vehicle();
 }
 
@@ -262,8 +253,8 @@ core::controller()
 	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE)
 	{
 		state = obs_avoid;
-		flctrl_obs_avoid(nearest_obs, vel_data);
-		//flctrl_obs_avoid_OLD();
+		flctrl::obs_avoid(nearest_obs, vel_data);
+		//flctrl::obs_avoid_simple(nearest_obs, vel_data);
 	}
 	else
 	{
@@ -272,110 +263,15 @@ core::controller()
 		//test_orientation();
 		
 		// stop fuzzy navigation if goal is "reached"
-		flctr_goal_nav(goal);
+		flctrl::goal_nav(pose_data, goal, vel_data);
 		/* 
-		if (pose_data.dist(goal) > 0.05) flctr_goal_nav(goal);
+		if (pose_data.dist(goal) > 0.05) flctrl::goal_nav(pose_data, goal, vel_data);;
 		else
 		{
 			stop_vehicle();
 		}
 		*/	
 	}
-}
-
-void
-core::flctrl_obs_avoid(obs_list_t& obs_list, vel_t& vel_cmd)
-{
-	// load engine and check for readiness
-	static fl::Engine* engine = fl::FllImporter().fromFile(PATH_FUZZY_OBS_AVOID);
-
-	if (std::string status; not engine->isReady(&status))
-		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
-
-	// variables (loaded once)
-	static fl::InputVariable*  obs_c_dist = engine->getInputVariable("forward");
-	static fl::InputVariable*  obs_r_dist = engine->getInputVariable("right");
-	static fl::InputVariable*  obs_l_dist = engine->getInputVariable("left");
-	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("velocity");
-	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("omega");
-
-	// apply inputs
-	obs_c_dist->setValue(obs_list["center"].dist);
-	obs_r_dist->setValue(obs_list["right"].dist);
-	obs_l_dist->setValue(obs_list["left"].dist);
-
-	// process data
-	engine->process();
-
-	// export outputs
-	vel_cmd.trans = FUZZY_SCALING_FACTOR * (float)rob_vel->getValue();
-	vel_cmd.ang   = FUZZY_SCALING_FACTOR * (float)rob_angvel->getValue();
-}
-
-void
-core::flctr_goal_nav(pos_t& goal)
-{
-	// load engine and check for readiness
-	static fl::Engine* engine = fl::FllImporter().fromFile(PATH_FUZZY_SIMPLE_NAVIGATOR);
-
-	if (std::string status; not engine->isReady(&status))
-		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
-	
-	static fl::InputVariable* goal_dist    = engine->getInputVariable("goal_dist");
-	static fl::InputVariable* goal_dir 	   = engine->getInputVariable("goal_dir");
-	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("ang_vel");
-	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");	
-
-	// get inputs
-	float dir = pose_data.dir(goal);
-	float dist = pose_data.dist(goal);
-
-
-	// feed input to the fl engine
-	goal_dir->setValue(dir);
-	goal_dist->setValue(dist);
-
-	// !!!! @Slaxzer
-	// should be udpated to use pose_data.orient.yaw
-	// !!!!
-
-	debug::cout << "dir_returned: "<< dir << std::endl;
-	debug::cout << "Current orientaiton: "<< pose_data.orient.z << std::endl;
-
-	// process inputs
-	engine->process();
-	
-	debug::cout << "Output_dir: "<< (float)robot_dir->getValue()<< std::endl;
-	// extract outputs
-	vel_data.trans = FUZZY_SCALING_FACTOR * (float)robot_speed->getValue();
-	vel_data.ang   = FUZZY_SCALING_FACTOR * (float)robot_dir->getValue();
-}
-
-void
-core::flctrl_obs_avoid_OLD()
-{
-	// load engine and check for readiness
-	static fl::Engine* engine = fl::FllImporter().fromFile("assets/data/fuzzy-obs-avoid-simple.fll");
-
-	if (std::string status; not engine->isReady(&status))
-		throw fl::Exception("Fuzzylite engine is not ready:n" + status, FL_AT);
-
-	// variables (loaded once)
-	static fl::InputVariable*  obs_dir    = engine->getInputVariable("obs_dir");
-	static fl::InputVariable*  obs_dist   = engine->getInputVariable("obs_dist");
-	static fl::OutputVariable* rob_vel    = engine->getOutputVariable("rob_vel");
-	static fl::OutputVariable* rob_angvel = engine->getOutputVariable("rob_angvel");
-
-	// apply inputs
-	obs_dir->setValue(nearest_obs["any"].dir);
-	obs_dist->setValue(nearest_obs["any"].dist);
-
-	// process data
-	engine->process();
-
-	// export outputs
-	core::vel_data.trans = FUZZY_SCALING_FACTOR * (float)rob_vel->getValue();
-	core::vel_data.ang   = FUZZY_SCALING_FACTOR * (float)rob_angvel->getValue();
 }
 
 void

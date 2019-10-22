@@ -19,11 +19,13 @@
 
 #include "../constants.h"
 
-#include "debug.h"
 #include "types/obs.h"
 #include "types/pose.h"
 #include "types/lidar.h"
 #include "types/camera.h"
+
+#include "debug.h"
+#include "flctrl.h"
 
 // public declarations for core
 
