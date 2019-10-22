@@ -76,10 +76,6 @@ namespace core
 
 	void
 	stop_vehicle();
-	
-	void
-	_test_orientation();
-
 }
 
 // --------------------------------------------------------------------------------
@@ -250,8 +246,6 @@ core::publish_velcmd()
 
 	// publish the velocity command
 	core::pub_velcmd->Publish(msg);
-
-	
 }
 
 void
@@ -277,10 +271,10 @@ core::controller()
 		//stop_vehicle();
 		//test_orientation();
 		
-		//Stop fuzzy navigation if goal is "reached"
+		// stop fuzzy navigation if goal is "reached"
 		flctr_goal_nav(goal);
 		/* 
-		if(pose_data.dist(goal) > 0.05) flctr_goal_nav(goal);
+		if (pose_data.dist(goal) > 0.05) flctr_goal_nav(goal);
 		else
 		{
 			stop_vehicle();
