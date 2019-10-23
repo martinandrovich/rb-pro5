@@ -255,6 +255,9 @@ pose_t::dir(const pos_t& other)
 
 	float dir = atan2(other.y - this->pos.y, other.x - this->pos.x); 
 	float dif_in_orientation =  dir - this->orient.z;
+	//float dif_in_orientation = dir - this->orient.yaw;
+	
+	//Needs to implement a smarter way of getting the "Best" dir when close to -pi and pi.
 
 	return dif_in_orientation;
 }
