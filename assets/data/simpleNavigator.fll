@@ -3,11 +3,11 @@ Engine: simpleNavigaor
 
 InputVariable: goal_dist
   enabled: true
-  range: 0.00 10
+  range: 0.00 50
   lock-range: false
-  term: stop Ramp           0.1 0.05
-  term: close Triangle      0.1 1.0 1.9 
-  term: far Ramp            1.0 2.0
+  term: stop Ramp           0.05 0.01
+  term: close Triangle      0.05 1.0 1.9 
+  term: far Ramp            1.5 3.0
 
 
 InputVariable: goal_dir
@@ -21,44 +21,44 @@ InputVariable: goal_dir
 
 OutputVariable: ang_vel
   enabled: true
-  range: -0.8 0.8
+  range: -1.6 1.6
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 100
-  default: 0.0
+  default: nan
   lock-previous: false
 
-  term: positive Triangle  0.000 0.400 0.800
-  term: zero Triangle     -0.100 0.000 0.100
-  term: negative Triangle -0.800 -0.400 -0.00 
+  term: positive Triangle  0.000 0.800 1.600
+  term: zero Triangle     -0.800 0.000 0.800
+  term: negative Triangle -1.600 -0.800 0.000 
 
 OutputVariable: robot_speed
   enabled: true
-  range: -0.1 1.900
+  range: -0.1 1.800
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 1000
   default: nan
   lock-previous: false
   term: stop Triangle    -0.100 0.000 0.100       
-  term: slow Triangle     0.000 0.200 0.400 
-  term: fast Triangle     0.200 1.000 1.800
+  term: slow Triangle     0.000 0.100 0.300 
+  term: fast Triangle     0.100 1.000 1.900
   
 
 RuleBlock: mamdani
   enabled: true
   conjunction: Minimum
-  disjunction: none
+  disjunction: Maximum
   implication: AlgebraicProduct
   activation: General
 
-  rule: if goal_dir is positive then ang_vel is negative
-  rule: if goal_dir is negative then ang_vel is positive
+  rule: if goal_dir is positive and goal_dist is not close then ang_vel is negative
+  rule: if goal_dir is negative and goal_dist is not close then ang_vel is positive
   rule: if goal_dir is zero then ang_vel is zero
     
-  rule: if goal_dist is close then robot_speed is slow
+  rule: if goal_dist is close then robot_speed is slow and ang_vel is zero
   rule: if goal_dist is far then robot_speed is fast
-  rule: if goal_dist is stop then robot_speed is stop
+  rule: if goal_dist is stop then robot_speed is stop and ang_vel is zero
 
 
 

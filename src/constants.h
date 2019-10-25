@@ -16,7 +16,7 @@ constexpr auto    LIDAR_RANGE_LIMIT = 10; // number of rays
 // constexpr auto    LIDAR_RANGE_F = { 0.19, -0.19 }; // rad
 // constexpr auto    LIDAR_RANGE_L = { 1.76,  1.37 }; // rad
 // constexpr auto    LIDAR_RANGE_R = {-1.37, -1.76 }; // rad
-constexpr auto    FUZZY_SCALING_FACTOR = 0.50f;
+constexpr auto    FUZZY_SCALING_FACTOR = 1.00f;
 
 constexpr auto    WNDW_CAMERA   = "camera";
 constexpr auto    WNDW_LIDAR    = "lidar";

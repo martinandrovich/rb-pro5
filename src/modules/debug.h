@@ -2,7 +2,9 @@
 
 #include <sstream>
 #include <string>
+#include <fstream>
 #include <opencv2/freetype.hpp>
+#include <filesystem>
 
 #include "../constants.h"
 
@@ -23,7 +25,7 @@ namespace debug
 
 	static std::stringstream cout;
 	static std::stringstream dout;
-	static std::string wndw_name = "debug";
+	static std::string wndw_name = "debug";	
 
 	void
 	show();
@@ -37,6 +39,11 @@ namespace debug
 inline void
 debug::show()
 {
+	// Dump stream
+	static bool init = true;
+	static std::ofstream dump_stream;
+	if(init) {dump_stream.open("Dump.txt"); init = false;}
+	else dump_stream.open("Dump.txt", std::ios_base::app);
 
 	// image
 	static cv::Mat img_debug = cv::Mat(WNDW_DEBUG_H, WNDW_DEBUG_W, CV_8UC3);
@@ -61,8 +68,10 @@ debug::show()
 	// append global data
 	out << debug::dout.str();
 	out << '\n';
-	out << debug::cout.str();
-
+	out << debug::cout.str();	
+	dump_stream << out.str() << "\n";
+	dump_stream.close();
+	
 	// clear global stream for next iteration
 	debug::cout.str(""); debug::cout.clear();
 	debug::dout.str(""); debug::dout.clear();
@@ -84,3 +93,4 @@ debug::show(void (*callback)())
 	// show window
 	debug::show();
 }
+

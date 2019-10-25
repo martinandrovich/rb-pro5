@@ -1,9 +1,10 @@
 # pragma once
-
 #include <mutex>
-
 #include <gazebo/msgs/msgs.hh>
 #include <opencv2/opencv.hpp>
+
+#include "pose.h"
+#include "obs.h"
 
 // --------------------------------------------------------------------------------
 // declarations for ::lidar_t

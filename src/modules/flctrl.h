@@ -5,6 +5,7 @@
 #include "../constants.h"
 #include "types/pose.h"
 #include "types/obs.h"
+#include <cmath>
 
 // --------------------------------------------------------------------------------
 // declarations for ::flctrl
@@ -20,6 +21,9 @@ namespace flctrl
 
 	void
 	obs_avoid_simple(obs_list_t& obs_list, vel_t& vel_cmd);
+	
+	static float 
+	_get_val(fl::OutputVariable* var);
 }
 
 // --------------------------------------------------------------------------------
@@ -43,21 +47,18 @@ flctrl::goal_nav(pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 	// get inputs
 	float dir  = pose.dir(goal);
 	float dist = pose.dist(goal);
-
+	
+	debug::dout << "Dir is: " << dir << " Dist is: " << dist << std::endl;
 	// feed input to the fl engine
 	goal_dir->setValue(dir);
 	goal_dist->setValue(dist);
-
-	// !!!! @Slaxzer
-	// should be udpated to use pose_data.orient.yaw
-	// !!!!
 
 	// process inputs
 	engine->process();
 	
 	// extract outputs
-	vel_cmd.trans = FUZZY_SCALING_FACTOR * (float)robot_speed->getValue();
-	vel_cmd.ang   = FUZZY_SCALING_FACTOR * (float)robot_dir->getValue();
+	vel_cmd.trans = FUZZY_SCALING_FACTOR * _get_val(robot_speed);
+	vel_cmd.ang   = FUZZY_SCALING_FACTOR * _get_val(robot_dir);	
 }
 
 inline void
@@ -114,4 +115,16 @@ flctrl::obs_avoid_simple(obs_list_t& obs_list, vel_t& vel_cmd)
 	// export outputs
 	vel_cmd.trans = FUZZY_SCALING_FACTOR * (float)rob_vel->getValue();
 	vel_cmd.ang   = FUZZY_SCALING_FACTOR * (float)rob_angvel->getValue();
+}
+
+static float 
+flctrl::_get_val(fl::OutputVariable* var)
+{
+	auto tmp = var->getValue();
+	if(std::isnan(tmp))
+	{
+		debug::dout << "#################### ERROR OCCURED #################### \n";		
+		debug::cout << "#################### ERROR OCCURED #################### \n";
+	}
+	return tmp;
 }

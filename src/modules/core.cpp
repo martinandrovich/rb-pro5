@@ -15,8 +15,8 @@ namespace core
 
 	constexpr std::string_view ctrl_state_names[] =
 	{
-		[goal_nav]   = "goal navigator",
-		[obs_avoid]  = "obstacle avoidance"
+		"goal navigator",
+		"obstacle avoidance"
 	};
 
 	// private members
@@ -88,6 +88,7 @@ core::make_debug_data()
 		<< std::setw(WIDTH) << "Goal:"              << std::left << core::goal << "\n"
 		<< std::setw(WIDTH) << "Nearest obstacle:"  << std::left << nearest_obs["any"] << "\n"
 		<< "";
+	
 }
 
 void
@@ -180,7 +181,7 @@ core::init(int argc, char** argv)
 	core::state = goal_nav;
 
 	// set goal
-	core::goal = { 3.f, 0.f, 0.f };
+	core::goal = { -5.f, 0.f, 0.f };
 
 	// set initialization status
 	core::initialized = true;
@@ -261,9 +262,10 @@ core::controller()
 		state = goal_nav;
 		//stop_vehicle();
 		//test_orientation();
-		
+		static pos_t origo = {0,0};
 		// stop fuzzy navigation if goal is "reached"
 		flctrl::goal_nav(pose_data, goal, vel_data);
+		if(pose_data.dist(goal) < 0.1 ) {std::swap(origo.x, goal.x); std::swap(origo.y, goal.y);}
 		/* 
 		if (pose_data.dist(goal) > 0.05) flctrl::goal_nav(pose_data, goal, vel_data);;
 		else

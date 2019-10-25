@@ -251,15 +251,27 @@ pose_t::get_quaternion()
 inline float
 pose_t::dir(const pos_t& other)
 {
-	std::lock_guard<std::mutex> lock(this->mutex); 		
+	
+	this->mutex.lock();
+	float theta_1 = atan2(other.y - this->pos.y, other.x - this->pos.x);
+	float theta_2 = this->orient.yaw; 	
+	this->mutex.unlock();
+	
+	float dif_theta = theta_1 - theta_2;
 
-	float dir = atan2(other.y - this->pos.y, other.x - this->pos.x); 
-	float dif_in_orientation =  dir - this->orient.z;
-	//float dif_in_orientation = dir - this->orient.yaw;
+	if(dif_theta > M_PI)
+	{
+		theta_2 += 2 * M_PI;
+	}
+	else 
+		if(dif_theta < -M_PI)
+		{
+			theta_1 += 2 * M_PI;
+		}
+	float shortest_dif = theta_1- theta_2;
 	
 	//Needs to implement a smarter way of getting the "Best" dir when close to -pi and pi.
-
-	return dif_in_orientation;
+	return shortest_dif;
 }
 
 inline float
