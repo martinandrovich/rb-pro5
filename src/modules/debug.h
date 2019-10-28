@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 #include <opencv2/freetype.hpp>
-#include <filesystem>
 
 #include "../constants.h"
 

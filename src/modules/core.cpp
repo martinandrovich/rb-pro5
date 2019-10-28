@@ -181,7 +181,7 @@ core::init(int argc, char** argv)
 	core::state = goal_nav;
 
 	// set goal
-	core::goal = { -5.f, 0.f, 0.f };
+	core::goal = { -10.f, 0.f, 0.f };
 
 	// set initialization status
 	core::initialized = true;
@@ -254,8 +254,8 @@ core::controller()
 	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE)
 	{
 		state = obs_avoid;
-		flctrl::obs_avoid(nearest_obs, vel_data);
-		//flctrl::obs_avoid_simple(nearest_obs, vel_data);
+		//flctrl::obs_avoid(nearest_obs, vel_data);
+		flctrl::obs_avoid_simple(nearest_obs, vel_data);
 	}
 	else
 	{
