@@ -1,0 +1,109 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+
+	<physics type="ode">
+		<real_time_factor>1</real_time_factor>
+		<real_time_update_rate>250</real_time_update_rate>
+		<max_step_size>0.004</max_step_size>
+		<ode>
+			<solver>
+				<iters>20</iters>
+			</solver>
+		</ode>
+	</physics>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!--
+    <include>
+      <uri>model://willowgarage</uri>
+    </include>
+	-->
+
+    <include>
+      <uri>model://bigworld</uri>
+    </include>
+
+    <!-- Pioneer2dx with camera and lidar -->
+    <model name="pioneer2dx">
+      <include>
+        <uri>model://pioneer2dx</uri>
+      </include>
+
+      <include>
+        <uri>model://hokuyo</uri>
+        <pose>0.2 0 .38 0 0 0</pose>
+      </include>
+
+      <include>
+        <uri>model://camera</uri>
+        <pose>0.2 0 .3 0 0 0</pose>
+      </include>
+
+      <joint name="camera_joint" type="revolute">
+        <parent>pioneer2dx::pioneer2dx::chassis</parent>
+        <child>pioneer2dx::camera::link</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+        </axis>
+      </joint>
+
+      <joint name="laser_joint" type="revolute">
+        <parent>pioneer2dx::pioneer2dx::chassis</parent>
+        <child>pioneer2dx::hokuyo::link</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+        </axis>
+      </joint>
+
+    </model>
+
+
+    <!-- Population of marbles -->
+    <population name="marble_population">
+      <model name="marble">
+        <include>
+          <static>true</static>
+          <uri>model://marble</uri>
+        </include>
+      </model>
+      <pose>0 0 0.5 0 0 0</pose>
+      <box>
+        <size>65 45 0.01</size>
+      </box>
+      <model_count>20</model_count>
+      <distribution>
+        <type>random</type>
+      </distribution>
+	</population>
+
+	<scene>
+		<grid>true</grid>
+		<origin_visual>true</origin_visual>
+  		<ambient>0.8 0.8 0.8 1.0</ambient>
+		<shadows>true</shadows>
+	</scene>
+
+    <gui>
+	  <camera name="user_camera">
+	    <pose>0 0 80 0 1.57 1.57</pose>
+	  </camera>
+    </gui>
+  </world>
+</sdf>

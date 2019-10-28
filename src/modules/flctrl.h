@@ -48,7 +48,9 @@ flctrl::goal_nav(pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 	float dir  = pose.dir(goal);
 	float dist = pose.dist(goal);
 	
+	// debug output
 	debug::dout << "Dir is: " << dir << " Dist is: " << dist << std::endl;
+
 	// feed input to the fl engine
 	goal_dir->setValue(dir);
 	goal_dist->setValue(dist);

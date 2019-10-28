@@ -221,15 +221,13 @@ pose_t::set(const gazebo::msgs::Pose& pose)
 {
 	this->mutex.lock(); // CRITICAL SECTION BEGIN
 
+	// set position
 	this->pos.x = pose.position().x();
 	this->pos.y = pose.position().y();
 	this->pos.z = pose.position().z();
 
+	// set orientation
 	this->orient.set(pose.orientation());
-	// this->orient.w = pose.orientation().w();
-	// this->orient.x = pose.orientation().x();
-	// this->orient.y = pose.orientation().y();
-	// this->orient.z = pose.orientation().z();
 
 	this->mutex.unlock(); // CRITICAL SECTION END
 }
@@ -252,26 +250,43 @@ inline float
 pose_t::dir(const pos_t& other)
 {
 	
-	this->mutex.lock();
-	float theta_1 = atan2(other.y - this->pos.y, other.x - this->pos.x);
-	float theta_2 = this->orient.yaw; 	
-	this->mutex.unlock();
-	
-	float dif_theta = theta_1 - theta_2;
+	this->mutex.lock(); // CRITICAL SECTION BEGIN
 
-	if(dif_theta > M_PI)
-	{
-		theta_2 += 2 * M_PI;
-	}
-	else 
-		if(dif_theta < -M_PI)
-		{
-			theta_1 += 2 * M_PI;
-		}
-	float shortest_dif = theta_1- theta_2;
+	float theta_goal = atan2(other.y - this->pos.y, other.x - this->pos.x);
+	float theta_self = this->orient.yaw; 	
+
+	this->mutex.unlock(); // CRITICAL SECTION END
 	
-	//Needs to implement a smarter way of getting the "Best" dir when close to -pi and pi.
-	return shortest_dif;
+	// calculate delta in theta with direction
+	// negative = ccw
+	float theta_diff = theta_goal - theta_self;
+
+	float theta_diff_org = theta_diff;
+	float theta_goal_org = theta_goal;
+	float theta_self_org = theta_self;
+
+	// theta difference must be relative to the gazebo frame and not exceed PI
+	// with 0 to PI in top plane and 0 to -PI in bottom plane
+	// e.g. if target is 3/4*PI and self is -3/4 PI, the result must be 
+	// diff = -3/4*PI - 3/4*PI = 6/4*PI (wrong) -> -1/2*PI (correct)
+
+	// modulate theta keeping signedness
+	auto theta_diff2 = fmod(theta_diff, (theta_diff > 0) ? M_PI : -M_PI);
+
+	if(theta_diff > M_PI)
+	{
+		theta_self += 2 * M_PI;
+	}
+	else if(theta_diff < -M_PI)
+	{
+		theta_goal += 2 * M_PI;
+	}
+
+	theta_diff = theta_goal - theta_self;
+
+	debug::cout << "goal: " << theta_goal_org << " | self: " << theta_self_org << " | original: " << theta_diff_org << " | ifs: " << theta_diff << " | mod: " << theta_diff2 << "\n";
+	
+	return theta_diff;
 }
 
 inline float
@@ -279,7 +294,7 @@ pose_t::dist(const pos_t& other)
 {
 	std::lock_guard<std::mutex> lock(this->mutex); 	 
 
-	float dist = sqrt(pow(other.y - this->pos.y, 2) + pow( other.x - this->pos.x, 2));			
+	float dist = sqrt(pow(other.y - this->pos.y, 2) + pow(other.x - this->pos.x, 2));			
 
 	return dist;
 }
