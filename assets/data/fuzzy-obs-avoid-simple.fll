@@ -6,10 +6,10 @@ InputVariable: obs_dir
   range: -3.14 3.14
   lock-range: false
 
-  term: farleft  Triangle  1.74532925199
-  term: left  Triangle  0.000  0.1  3.140
-  term: right Triangle -3.140 -0.1  0.05
-  term: farright  Triangle  0.000  0.1  3.140
+  term: farleft  Ramp 1.575 1.745 
+  term: left  Triangle  0.000  0.1  1.575
+  term: right Triangle -1.575 -0.1  0.05
+  term: farright  Ramp -1.575 -1.745 
 
 InputVariable: obs_dist
   enabled: true
@@ -41,6 +41,7 @@ OutputVariable: rob_angvel
   lock-previous: false
 
   term: right  Triangle  0.000  0.300  0.600
+  term: zero   Triangle  -0.3  0.000  0.3
   term: left   Triangle -0.600 -0.300  0.000
 
 RuleBlock: mamdani
@@ -52,6 +53,9 @@ RuleBlock: mamdani
 
   rule: if obs_dir is extremely right then rob_angvel is left
   rule: if obs_dir is extremely left  then rob_angvel is right
+
+  rule: if obs_dir is farleft  then rob_angvel is zero
+  rule: if obs_dir is farright then rob_angvel is zero
 
   rule: if obs_dist is close then rob_vel is stop
   rule: if obs_dist is far   then rob_vel is fast

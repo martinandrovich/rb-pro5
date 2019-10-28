@@ -251,8 +251,10 @@ core::controller()
 
 	// check distace no nearest obstacle
 	// select appropriate fuzzy controller
-	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE && ( nearest_obs["any"].dir < M_PI/1.8 && nearest_obs["any"].dir > -M_PI/1.8 ) )
+	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE )
 	{
+		// && ( nearest_obs["any"].dir < M_PI/1.8 && nearest_obs["any"].dir > -M_PI/1.8 )
+		
 		state = obs_avoid;
 		//flctrl::obs_avoid(nearest_obs, vel_data);
 		flctrl::obs_avoid_simple(nearest_obs, vel_data);
