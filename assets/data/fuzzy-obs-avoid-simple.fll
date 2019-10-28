@@ -6,16 +6,16 @@ InputVariable: obs_dir
   range: -3.14 3.14
   lock-range: false
 
-  term: left  Triangle  0.000  1.760  3.140
-  term: right Triangle -3.140 -1.760  0.000
+  term: left  Triangle  0.000  0.1  3.140
+  term: right Triangle -3.140 -0.1  0.05
 
 InputVariable: obs_dist
   enabled: true
   range: 0.00 10
   lock-range: false
 
-  term: close Triangle  0.000  1.500  3.000  
-  term: far   Ramp      1.500  4.500  
+  term: close Ramp      0.5    0.3   
+  term: far   Ramp      0.3    0.5  
 
 OutputVariable: rob_vel
   enabled: true
@@ -26,8 +26,8 @@ OutputVariable: rob_vel
   default: nan
   lock-previous: false
 
-  term: stop  Triangle  -0.100  0.000  0.100
-  term: fast  Ramp       0.100  1.000
+  term: stop  Triangle  -0.1  0.000  0.1
+  term: fast  Triangle  0.0  0.500 1.000
 
 OutputVariable: rob_angvel
   enabled: true
@@ -38,8 +38,8 @@ OutputVariable: rob_angvel
   default: nan
   lock-previous: false
 
-  term: right  Triangle  0.000  0.300  0.400
-  term: left   Triangle -0.400 -0.300  0.000
+  term: right  Triangle  0.000  0.200  0.400
+  term: left   Triangle -0.400 -0.200  0.000
 
 RuleBlock: mamdani
   enabled: true
