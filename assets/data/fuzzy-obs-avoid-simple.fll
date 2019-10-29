@@ -6,8 +6,10 @@ InputVariable: obs_dir
   range: -3.14 3.14
   lock-range: false
 
-  term: left  Triangle  0.000  0.1  3.140
-  term: right Triangle -3.140 -0.1  0.05
+  term: farleft  Ramp 1.575 1.745 
+  term: left  Triangle  0.000  0.1  1.575
+  term: right Triangle -1.575 -0.1  0.05
+  term: farright  Ramp -1.575 -1.745 
 
 InputVariable: obs_dist
   enabled: true
@@ -19,7 +21,7 @@ InputVariable: obs_dist
 
 OutputVariable: rob_vel
   enabled: true
-  range: -0.100 1.000
+  range: -0.100 1.900
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 1000
@@ -27,19 +29,20 @@ OutputVariable: rob_vel
   lock-previous: false
 
   term: stop  Triangle  -0.1  0.000  0.1
-  term: fast  Triangle  0.0  0.500 1.000
+  term: fast  Triangle  0.0 1.000 1.900
 
 OutputVariable: rob_angvel
   enabled: true
-  range: -0.4 0.4
+  range: -0.6 0.6
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
 
-  term: right  Triangle  0.000  0.200  0.400
-  term: left   Triangle -0.400 -0.200  0.000
+  term: right  Triangle  0.000  0.300  0.600
+  term: zero   Triangle  -0.3  0.000  0.3
+  term: left   Triangle -0.600 -0.300  0.000
 
 RuleBlock: mamdani
   enabled: true
@@ -48,8 +51,11 @@ RuleBlock: mamdani
   implication: AlgebraicProduct
   activation: General
 
-  rule: if obs_dir is right then rob_angvel is left
-  rule: if obs_dir is left  then rob_angvel is right
+  rule: if obs_dir is extremely right then rob_angvel is left
+  rule: if obs_dir is extremely left  then rob_angvel is right
+
+  rule: if obs_dir is farleft  then rob_angvel is zero
+  rule: if obs_dir is farright then rob_angvel is zero
 
   rule: if obs_dist is close then rob_vel is stop
   rule: if obs_dist is far   then rob_vel is fast
