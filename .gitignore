@@ -5,6 +5,9 @@ CMakeFiles/
 # VSCode folders
 .vscode/
 
+# dump files
+dump.txt
+
 # executables
 /bin/
 *.o
