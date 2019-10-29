@@ -38,11 +38,11 @@ namespace debug
 inline void
 debug::show()
 {
-	// Dump stream
+	// dump stream
 	static bool init = true;
 	static std::ofstream dump_stream;
-	if(init) {dump_stream.open("Dump.txt"); init = false;}
-	else dump_stream.open("Dump.txt", std::ios_base::app);
+	if(init) {dump_stream.open("dump.txt"); init = false;}
+	else dump_stream.open("dump.txt", std::ios_base::app);
 
 	// image
 	static cv::Mat img_debug = cv::Mat(WNDW_DEBUG_H, WNDW_DEBUG_W, CV_8UC3);
@@ -68,6 +68,8 @@ debug::show()
 	out << debug::dout.str();
 	out << '\n';
 	out << debug::cout.str();	
+
+	// write to dump
 	dump_stream << out.str() << "\n";
 	dump_stream.close();
 	

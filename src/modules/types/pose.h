@@ -3,6 +3,7 @@
 #include <iostream>
 #include <atomic>
 #include <mutex>
+#include <initializer_list>
 
 #include <gazebo/msgs/msgs.hh>
 #include <ignition/math/Quaternion.hh>
@@ -20,6 +21,9 @@ struct pos_t
 
 	template<typename T> auto
 	get(const T* var);
+
+	void
+	operator = (const std::initializer_list<const float> l);
 
 	bool
 	operator == (const pos_t& other) const;
@@ -137,6 +141,18 @@ private:
 // --------------------------------------------------------------------------------
 
 // -- pos_t -----------------------------------------------------------------------
+
+inline void
+pos_t::operator = (const std::initializer_list<const float> l)
+{
+	assert(l.size() == 3);
+
+	auto list = l.begin();
+
+	this->x = list[0];
+	this->y = list[1];
+	this->z = list[2];
+}
 
 inline bool
 pos_t::operator == (const pos_t& other) const
@@ -258,33 +274,25 @@ pose_t::dir(const pos_t& other)
 	this->mutex.unlock(); // CRITICAL SECTION END
 	
 	// calculate delta in theta with direction
-	// negative = ccw
+	// negative = cw
 	float theta_diff = theta_goal - theta_self;
-
-	float theta_diff_org = theta_diff;
-	float theta_goal_org = theta_goal;
-	float theta_self_org = theta_self;
 
 	// theta difference must be relative to the gazebo frame and not exceed PI
 	// with 0 to PI in top plane and 0 to -PI in bottom plane
 	// e.g. if target is 3/4*PI and self is -3/4 PI, the result must be 
 	// diff = -3/4*PI - 3/4*PI = 6/4*PI (wrong) -> -1/2*PI (correct)
 
-	// modulate theta keeping signedness
-	auto theta_diff2 = fmod(theta_diff, (theta_diff > 0) ? M_PI : -M_PI);
-
-	if(theta_diff > M_PI)
+	if (theta_diff > M_PI)
 	{
 		theta_self += 2 * M_PI;
 	}
-	else if(theta_diff < -M_PI)
+	else
+	if (theta_diff < -M_PI)
 	{
 		theta_goal += 2 * M_PI;
 	}
 
 	theta_diff = theta_goal - theta_self;
-
-	debug::cout << "goal: " << theta_goal_org << " | self: " << theta_self_org << " | original: " << theta_diff_org << " | ifs: " << theta_diff << " | mod: " << theta_diff2 << "\n";
 	
 	return theta_diff;
 }
@@ -293,7 +301,6 @@ inline float
 pose_t::dist(const pos_t& other)
 {
 	std::lock_guard<std::mutex> lock(this->mutex); 	 
-
 	float dist = sqrt(pow(other.y - this->pos.y, 2) + pow(other.x - this->pos.x, 2));			
 
 	return dist;

@@ -82,13 +82,13 @@ core::make_debug_data()
 		<< std::setw(WIDTH) << "State:"             << std::left << core::ctrl_state_names[core::state] << "\n"
 		<< std::setw(WIDTH) << "Position:"          << std::left << core::pose_data.pos << "\n"
 		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.orient << "\n"
-		<< std::setw(WIDTH) << "Direction:"         << std::left << core::pose_data.orient.yaw << "\n"
+		<< std::setw(WIDTH) << "Direction:"         << std::left << "y: " << core::pose_data.orient.yaw << "\n"
 		<< std::setw(WIDTH) << "Velocity:"          << std::left << core::vel_data << "\n"
 		<< "\n"
 		<< std::setw(WIDTH) << "Goal:"              << std::left << core::goal << "\n"
+		<< std::setw(WIDTH) << ""                   << std::left << "d: " << pose_data.dist(goal) << " | a: " << pose_data.dir(goal) << "\n"
 		<< std::setw(WIDTH) << "Nearest obstacle:"  << std::left << nearest_obs["any"] << "\n"
-		<< "";
-	
+		<< "";	
 }
 
 void
@@ -136,7 +136,6 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 
 		// populate pose data
 		// guarded by mutex internally
-
 		if (pose.name() == "pioneer2dx")
 			pose_data.set(pose);
 	}
@@ -152,7 +151,7 @@ core::init(int argc, char** argv)
 
 	// assert that system is not already initialized
 	if (core::initialized)
-		throw std::runtime_error("System is already initialized.");
+		throw std::runtime_error(ERR_RE_INIT);
 
 	// load gazebo
 	gazebo::client::setup(argc, argv);
@@ -170,7 +169,7 @@ core::init(int argc, char** argv)
 	core::pub_velcmd = node->Advertise<gazebo::msgs::Pose>("~/pioneer2dx/vel_cmd");
 	core::pub_world  = node->Advertise<gazebo::msgs::WorldControl>("~/world_control");
 
-	//
+	// set mutable reset
 	core::ctrl_msg.mutable_reset()->set_all(true);
 
 	// publish control message
@@ -181,7 +180,7 @@ core::init(int argc, char** argv)
 	core::state = goal_nav;
 
 	// set goal
-	core::goal = { -10.f, 0.f, 0.f };
+	core::goal = GOAL_POS;
 
 	// set initialization status
 	core::initialized = true;
@@ -193,7 +192,7 @@ core::run()
 	
 	// assert that system is initialized
 	if (not core::initialized)
-		throw std::runtime_error("System is not initialized.");
+		throw std::runtime_error(ERR_NOT_INIT);
 	
 	// loop
 	while (true)
@@ -249,30 +248,26 @@ core::controller()
 	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
 	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
 
-	// check distace no nearest obstacle
+	// variables
+	static pos_t origo = {0, 0};
+
+	// check distace to nearest obstacle
 	// select appropriate fuzzy controller
 	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE)
 	{
+		// obstacle avoidance
 		state = obs_avoid;
-		//flctrl::obs_avoid(nearest_obs, vel_data);
 		flctrl::obs_avoid_simple(nearest_obs, vel_data);
 	}
 	else
 	{
+		// goal navigator
 		state = goal_nav;
-		//stop_vehicle();
-		//test_orientation();
-		static pos_t origo = {0,0};
-		// stop fuzzy navigation if goal is "reached"
 		flctrl::goal_nav(pose_data, goal, vel_data);
-		if(pose_data.dist(goal) < 0.1 ) {std::swap(origo.x, goal.x); std::swap(origo.y, goal.y);}
-		/* 
-		if (pose_data.dist(goal) > 0.05) flctrl::goal_nav(pose_data, goal, vel_data);;
-		else
-		{
-			stop_vehicle();
-		}
-		*/	
+
+		// if goal is reached, then swap goal and origin
+		if (pose_data.dist(goal) < 0.1)
+			{ std::swap(origo.x, goal.x); std::swap(origo.y, goal.y); }	
 	}
 }
 
