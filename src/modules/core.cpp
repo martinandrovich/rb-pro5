@@ -5,24 +5,9 @@
 namespace core
 {
 
-	// enumerations
-	
-	enum ctrl_state_t
-	{
-		goal_nav,
-		obs_avoid
-	};
-
-	constexpr std::string_view ctrl_state_names[] =
-	{
-		"goal navigator",
-		"obstacle avoidance"
-	};
-
 	// private members
 
 	bool initialized = false;
-	ctrl_state_t state;
 
 	gazebo::transport::NodePtr node;
 	gazebo::transport::SubscriberPtr sub_lidar;
@@ -32,12 +17,14 @@ namespace core
 	gazebo::transport::PublisherPtr pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
-	lidar_t    lidar_data;
-	camera_t   camera_data;
-	pose_t     pose_data;
-	vel_t      vel_data;
-	pos_t      goal;
-	obs_list_t nearest_obs;
+	lidar_t       lidar_data;
+	camera_t      camera_data;
+	pose_t        pose_data;
+	vel_t         vel_data;
+	pos_t         goal;
+	marble_t      nearest_marble;
+	obs_list_t    nearest_obs;
+	marble_list_t marbles;
 
 	// private methods
 
@@ -79,7 +66,7 @@ core::make_debug_data()
 	constexpr auto WIDTH = 20;
 
 	debug::dout << std::left      
-		<< std::setw(WIDTH) << "State:"             << std::left << core::ctrl_state_names[core::state] << "\n"
+		<< std::setw(WIDTH) << "State (flctrl):"    << std::left << flctrl::ctrl_state_names[(int)flctrl::state] << "\n"
 		<< std::setw(WIDTH) << "Position:"          << std::left << core::pose_data.pos << "\n"
 		<< std::setw(WIDTH) << "Orientation:"       << std::left << core::pose_data.orient << "\n"
 		<< std::setw(WIDTH) << "Direction:"         << std::left << "y: " << core::pose_data.orient.yaw << "\n"
@@ -176,9 +163,6 @@ core::init(int argc, char** argv)
 	core::pub_world->WaitForConnection();
 	core::pub_world->Publish(core::ctrl_msg);
 
-	// set initial state
-	core::state = goal_nav;
-
 	// set goal
 	core::goal = GOAL_POS;
 
@@ -212,10 +196,6 @@ core::run()
 
 		// run main controller
 		core::controller();
-		//core::test_orientation();
-
-		// publish velocity command
-		core::publish_velcmd();
 
 		// show debug information
 		debug::show(&core::make_debug_data);
@@ -231,6 +211,10 @@ core::run()
 void
 core::publish_velcmd()
 {	
+	// check velocity commands for NaN
+	if(vel_data.is_nan())
+		throw std::runtime_error(ERR_VELCMD_NAN);
+
 	// convert pose to message; using the global velocity info
 	static gazebo::msgs::Pose msg;
 	gazebo::msgs::Set(&msg, vel_data.get_pose());
@@ -242,34 +226,28 @@ core::publish_velcmd()
 void
 core::controller()
 {
+	// localization
+	if (USE_LOCALIZATION)
+		;//loc::update_pose(pose_data);
+
 	// extract nearest obstacles
 	nearest_obs["center"] = lidar_data.get_nearest_obs(pose_data.pos, { 0.38, -0.38 });
 	nearest_obs["right"]  = lidar_data.get_nearest_obs(pose_data.pos, {-1.37, -1.76 });
 	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
 	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
 
-	// variables
-	static pos_t origo = {0, 0};
+	// extract nearest marbles
+	// marbles = camera_data.get_marbles();
+	// nearest_marble = camera_data.get_nearest_marble();
 
-	// check distace to nearest obstacle
-	// select appropriate fuzzy controller
-	if (nearest_obs["any"].dist < MAX_DIST_TO_OBSTACLE )
-	{
-		// obstacle avoidance
-		// && ( nearest_obs["any"].dir < M_PI/1.8 && nearest_obs["any"].dir > -M_PI/1.8 )
-		state = obs_avoid;
-		flctrl::obs_avoid_simple(nearest_obs, vel_data);
-	}
-	else
-	{
-		// goal navigator
-		state = goal_nav;
-		flctrl::goal_nav(pose_data, goal, vel_data);
+	// path generation + AI
+	;
 
-		// if goal is reached, then swap goal and origin
-		if (pose_data.dist(goal) < 0.1)
-			{ std::swap(origo.x, goal.x); std::swap(origo.y, goal.y); }	
-	}
+	// fuzzy controller
+	flctrl::run(nearest_obs, pose_data, goal, vel_data);
+
+	// publish velocity command
+	core::publish_velcmd();
 }
 
 void

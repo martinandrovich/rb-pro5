@@ -1,11 +1,13 @@
 #pragma once
 
+#include <cmath>
+#include <string_view>
 #include <fl/Headers.h>
 
 #include "../constants.h"
+
 #include "types/pose.h"
 #include "types/obs.h"
-#include <cmath>
 
 // --------------------------------------------------------------------------------
 // declarations for ::flctrl
@@ -13,6 +15,26 @@
 
 namespace flctrl
 {
+
+	// enumerations
+
+	enum class state_t: int
+	{
+		goal_nav,
+		obs_avoid
+	};
+
+	constexpr std::string_view ctrl_state_names[] =
+	{
+		"goal navigator",
+		"obstacle avoidance"
+	};
+
+	// methods
+
+	void
+	run(obs_list_t& obs_list, pose_t& pose, pos_t& goal, vel_t& vel_cmd);
+
 	void
 	goal_nav(pose_t& pose, pos_t& goal, vel_t& vel_cmd);
 
@@ -24,11 +46,42 @@ namespace flctrl
 	
 	static float 
 	_get_val(fl::OutputVariable* var);
+
+	// variables
+	
+	inline state_t state = state_t::goal_nav;
 }
 
 // --------------------------------------------------------------------------------
 // method defintions for ::flctrl
 // --------------------------------------------------------------------------------
+
+inline void
+flctrl::run(obs_list_t& obs_list, pose_t& pose, pos_t& goal, vel_t& vel_cmd)
+{
+	// variables
+	static pos_t origo = { 0, 0 };
+
+	// check distace to nearest obstacle
+	// select appropriate fuzzy controller
+	if (obs_list["any"].dist < MAX_DIST_TO_OBSTACLE && USE_OBS_AVOID)
+	{
+		// obstacle avoidance
+		// && ( obs_list["any"].dir < M_PI/1.8 && obs_list["any"].dir > -M_PI/1.8 )
+		state = state_t::obs_avoid;
+		obs_avoid_simple(obs_list, vel_cmd);
+	}
+	else
+	{
+		// goal navigator
+		state = state_t::goal_nav;
+		goal_nav(pose, goal, vel_cmd);
+
+		// if goal is reached, then swap goal and origin
+		if (pose.dist(goal) < 0.1)
+			{ std::swap(origo.x, goal.x); std::swap(origo.y, goal.y); }	
+	}
+}
 
 inline void
 flctrl::goal_nav(pose_t& pose, pos_t& goal, vel_t& vel_cmd)

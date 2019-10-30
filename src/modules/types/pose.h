@@ -79,6 +79,9 @@ struct vel_t
 	float trans = 0.f;
 	float ang   = 0.f;
 
+	bool
+	is_nan();
+
 	ignition::math::Pose3d
 	get_pose();
 
@@ -217,6 +220,12 @@ operator << (std::ostream& out, orient_t& obj)
 }
 
 // -- vel_t -----------------------------------------------------------------------
+
+inline bool
+vel_t::is_nan()
+{
+	return (std::isnan(this->trans) || std::isnan(this->ang));
+}
 
 inline ignition::math::Pose3d
 vel_t::get_pose()
