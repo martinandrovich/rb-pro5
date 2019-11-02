@@ -54,6 +54,9 @@ namespace core
 
 	void
 	stop_vehicle();
+
+	tune_morphology::morph_settings 
+	tune_morphology_settings(const std::string& video_path);
 }
 
 // --------------------------------------------------------------------------------
@@ -255,4 +258,76 @@ core::stop_vehicle()
 {
 	core::vel_data.trans = 0.f;
 	core::vel_data.ang   = 0.f;
+}
+
+void
+core::test_run(const std::string& path_to_video_writer)
+{
+	cv::VideoWriter video_writer(path_to_video_writer, CV_FOURCC('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
+
+	// assert that system is initialized
+	if (not core::initialized)
+		throw std::runtime_error(ERR_NOT_INIT);
+	
+	int key = 0;
+	const int key_left = 81;
+  	const int key_up = 82;
+  	const int key_down = 84;
+  	const int key_right = 83;  	
+	const float scale_factor = 0.5;
+
+	auto settings =  tune_morphology_settings("MarbleRun2.avi");
+
+	// loop
+	while (true)
+	{
+		// sleep
+		std::this_thread::sleep_for(RUN_FREQ_MS);
+
+		// acquire key input from opencv and draw any imshow() windows
+		// close app if ESC key has been pressed
+		
+    	key = cv::waitKey(1);    	
+		if(key == 27) break;		
+	
+		// show camera output
+		cv::imshow(WNDW_CAMERA, camera_data.get_img());
+		//video_writer.open();
+
+		if(video_writer.isOpened())
+		{
+			video_writer.write(camera_data.get_img());		
+			//std::cout << "The video has been opened" << std::endl;
+			//video_writer.release();
+		}
+
+		if ((key == key_up) && (core::vel_data.trans <= 1.2f))
+		core::vel_data.trans += 0.05 * scale_factor;
+		else if ((key == key_down) && (core::vel_data.trans >= -1.2f))
+		core::vel_data.trans -= 0.05 * scale_factor;
+		else if ((key == key_right) && (core::vel_data.ang <= 0.4f))
+		core::vel_data.ang  += 0.05 * scale_factor;
+		else if ((key == key_left) && (core::vel_data.ang  >= -0.4f))
+		core::vel_data.ang  -= 0.05 * scale_factor;
+
+		// publish velocity command
+		core::publish_velcmd();
+
+		// show debug information
+		debug::show(&core::make_debug_data);
+
+		// align windows
+		core::align_windows();
+	}	
+	video_writer.release();
+
+	// shutdown gazebo
+	gazebo::client::shutdown();	
+
+}
+
+tune_morphology::morph_settings 
+core::tune_morphology_settings(const std::string& video_path)
+{
+	return tune_morphology::choose_optimal_morph(video_path);
 }

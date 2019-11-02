@@ -1,0 +1,29 @@
+
+
+//Read from a video file, and use the image sequence to determine the correct morphology methods in order to locate and detect marbles.
+
+
+//Step 1: Done - 14:33
+
+/*
+    Get a video of the robot moving around a marble so there is different light settings. This is to make the model of the marbles more robust.
+
+
+    We now have a method called test_run, in which the user manually controls the robot, whilst a video is made from the recorded images from the camera of the robot.
+    There were some problems regarding writing the video file.. some times it core dumps due to wrong cv::Size match when the videowriter tries to write to the file.
+*/
+
+//Step 2:
+
+/*
+    Use the recorded video, in order to tune the morphology settings.
+    Perhaps filter the video from gauss noise.
+*/
+
+//Step 3:
+
+/*
+    Check if the obtained marble model works as intended;    
+    If not, try to use Hough-circle detection. 
+*/
+

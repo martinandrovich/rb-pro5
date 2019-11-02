@@ -27,7 +27,10 @@ public:
 	set(ConstImageStampedPtr& msg);
 
 	const cv::Mat&
-	get_img();	
+	get_img();
+
+	cv::Size 
+	get_img_size();	
 
 private:
 	
@@ -79,3 +82,9 @@ camera_t::get_img()
 
 	return img;
 }
+
+inline cv::Size 
+camera_t::get_img_size()
+{	
+	return {(int)this->img_width, (int)this->img_height};
+}	
