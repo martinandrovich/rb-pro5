@@ -276,7 +276,7 @@ core::test_run(const std::string& path_to_video_writer)
   	const int key_right = 83;  	
 	const float scale_factor = 0.5;
 
-	auto settings =  tune_morphology_settings(PATH_ASSETS + "MarbleRun2.avi");
+	auto settings =  tune_morphology_settings("MarbleRun2.avi");
 
 	// loop
 	while (true)

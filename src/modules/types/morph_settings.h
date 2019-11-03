@@ -17,7 +17,8 @@ namespace tune_morphology
         int gauss_size;
         int hough_upper_tresh;
         int hough_center_tresh;
-        int hough_min_radius;        
+        int hough_min_radius;    
+        int size;    
     };
 }
 
@@ -47,29 +48,40 @@ static std::vector<cv::Mat> _frames;
 
 namespace tune_morphology
 {
-    inline cv::VideoCapture 
-    load_video(const std::string& path)
+    inline bool 
+    load_video(cv::VideoCapture& dst,const std::string& path)
     {
-        cv::VideoCapture cap(path);
+        //cv::VideoCapture cap(path);
+        dst.open(path);
 
-        if(!cap.isOpened())
+        if(!dst.isOpened())
         {
-            std::cout << "Error opening video stream or file" << std::endl;
+            std::cout << "Error opening video stream or file at path:    " << path << std::endl;
+            return false;
         }
-        return cap;
+        return true;
     }
 
     inline morph_settings 
     choose_optimal_morph(const std::string& video_path)
     {
-        cv::VideoCapture cap = load_video(video_path);
-        cv::Mat frame;
-        while(true)
+        cv::VideoCapture cap;        
+        if(load_video(cap, video_path))
         {
-            cap >> frame;
-            if(frame.empty()) break;
-            _frames.push_back(frame.clone());
+            cv::Mat frame;
+            while(true)
+            {
+                cap >> frame;
+                if(frame.empty()) break;
+                _frames.push_back(frame.clone());
+            }
         }
+        else
+        {
+            std::cout << "Could not open video, no reason to continue morph.." << std::endl;
+            exit(1);
+        }
+        
 
         int const max_operator = 4;
         int const max_elem = 2;
@@ -127,15 +139,17 @@ namespace tune_morphology
         _args.settings.hough_center_tresh = morph.hough_center_tresh;
         _args.settings.hough_min_radius = morph.hough_min_radius;
         _args.settings.hough_upper_tresh = morph.hough_upper_tresh;
+        _args.settings.size = morph.size;
         
         debug::cout << "Morpholy settings: ...  \n " 
-        << "Operation : " << _args.settings.operation
-        << "filter_sigma :" << _args.settings.filter_sigma
-        << "gauss_size : "<<  _args.settings.gauss_size
-        << "hough_center_tresh : " << _args.settings.hough_center_tresh
-        << "hough_min_radius : " << _args.settings.hough_min_radius
-        << "hough_upper_tresh : " << _args.settings.hough_upper_tresh
-        << " --------------------------------- " << std::endl;
+        << "\nOperation : " << _args.settings.operation
+        << "\nMorphology kernel size : " << _args.settings.size
+        << "\nfilter_sigma :" << _args.settings.filter_sigma
+        << "\ngauss_size : "<<  _args.settings.gauss_size
+        << "\nhough_center_tresh : " << _args.settings.hough_center_tresh
+        << "\nhough_min_radius : " << _args.settings.hough_min_radius
+        << "\nhough_upper_tresh : " << _args.settings.hough_upper_tresh
+        << "\n --------------------------------- " << std::endl;
         debug::show();
         return _args.settings;
     }
