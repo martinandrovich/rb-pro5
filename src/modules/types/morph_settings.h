@@ -64,8 +64,7 @@ namespace tune_morphology
     inline morph_settings 
     choose_optimal_morph(const std::string& video_path)
     {
-        cv::VideoCapture cap;
-        std::cout << " Video path is:   " << video_path << std::endl; 
+        cv::VideoCapture cap;        
         if(load_video(cap, video_path))
         {
             cv::Mat frame;
