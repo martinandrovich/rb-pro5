@@ -47,29 +47,41 @@ static std::vector<cv::Mat> _frames;
 
 namespace tune_morphology
 {
-    inline cv::VideoCapture 
-    load_video(const std::string& path)
+    inline bool 
+    load_video(cv::VideoCapture& dst,const std::string& path)
     {
-        cv::VideoCapture cap(path);
+        //cv::VideoCapture cap(path);
+        dst.open(path);
 
-        if(!cap.isOpened())
+        if(!dst.isOpened())
         {
-            std::cout << "Error opening video stream or file" << std::endl;
+            std::cout << "Error opening video stream or file at path:    " << path << std::endl;
+            return false;
         }
-        return cap;
+        return true;
     }
 
     inline morph_settings 
     choose_optimal_morph(const std::string& video_path)
     {
-        cv::VideoCapture cap = load_video(video_path);
-        cv::Mat frame;
-        while(true)
+        cv::VideoCapture cap;
+        std::cout << " Video path is:   " << video_path << std::endl; 
+        if(load_video(cap, video_path))
         {
-            cap >> frame;
-            if(frame.empty()) break;
-            _frames.push_back(frame.clone());
+            cv::Mat frame;
+            while(true)
+            {
+                cap >> frame;
+                if(frame.empty()) break;
+                _frames.push_back(frame.clone());
+            }
         }
+        else
+        {
+           std::cout << "Could not open video, no reason to continue morph.." << std::endl;
+         exit(1);
+        }
+        
 
         int const max_operator = 4;
         int const max_elem = 2;
