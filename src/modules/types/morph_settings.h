@@ -91,7 +91,7 @@ namespace tune_morphology
         const char* window_name = "Morphology Transformations tuning";
         cv::Mat dst;
 
-        callback_args _args{window_name, &dst, cv::Mat(), 0, 0, 0, 0, 0, 0};        
+        callback_args _args{window_name, &dst, cv::Mat(), 0, 0, 0, 0, 0, 0};
         
         cv::namedWindow( window_name, cv::WINDOW_AUTOSIZE ); // Create window
 

@@ -23,6 +23,9 @@ struct pos_t
 	get(const T* var);
 
 	void
+	operator = (const std::initializer_list<float> l);
+
+	void
 	operator = (const std::initializer_list<const float> l);
 
 	bool
@@ -147,6 +150,18 @@ private:
 
 inline void
 pos_t::operator = (const std::initializer_list<const float> l)
+{
+	assert(l.size() == 3);
+
+	auto list = l.begin();
+
+	this->x = list[0];
+	this->y = list[1];
+	this->z = list[2];
+}
+
+inline void
+pos_t::operator = (const std::initializer_list<float> l)
 {
 	assert(l.size() == 3);
 

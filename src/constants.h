@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <stdexcept>
 #include <chrono>
 #include <initializer_list>
 
@@ -10,22 +11,23 @@
 
 constexpr_string  PATH_ROOT = "";
 constexpr_string  PATH_ASSETS = PATH_ROOT + "assets/data/";
+constexpr_string  PATH_IMG_ENVIRON_DEMO = PATH_ROOT + "assets/img/environ-01.png";
 constexpr_string  PATH_FUZZY_OBS_AVOID = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
 constexpr_string  PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 constexpr_string  PATH_FONT_CONSOLAS = PATH_ROOT + "assets/data/consolas.ttf";
 
 // system config
 
-constexpr auto    RUN_FREQ_MS = std::chrono::milliseconds(10); // ms
-constexpr auto    MAX_DIST_TO_OBSTACLE = 0.7f; // meters
-constexpr auto    GOAL_POS = { 4.f, -3.f, 0.f }; // meters
-constexpr auto    LIDAR_RANGE_LIMIT = 10; // number of rays
-constexpr auto    FUZZY_SCALING_FACTOR = 1.0f;
+constexpr auto    RUN_FREQ_MS            = std::chrono::milliseconds(10); // ms
+constexpr auto    MAX_DIST_TO_OBSTACLE   = 0.7f; // meters
+constexpr auto    GOAL_POS               = { 4.f, -3.f, 0.f }; // meters
+constexpr auto    LIDAR_RANGE_LIMIT      = 10; // number of rays
+constexpr auto    FUZZY_SCALING_FACTOR   = 1.0f;
 
-constexpr auto    TEST_CELL_DECOMP   = true;
-constexpr auto    TEST_MARBLE_DETECT = true;
-constexpr auto    USE_LOCALIZATION   = true;
-constexpr auto    USE_OBS_AVOID      = true;
+constexpr auto    TEST_CELL_DECOMP       = true;
+constexpr auto    TEST_MARBLE_DETECT     = true;
+constexpr auto    USE_LOCALIZATION       = true;
+constexpr auto    USE_OBS_AVOID          = true;
 
 // windows
 
@@ -43,3 +45,5 @@ constexpr auto    ERR_NOT_INIT           = "System is not initialized.";
 constexpr auto    ERR_RE_INIT            = "System is already initialized.";
 constexpr auto    ERR_FL_ENGINE_NOTRDY   = "Fuzzylite engine is not ready:n";
 constexpr auto    ERR_VELCMD_NAN         = "Velocity data is NaN.";
+constexpr auto    ERR_IMG_EMPTY          = "The image is empty.";
+constexpr auto    ERR_IMG_NOT_GRAY       = "The image is not grayscale.";

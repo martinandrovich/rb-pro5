@@ -1,16 +1,13 @@
 #pragma once
 
+#include <iostream>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 
-// --------------------------------------------------------------------------------
-// helpers for ::pathgen | will be relocated
-// --------------------------------------------------------------------------------
+#include "../constants.h"
 
-struct adj_graph_t
-{
-
-};
+#include "types/adj_graph.h"
 
 // --------------------------------------------------------------------------------
 // declarations for ::pathgen
@@ -20,17 +17,15 @@ namespace pathgen
 {
 	
 	// public methods
-
-	adj_graph_t
-	gen_adj_graph(const cv::Mat& img);
-
+	
 	void
 	test_cell_decomp();
 
 	// private methods
 
 	static void
-	cell_decomp();
+	_cell_decomp();
+
 }
 
 // --------------------------------------------------------------------------------
@@ -39,32 +34,23 @@ namespace pathgen
 
 // -- public ----------------------------------------------------------------------
 
-inline adj_graph_t
-pathgen::gen_adj_graph(const cv::Mat& img)
-{
-	// locate map (file)
-	;
-
-	// extract edges and vertices
-	;
-
-	// trapezoidal cell decomoposition
-	;
-
-	// return graph
-	;
-}
-
 inline void
 pathgen::test_cell_decomp()
 {
+	
+	// load image
+	auto img = cv::imread(PATH_IMG_ENVIRON_DEMO, cv::IMREAD_GRAYSCALE);
+
+	auto adj_graph = adj_graph_t::gen_adj_graph(img);
+
 	return;
 }
 
 // -- private ---------------------------------------------------------------------
 
 static void
-pathgen::cell_decomp()
+pathgen::_cell_decomp()
 {
+	std::cout << "private cell decomposition" << std::endl;
 	return;
 }
