@@ -9,6 +9,7 @@
 // paths
 
 constexpr_string  PATH_ROOT = "";
+constexpr_string  PATH_ASSETS = PATH_ROOT + "assets/data/";
 constexpr_string  PATH_FUZZY_OBS_AVOID = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
 constexpr_string  PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 constexpr_string  PATH_FONT_CONSOLAS = PATH_ROOT + "assets/data/consolas.ttf";

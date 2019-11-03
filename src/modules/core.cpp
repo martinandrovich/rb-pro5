@@ -230,7 +230,7 @@ void
 core::controller()
 {
 	// localization
-	if (USE_LOCALIZATION)
+	if (USE_LOCALIZATION){}
 		;//loc::update_pose(pose_data);
 
 	// extract nearest obstacles
@@ -263,7 +263,7 @@ core::stop_vehicle()
 void
 core::test_run(const std::string& path_to_video_writer)
 {
-	cv::VideoWriter video_writer(path_to_video_writer, CV_FOURCC('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
+	cv::VideoWriter video_writer(PATH_ASSETS + path_to_video_writer, CV_FOURCC('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
 
 	// assert that system is initialized
 	if (not core::initialized)
@@ -276,7 +276,7 @@ core::test_run(const std::string& path_to_video_writer)
   	const int key_right = 83;  	
 	const float scale_factor = 0.5;
 
-	auto settings =  tune_morphology_settings("MarbleRun2.avi");
+	auto settings =  tune_morphology_settings(PATH_ASSETS + "MarbleRun2.avi");
 
 	// loop
 	while (true)
@@ -329,5 +329,5 @@ core::test_run(const std::string& path_to_video_writer)
 tune_morphology::morph_settings 
 core::tune_morphology_settings(const std::string& video_path)
 {
-	return tune_morphology::choose_optimal_morph(video_path);
+	return tune_morphology::choose_optimal_morph(PATH_ASSETS + video_path);
 }
