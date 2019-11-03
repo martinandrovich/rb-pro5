@@ -6,7 +6,6 @@
 
 #define constexpr_string inline const std::string
 
-
 // paths
 
 constexpr_string  PATH_ROOT = "";
@@ -22,8 +21,10 @@ constexpr auto    GOAL_POS = { 4.f, -3.f, 0.f }; // meters
 constexpr auto    LIDAR_RANGE_LIMIT = 10; // number of rays
 constexpr auto    FUZZY_SCALING_FACTOR = 1.0f;
 
-constexpr auto    USE_LOCALIZATION = true;
-constexpr auto    USE_OBS_AVOID    = true;
+constexpr auto    TEST_CELL_DECOMP   = true;
+constexpr auto    TEST_MARBLE_DETECT = true;
+constexpr auto    USE_LOCALIZATION   = true;
+constexpr auto    USE_OBS_AVOID      = true;
 
 // windows
 

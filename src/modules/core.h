@@ -27,6 +27,7 @@
 
 #include "debug.h"
 #include "flctrl.h"
+#include "pathgen.h"
 
 // public declarations for core
 
