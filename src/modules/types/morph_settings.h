@@ -3,7 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
-static void 
+inline void 
 _Morphology_Operations( int, void* );
 
 
@@ -17,8 +17,7 @@ namespace tune_morphology
         int gauss_size;
         int hough_upper_tresh;
         int hough_center_tresh;
-        int hough_min_radius;
-        std::vector<cv::Vec3f> circles;
+        int hough_min_radius;        
     };
 }
 
@@ -33,6 +32,7 @@ struct morph_t
     int hough_upper_tresh = 200;
     int hough_center_tresh = 100;
     int hough_min_radius = 0;
+    std::vector<cv::Vec3f> circles;
 };
 
 struct callback_args
@@ -47,7 +47,7 @@ static std::vector<cv::Mat> _frames;
 
 namespace tune_morphology
 {
-    static cv::VideoCapture 
+    inline cv::VideoCapture 
     load_video(const std::string& path)
     {
         cv::VideoCapture cap(path);
@@ -59,7 +59,7 @@ namespace tune_morphology
         return cap;
     }
 
-    static morph_settings 
+    inline morph_settings 
     choose_optimal_morph(const std::string& video_path)
     {
         cv::VideoCapture cap = load_video(video_path);
@@ -79,7 +79,7 @@ namespace tune_morphology
         const char* window_name = "Morphology Transformations tuning";
         cv::Mat dst;
 
-        callback_args _args{window_name, &dst, cv::Mat(), 0};        
+        callback_args _args{window_name, &dst, cv::Mat(), 0, 0, 0, 0, 0, 0};        
         
         cv::namedWindow( window_name, cv::WINDOW_AUTOSIZE ); // Create window
 
@@ -121,13 +121,27 @@ namespace tune_morphology
 
         _Morphology_Operations( 0, (void*)&_args  );
         cv::waitKey();
-        debug::cout << _arg.settings.
-    
+
+        _args.settings.filter_sigma = morph.filter_sigma;
+        _args.settings.gauss_size = morph.gauss_size;
+        _args.settings.hough_center_tresh = morph.hough_center_tresh;
+        _args.settings.hough_min_radius = morph.hough_min_radius;
+        _args.settings.hough_upper_tresh = morph.hough_upper_tresh;
+        
+        debug::cout << "Morpholy settings: ...  \n " 
+        << "Operation : " << _args.settings.operation
+        << "filter_sigma :" << _args.settings.filter_sigma
+        << "gauss_size : "<<  _args.settings.gauss_size
+        << "hough_center_tresh : " << _args.settings.hough_center_tresh
+        << "hough_min_radius : " << _args.settings.hough_min_radius
+        << "hough_upper_tresh : " << _args.settings.hough_upper_tresh
+        << " --------------------------------- " << std::endl;
+        debug::show();
         return _args.settings;
     }
 }
 
-static void 
+inline void 
 _Morphology_Operations( int, void* user_data )
 {
  callback_args* args = (callback_args*)user_data;
@@ -138,7 +152,7 @@ _Morphology_Operations( int, void* user_data )
   cv::Mat filtered_frame;
 
   int allowed_kernel_size = morph.gauss_size;
-  if(allowed_kernel_size % 2 == 0) allowed_kernel_size--;
+  if(allowed_kernel_size % 2 == 0) allowed_kernel_size++;
 
   //Apply blur and do the morphology with the chosen settings.
   cv::GaussianBlur(_frames[morph.frame], filtered_frame, cv::Size(allowed_kernel_size, allowed_kernel_size), morph.filter_sigma );
@@ -147,19 +161,18 @@ _Morphology_Operations( int, void* user_data )
   //Apply HoughCircle transform and save all circles found to a vector
   cv::Mat grey_dst;
   cv::cvtColor(*args->dst, grey_dst, CV_BGR2GRAY );
-  cv::HoughCircles(grey_dst, args->settings.circles, CV_HOUGH_GRADIENT, 1, 100, morph.hough_upper_tresh, morph.hough_center_tresh, morph.hough_min_radius, 0);
+  cv::HoughCircles(grey_dst, morph.circles, CV_HOUGH_GRADIENT, 1, 100, morph.hough_upper_tresh, morph.hough_center_tresh, morph.hough_min_radius, 0);
   
-  //std::cout << "Circles found :" << args->settings.circles[0][0] << args->settings.circles[0][1] << args->settings.circles[0][2] << std::endl; 
   args->settings.element = element.clone();
   args->settings.operation = operation;
 
     
   // Draw the circles detected
-  for( size_t i = 0; i < args->settings.circles.size(); i++ )
+  for( size_t i = 0; i < morph.circles.size(); i++ )
   {
       std::cout << "Circles found:" << std::endl;
-      cv::Point center(cvRound(args->settings.circles[i][0]), cvRound(args->settings.circles[i][1]));
-      int radius = cvRound(args->settings.circles[i][2]);
+      cv::Point center(cvRound(morph.circles[i][0]), cvRound(morph.circles[i][1]));
+      int radius = cvRound(morph.circles[i][2]);
       // circle center
       cv::circle(*args->dst, center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
       // circle outline
