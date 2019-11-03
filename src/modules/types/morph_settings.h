@@ -77,8 +77,8 @@ namespace tune_morphology
         }
         else
         {
-           std::cout << "Could not open video, no reason to continue morph.." << std::endl;
-         exit(1);
+            std::cout << "Could not open video, no reason to continue morph.." << std::endl;
+            exit(1);
         }
         
 
