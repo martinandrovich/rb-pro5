@@ -1,0 +1,1379 @@
+debugger:
+
+
+Morpholy settings: ...  
+ 
+Operation : 3
+Morphology kernel size : 1
+filter_sigma :4
+gauss_size : 3
+hough_center_tresh : 19
+hough_min_radius : 21
+hough_upper_tresh : 124
+ --------------------------------- 
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0864 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0194
+Direction:          y: +0.0389
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9218 | a: -0.6904
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0389
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9218 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0389
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9218 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0195
+Direction:          y: +0.0389
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9218 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9217 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9217 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9217 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0865 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9217 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0866 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9216 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0866 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9217 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0866 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9216 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0866 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9216 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0866 | y: -0.0154 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9216 | a: -0.6905
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0867 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9216 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0867 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9215 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0867 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9215 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0867 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9215 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0868 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9215 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0868 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0195
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9215 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0868 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0390
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0868 | y: -0.0154 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0868 | y: -0.0154 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0868 | y: -0.0154 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0195
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6906
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0869 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0195
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0869 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0195
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0869 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9214 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0870 | y: -0.0154 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9213 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0869 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9213 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0870 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9213 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0870 | y: -0.0155 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9213 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0870 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9213 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0870 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9213 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0871 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9212 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0871 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0391
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9212 | a: -0.6907
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0871 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9212 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0871 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9212 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0871 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9212 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0872 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9211 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0872 | y: -0.0155 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9211 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0872 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9211 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0873 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9211 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0873 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9211 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0872 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9211 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0873 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9210 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0873 | y: -0.0155 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9210 | a: -0.6908
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0873 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0392
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9210 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0874 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9210 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0874 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9210 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0874 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0874 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0874 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0874 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0875 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0875 | y: -0.0155 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0196
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0875 | y: -0.0155 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9209 | a: -0.6909
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0875 | y: -0.0155 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0197
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9208 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0875 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9208 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0876 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9208 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0876 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0197
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9207 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0876 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0197
+Direction:          y: +0.0393
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9207 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0876 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9208 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9207 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9207 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9207 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9206 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9206 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9206 | a: -0.6910
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0877 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9206 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0878 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9206 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0878 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9206 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0878 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0878 | y: -0.0156 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0878 | y: -0.0156 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0878 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0394
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0879 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0879 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6911
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0879 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9205 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0880 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9204 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0880 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9204 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0880 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9204 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0880 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9204 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0880 | y: -0.0156 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0197
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9204 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0880 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0198
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9204 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0881 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9203 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0881 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9203 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0881 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9203 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0881 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9203 | a: -0.6912
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0882 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0198
+Direction:          y: +0.0395
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9203 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0881 | y: -0.0156 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9203 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0882 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9202 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0882 | y: -0.0156 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9202 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0882 | y: -0.0157 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9202 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0882 | y: -0.0157 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9202 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0883 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9202 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0882 | y: -0.0157 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9202 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0883 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9201 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0883 | y: -0.0157 | z: -0.0001
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9201 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0883 | y: -0.0157 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9201 | a: -0.6913
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0884 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9201 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0884 | y: -0.0157 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9201 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0884 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9200 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0884 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0001 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9200 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0885 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: -0.0000 | z: +0.0198
+Direction:          y: +0.0396
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9200 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0884 | y: -0.0157 | z: +0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0002 | z: +0.0198
+Direction:          y: +0.0397
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9200 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+
+debugger:
+
+State (flctrl):     goal navigator
+Position:           x: +0.0885 | y: -0.0157 | z: -0.0000
+Orientation:        w: +0.9998 | x: +0.0000 | y: +0.0000 | z: +0.0198
+Direction:          y: +0.0397
+Velocity:           x: +0.0000 | w: +0.0000
+
+Goal:               x: +4.0000 | y: -3.0000 | z: +0.0000
+                    d: +4.9200 | a: -0.6914
+Nearest obstacle:   a: +inf | d: +inf @ x: +0.0000 | y: +0.0000 | z: +0.0000
+
+

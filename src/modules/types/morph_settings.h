@@ -17,7 +17,8 @@ namespace tune_morphology
         int gauss_size;
         int hough_upper_tresh;
         int hough_center_tresh;
-        int hough_min_radius;        
+        int hough_min_radius;    
+        int size;    
     };
 }
 
@@ -138,15 +139,17 @@ namespace tune_morphology
         _args.settings.hough_center_tresh = morph.hough_center_tresh;
         _args.settings.hough_min_radius = morph.hough_min_radius;
         _args.settings.hough_upper_tresh = morph.hough_upper_tresh;
+        _args.settings.size = morph.size;
         
         debug::cout << "Morpholy settings: ...  \n " 
-        << "Operation : " << _args.settings.operation
-        << "filter_sigma :" << _args.settings.filter_sigma
-        << "gauss_size : "<<  _args.settings.gauss_size
-        << "hough_center_tresh : " << _args.settings.hough_center_tresh
-        << "hough_min_radius : " << _args.settings.hough_min_radius
-        << "hough_upper_tresh : " << _args.settings.hough_upper_tresh
-        << " --------------------------------- " << std::endl;
+        << "\nOperation : " << _args.settings.operation
+        << "\nMorphology kernel size : " << _args.settings.size
+        << "\nfilter_sigma :" << _args.settings.filter_sigma
+        << "\ngauss_size : "<<  _args.settings.gauss_size
+        << "\nhough_center_tresh : " << _args.settings.hough_center_tresh
+        << "\nhough_min_radius : " << _args.settings.hough_min_radius
+        << "\nhough_upper_tresh : " << _args.settings.hough_upper_tresh
+        << "\n --------------------------------- " << std::endl;
         debug::show();
         return _args.settings;
     }
