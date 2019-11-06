@@ -10,6 +10,19 @@
 #include "../debug.h"
 
 // --------------------------------------------------------------------------------
+// declarations for ::dim_t
+// --------------------------------------------------------------------------------
+
+struct dim_t
+{
+	float width  = 0.f;
+	float height = 0.f;
+
+	dim_t() = default;
+	dim_t(const std::initializer_list<const float>& l);
+};
+
+// --------------------------------------------------------------------------------
 // declarations for ::pos_t
 // --------------------------------------------------------------------------------
 
@@ -19,14 +32,11 @@ struct pos_t
 	float y = 0.f;
 	float z = 0.f;
 
+	pos_t() = default;
+	pos_t(const std::initializer_list<const float>& l);
+
 	template<typename T> auto
 	get(const T* var);
-
-	void
-	operator = (const std::initializer_list<float> l);
-
-	void
-	operator = (const std::initializer_list<const float> l);
 
 	bool
 	operator == (const pos_t& other) const;
@@ -69,8 +79,7 @@ public:
 
 private:
 
-	std::mutex mutex;
-	
+	std::mutex mutex;	
 };
 
 // --------------------------------------------------------------------------------
@@ -139,37 +148,33 @@ public:
 private:
 
 	std::mutex mutex;
-
 };
 
 // --------------------------------------------------------------------------------
-// definitions for ::pos_t, ::orient_t, ::vel_t, ::pose_t
+// definitions for ::dim_t, ::pos_t, ::orient_t, ::vel_t, ::pose_t
 // --------------------------------------------------------------------------------
+
+// -- dim_t -----------------------------------------------------------------------
+
+inline
+dim_t::dim_t(const std::initializer_list<const float>& l)
+{
+	assert(l.size() == 2);
+
+	this->width  = l.begin()[0];
+	this->height = l.begin()[1];
+}
 
 // -- pos_t -----------------------------------------------------------------------
 
-inline void
-pos_t::operator = (const std::initializer_list<const float> l)
+inline
+pos_t::pos_t(const std::initializer_list<const float>& l)
 {
 	assert(l.size() == 3);
 
-	auto list = l.begin();
-
-	this->x = list[0];
-	this->y = list[1];
-	this->z = list[2];
-}
-
-inline void
-pos_t::operator = (const std::initializer_list<float> l)
-{
-	assert(l.size() == 3);
-
-	auto list = l.begin();
-
-	this->x = list[0];
-	this->y = list[1];
-	this->z = list[2];
+	this->x = l.begin()[0];
+	this->y = l.begin()[1];
+	this->z = l.begin()[2];
 }
 
 inline bool
