@@ -6,6 +6,7 @@
 #include <opencv2/highgui.hpp>
 
 #include "../constants.h"
+#include "utils.h"
 
 #include "types/adj_graph.h"
 
@@ -37,10 +38,15 @@ namespace pathgen
 inline void
 pathgen::test_cell_decomp()
 {
-	
-	// load image
-	auto img = cv::imread(PATH_IMG_ENVIRON_DEMO, cv::IMREAD_GRAYSCALE);
 
+	// determine load paths from current world data
+	// ---
+	
+	// load and scale image
+	auto img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
+	scale_image(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
+
+	// generate adjacency graph
 	auto adj_graph = adj_graph_t::gen_adj_graph(img);
 
 	return;
