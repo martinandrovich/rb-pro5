@@ -26,6 +26,7 @@
 #include "types/morph_settings.h"
 
 #include "debug.h"
+#include "utils.h"
 #include "flctrl.h"
 #include "pathgen.h"
 
