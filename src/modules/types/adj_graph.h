@@ -193,7 +193,9 @@ adj_graph_t::extract_lines(const cv::Mat& img)
 inline std::vector<adj_graph_t::vertex_t>
 adj_graph_t::extract_vertices(const cv::Mat& img)
 {
-
+	
+	// https://stackoverflow.com/questions/33646643/store-details-of-a-binary-image-consisting-simple-polygons
+	
 	// must be grayscale
 	if (img.channels() != 1)
 		throw std::runtime_error(ERR_IMG_NOT_GRAY);
