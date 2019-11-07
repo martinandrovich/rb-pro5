@@ -7,6 +7,8 @@
 
 #define constexpr_string inline const std::string
 
+using ilf = std::initializer_list<float>;
+
 // paths
 
 constexpr_string  PATH_ROOT = "";
@@ -22,12 +24,12 @@ constexpr_string  PATH_FONT_CONSOLAS          = PATH_ROOT + "assets/data/consola
 
 constexpr auto    RUN_FREQ_MS                 = std::chrono::milliseconds(10); // ms
 constexpr auto    MAX_DIST_TO_OBSTACLE        = 0.7f; // meters
-constexpr auto    GOAL_POS                    = { 4.f, -3.f, 0.f }; // meters
+constexpr ilf     GOAL_POS                    = { 4.f, -3.f, 0.f }; // meters
 constexpr auto    LIDAR_RANGE_LIMIT           = 10; // number of rays
 constexpr auto    FUZZY_SCALING_FACTOR        = 1.0f;
 constexpr auto    SCALE_METER_PER_PX          = 0.1f; // meters per pixel
-constexpr auto    DIM_SMALLWORLD              = { 14.11f, 10.58f };
-constexpr auto    DIM_BIGWORLD                = { 84.66f, 56.44f };
+constexpr ilf     DIM_SMALLWORLD              = { 14.11f, 10.58f };
+constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 
 constexpr auto    TEST_CELL_DECOMP            = true;
 constexpr auto    TEST_MARBLE_DETECT          = true;

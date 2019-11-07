@@ -49,6 +49,8 @@ pathgen::test_cell_decomp()
 	// generate adjacency graph
 	auto adj_graph = adj_graph_t::gen_adj_graph(img);
 
+	_cell_decomp();
+
 	return;
 }
 

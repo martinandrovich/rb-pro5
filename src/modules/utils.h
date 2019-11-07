@@ -17,7 +17,7 @@ load_img(const std::string& filepath, cv::ImreadModes mode = cv::IMREAD_UNCHANGE
 	if (img.empty())
 		throw std::runtime_error(ERR_IMG_EMPTY);
 
-	return std::move(img);
+	return img;
 }
 
 inline void

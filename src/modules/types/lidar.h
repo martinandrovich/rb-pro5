@@ -125,7 +125,7 @@ lidar_t::get_vec_obs(const pos_t& robot_pos)
 
 	mutex.unlock(); // CRITICAL SECTION END
 
-	return std::move(vec_obs);
+	return vec_obs;
 }
 
 inline obs_t
@@ -178,7 +178,7 @@ lidar_t::get_img()
 	img.setTo(0);
 
 	// pixels per meter
-	auto px_per_m = (200 / this->range_max);
+	this->px_per_m = (200 / this->range_max);
 
 	mutex.lock(); // CRITICAL SECTION BEGIN
 

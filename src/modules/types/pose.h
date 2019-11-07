@@ -19,7 +19,7 @@ struct dim_t
 	float height = 0.f;
 
 	dim_t() = default;
-	dim_t(const std::initializer_list<const float>& l);
+	dim_t(std::initializer_list<float> list);
 };
 
 // --------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ struct pos_t
 	float z = 0.f;
 
 	pos_t() = default;
-	pos_t(const std::initializer_list<const float>& l);
+	pos_t(std::initializer_list<float> list);
 
 	template<typename T> auto
 	get(const T* var);
@@ -157,24 +157,24 @@ private:
 // -- dim_t -----------------------------------------------------------------------
 
 inline
-dim_t::dim_t(const std::initializer_list<const float>& l)
+dim_t::dim_t(std::initializer_list<float> list)
 {
-	assert(l.size() == 2);
+	assert(list.size() == 2);
 
-	this->width  = l.begin()[0];
-	this->height = l.begin()[1];
+	this->width  = list.begin()[0];
+	this->height = list.begin()[1];
 }
 
 // -- pos_t -----------------------------------------------------------------------
 
 inline
-pos_t::pos_t(const std::initializer_list<const float>& l)
+pos_t::pos_t(std::initializer_list<float> list)
 {
-	assert(l.size() == 3);
+	assert(list.size() == 3);
 
-	this->x = l.begin()[0];
-	this->y = l.begin()[1];
-	this->z = l.begin()[2];
+	this->x = list.begin()[0];
+	this->y = list.begin()[1];
+	this->z = list.begin()[2];
 }
 
 inline bool

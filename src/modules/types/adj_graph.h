@@ -103,7 +103,7 @@ adj_graph_t::gen_adj_graph(const cv::Mat& img, decomp_type type)
 		std::cout << "trapezoidal cell decomp" << std::endl;
 
 	// return graph
-	return std::move(adj_graph);
+	return adj_graph;
 }
 
 inline cv::Mat
@@ -115,7 +115,7 @@ adj_graph_t::get_img_vertices() const
 	for (const auto& v : this->vertices)
 		cv::circle(img_vertices, cv::Point(v.x, v.y), 3, cv::Scalar(255, 0, 255));
 
-	return std::move(img_vertices);
+	return img_vertices;
 }
 
 inline std::vector<cv::Vec4i>
@@ -208,5 +208,5 @@ adj_graph_t::extract_vertices(const cv::Mat& img)
 		for (const auto& vertex : vec)
 			vec_vertices.emplace_back(vertex_t{(size_t)vertex.x, (size_t)vertex.y});
 
-	return std::move(vec_vertices);
+	return vec_vertices;
 }

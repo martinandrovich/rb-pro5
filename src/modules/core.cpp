@@ -122,7 +122,7 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 {
 	for (int i = 0; i < msg->pose_size(); i++)
 	{
-		auto& pose = msg->pose(i);	
+		auto& pose = msg->pose(i);
 
 		// populate pose data
 		// guarded by mutex internally
