@@ -2,9 +2,13 @@
 
 #include <cmath>
 #include <array>
+#include <stdexcept>
+#include <optional>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
+
+#include "../constants.h"
 
 // --------------------------------------------------------------------------------
 // declarations for ::geometry
@@ -44,7 +48,13 @@ namespace geometry
 	line_touch_or_cross(const line_t& a, const line_t& b);
 
 	bool
-	linement_intersect(const line_t& a, const line_t& b);
+	segment_intersect(const line_t& a, const line_t& b);
+
+	std::optional<cv::Point>
+	segment_intersect_at(const line_t& a, const line_t& b);
+
+	void
+	test_segment_intersect();
 }
 
 // --------------------------------------------------------------------------------
@@ -99,10 +109,34 @@ geometry::line_touch_or_cross(const line_t& a, const line_t& b)
 }
 
 inline bool
-geometry::linement_intersect(const line_t& a, const line_t& b)
+geometry::segment_intersect(const line_t& a, const line_t& b)
 {
 	auto box_a = a.bounding_box();
 	auto box_b = b.bounding_box();
 
 	return bounding_box_intersect(box_a, box_b) && line_touch_or_cross(a, b) && line_touch_or_cross(b, a);
+}
+
+inline std::optional<cv::Point>
+geometry::segment_intersect_at(const line_t& a, const line_t& b)
+{
+
+	// usage
+	// if (auto pt = segment_intersect_at(A, B)) {...}
+
+	if (not segment_intersect(a, b))
+		return std::nullopt;
+
+	else
+		throw std::runtime_error(ERR_NO_IMPL);
+		// return cv::Point(0,0);
+}
+
+inline void
+geometry::test_segment_intersect()
+{
+	geometry::line_t A = { cv::Point(0,0), cv::Point(3,3) };
+	geometry::line_t B = { cv::Point(0,3), cv::Point(3,0) };
+
+	std::cout << "line intersect: " << std::boolalpha << geometry::segment_intersect(A, B) << std::endl;
 }

@@ -33,6 +33,8 @@ constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 
 constexpr auto    TEST_CELL_DECOMP            = true;
 constexpr auto    TEST_MARBLE_DETECT          = true;
+constexpr auto    TEST_LINE_SEG               = true;
+
 constexpr auto    USE_LOCALIZATION            = true;
 constexpr auto    USE_OBS_AVOID               = true;
 
@@ -54,3 +56,4 @@ constexpr auto    ERR_FL_ENGINE_NOTRDY        = "Fuzzylite engine is not ready:n
 constexpr auto    ERR_VELCMD_NAN              = "Velocity data is NaN.";
 constexpr auto    ERR_IMG_EMPTY               = "The image is empty.";
 constexpr auto    ERR_IMG_NOT_GRAY            = "The image is not grayscale.";
+constexpr auto    ERR_NO_IMPL                 = "No implementation.";
