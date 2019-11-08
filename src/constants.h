@@ -31,9 +31,9 @@ constexpr auto    SCALE_METER_PER_PX          = 0.1f; // meters per pixel
 constexpr ilf     DIM_SMALLWORLD              = { 14.11f, 10.58f };
 constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 
-constexpr auto    TEST_CELL_DECOMP            = true;
+constexpr auto    TEST_CELL_DECOMP            = false;
 constexpr auto    TEST_MARBLE_DETECT          = true;
-constexpr auto    TEST_LINE_SEG               = true;
+constexpr auto    TEST_LINE_SEG               = false;
 
 constexpr auto    USE_LOCALIZATION            = true;
 constexpr auto    USE_OBS_AVOID               = true;
