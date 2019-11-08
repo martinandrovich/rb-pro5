@@ -9,6 +9,7 @@
 #include <opencv2/highgui.hpp>
 
 #include "../constants.h"
+#include "utils.h"
 
 // --------------------------------------------------------------------------------
 // declarations for ::geometry
@@ -135,8 +136,15 @@ geometry::segment_intersect_at(const line_t& a, const line_t& b)
 inline void
 geometry::test_segment_intersect()
 {
-	geometry::line_t A = { cv::Point(0,0), cv::Point(3,3) };
-	geometry::line_t B = { cv::Point(0,3), cv::Point(3,0) };
+	line_t A = { cv::Point(0,0), cv::Point(3,3) };
+	line_t B = { cv::Point(0,3), cv::Point(3,0) };
 
-	std::cout << "line intersect: " << std::boolalpha << geometry::segment_intersect(A, B) << std::endl;
+	bool intersect = false;
+
+	benchmark<std::chrono::nanoseconds>([&]
+	{
+		intersect = segment_intersect(A, B);
+	});
+
+	std::cout << "line intersect: " << std::boolalpha << intersect << std::endl;
 }
