@@ -54,6 +54,12 @@ namespace geometry
 	std::optional<cv::Point>
 	segment_intersect_at(const line_t& a, const line_t& b);
 
+	bool
+	ccw(const cv::Point& A, const cv::Point& B, const cv::Point& C);
+
+	bool
+	segment_intersect_v2(const cv::Point& A, const cv::Point& B, const cv::Point& C, const cv::Point& D);
+
 	void
 	test_segment_intersect();
 }
@@ -133,6 +139,18 @@ geometry::segment_intersect_at(const line_t& a, const line_t& b)
 		// return cv::Point(0,0);
 }
 
+inline bool
+geometry::ccw(const cv::Point& A, const cv::Point& B, const cv::Point& C)
+{
+	return (C.y-A.y)*(B.x-A.x) > (B.y-A.y)*(C.x-A.x);
+}
+
+inline bool
+geometry::segment_intersect_v2(const cv::Point& A, const cv::Point& B, const cv::Point& C, const cv::Point& D)
+{
+	return ((ccw(A,C,D) != ccw(B,C,D)) && (ccw(A,B,C) != ccw(A,B,D)));
+}
+
 inline void
 geometry::test_segment_intersect()
 {
@@ -140,11 +158,18 @@ geometry::test_segment_intersect()
 	line_t B = { cv::Point(0,3), cv::Point(3,0) };
 
 	bool intersect = false;
+	bool intersect_v2 = false;
 
 	benchmark<std::chrono::nanoseconds>([&]
 	{
 		intersect = segment_intersect(A, B);
 	});
 
-	std::cout << "line intersect: " << std::boolalpha << intersect << std::endl;
+	benchmark<std::chrono::nanoseconds>([&]
+	{
+		intersect_v2 = segment_intersect_v2(A.from, A.to, B.from, B.to);
+	});
+
+	std::cout << "line intersect: "      << std::boolalpha << intersect << std::endl;
+	std::cout << "line intersect (v2): " << std::boolalpha << intersect_v2 << std::endl;
 }
