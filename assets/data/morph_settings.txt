@@ -1,0 +1,10 @@
+Morpholy settings: ...  
+ 
+Operation : 3
+Morphology kernel size : 3
+filter_sigma :13
+gauss_size : 4
+hough_center_tresh : 23
+hough_min_radius : 23
+hough_upper_tresh : 60
+ --------------------------------- 

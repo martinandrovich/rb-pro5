@@ -276,7 +276,7 @@ core::test_run(const std::string& path_to_video_writer)
   	const int key_right = 83;  	
 	const float scale_factor = 0.5;
 
-	auto settings =  tune_morphology_settings("MarbleRun2.avi");
+	auto settings =  tune_morphology_settings("Marble_data_big_world.avi");
 
 	// loop
 	while (true)
@@ -297,8 +297,7 @@ core::test_run(const std::string& path_to_video_writer)
 		if(video_writer.isOpened())
 		{
 			video_writer.write(camera_data.get_img());		
-			//std::cout << "The video has been opened" << std::endl;
-			//video_writer.release();
+			//std::cout << "The video has been opened" << std::endl;			
 		}
 
 		if ((key == key_up) && (core::vel_data.trans <= 1.2f))
