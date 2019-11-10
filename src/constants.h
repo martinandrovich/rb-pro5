@@ -14,6 +14,7 @@ using ilf = std::initializer_list<float>;
 constexpr_string  PATH_ROOT = "";
 constexpr_string  PATH_ASSETS                 = PATH_ROOT + "assets/data/";
 constexpr_string  PATH_IMG_ENVIRON_DEMO       = PATH_ROOT + "assets/img/environ-01.png";
+constexpr_string  PATH_IMG_GVD_MAP            = PATH_ROOT + "assets/img/gvd-map.png";
 constexpr_string  PATH_IMG_SMALLWORLD         = PATH_ROOT + "gazebo/models/smallworld/meshes/floor_plan.png";
 constexpr_string  PATH_IMG_BIGWORLD           = PATH_ROOT + "gazebo/models/bigworld/meshes/floor_plan.png";
 constexpr_string  PATH_FUZZY_OBS_AVOID        = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
@@ -34,6 +35,7 @@ constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 constexpr auto    TEST_CELL_DECOMP            = true;
 constexpr auto    TEST_MARBLE_DETECT          = true;
 constexpr auto    TEST_LINE_SEG               = true;
+constexpr auto    TEST_GVD                    = true;
 
 constexpr auto    USE_LOCALIZATION            = true;
 constexpr auto    USE_OBS_AVOID               = true;
