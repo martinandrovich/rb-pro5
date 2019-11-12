@@ -9,6 +9,10 @@
 
 using ilf = std::initializer_list<float>;
 
+// constants
+
+constexpr auto    EPSILON                     = 1e-6; // used for float comparisons
+
 // paths
 
 constexpr_string  PATH_ROOT = "";
