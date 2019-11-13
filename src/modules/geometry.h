@@ -17,7 +17,7 @@
 // --------------------------------------------------------------------------------
 
 using box_t    = std::array<cv::Point, 2>;
-using vertex_t = cv::Point();
+using vertex_t = cv::Point;
 
 struct line_t
 {
@@ -47,6 +47,9 @@ namespace geometry
 
 	std::vector<vertex_t>
 	extract_vertices(const cv::Mat& img);
+
+	cv::Mat
+	draw_vertices(const cv::Mat& img, std::vector<vertex_t> vertices);
 
 	cv::Mat
 	brushfire(const cv::Mat& img);
@@ -99,6 +102,39 @@ namespace geometry
 // --------------------------------------------------------------------------------
 
 // -- brushfire & GVD -------------------------------------------------------------
+
+inline std::vector<vertex_t>
+geometry::extract_vertices(const cv::Mat& img)
+{
+	// https://stackoverflow.com/questions/33646643/store-details-of-a-binary-image-consisting-simple-polygons
+	
+	// must be grayscale
+	if (img.channels() != 1)
+		throw std::runtime_error(ERR_IMG_NOT_GRAY);
+
+	// vector of contours
+	std::vector<std::vector<cv::Point>> vec_contours;
+	cv::findContours(img, vec_contours, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1);
+
+	// flatten vector of contours into vector of vertices
+	std::vector<vertex_t> vec_vertices;
+	for (const auto& vec : vec_contours)
+		vec_vertices.insert(vec_vertices.end(), vec.begin(), vec.end());
+
+	return vec_vertices;
+}
+
+inline cv::Mat
+geometry::draw_vertices(const cv::Mat& img, std::vector<vertex_t> vertices)
+{
+	cv::Mat img_vertices;
+	cv::cvtColor(img, img_vertices, CV_GRAY2BGR);
+
+	for (const auto& v : vertices)
+		cv::circle(img_vertices, cv::Point(v.x, v.y), 3, cv::Scalar(255, 0, 255));
+
+	return img_vertices;
+}
 
 inline cv::Mat
 geometry::brushfire(const cv::Mat& img_map)
@@ -331,6 +367,9 @@ geometry::test_brushfire_and_gvd()
 	// load and scale image
 	auto img = load_img(PATH_IMG_GVD_MAP, cv::IMREAD_GRAYSCALE);
 	cv::resize(img, img, cv::Size(), 20.f, 20.f, cv::INTER_NEAREST);
+
+	// show input
+	show_img("map", img);
 	
 	// brushfire
 	auto img_bf = brushfire(img);
@@ -339,6 +378,11 @@ geometry::test_brushfire_and_gvd()
 	// gvd
 	auto img_gvd = gvd(img).img;
 	show_img("gvd", img_gvd);
+
+	// vertices
+	auto vert = extract_vertices(img_gvd);
+	auto img_vert = draw_vertices(img_gvd, vert);
+	show_img("vertices", img_vert);
 }
 
 inline void
