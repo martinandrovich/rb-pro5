@@ -170,11 +170,16 @@ dim_t::dim_t(std::initializer_list<float> list)
 inline
 pos_t::pos_t(std::initializer_list<float> list)
 {
-	assert(list.size() == 3);
+	assert(list.size() <= 3 && list.size() > 0 );
 
-	this->x = list.begin()[0];
-	this->y = list.begin()[1];
-	this->z = list.begin()[2];
+	if (list.size() >= 1)
+		this->x = list.begin()[0];
+	
+	if (list.size() >= 2)
+		this->y = list.begin()[1];
+
+	if (list.size() >= 3)	
+		this->z = list.begin()[2];
 }
 
 inline bool
