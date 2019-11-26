@@ -147,7 +147,7 @@ public:
     inline const cv::Mat
     get_img(pose_t &robot_pose)
     {
-        static int pic = 0;
+        //static int pic = 0;
         mutex.lock();
         std::future<void> t (std::async(std::launch::async, &pose_estimate_t::mean_pos, this) );
         auto img_copy = img_scaled.clone();

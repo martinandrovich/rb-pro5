@@ -24,9 +24,13 @@
 #include "types/lidar.h"
 #include "types/camera.h"
 #include "pose_estimate.h"
+#include "types/morph_settings.h"
 
 #include "debug.h"
+#include "utils.h"
+#include "geometry.h"
 #include "flctrl.h"
+#include "pathgen.h"
 
 // public declarations for core
 
@@ -37,4 +41,7 @@ namespace core
 
 	void
 	run();
+
+	void
+	test_run(const std::string& path_to_video_writer);
 }

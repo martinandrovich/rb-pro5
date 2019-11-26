@@ -16,14 +16,21 @@ All notable changes to this project will be documented in this file; a full list
 
 #### Todos
 
+- Path generator
+- Adjacency graph with coverage methods [\#17]
+- Marble detection (OpenCV)
+- Localization (particle filter)
 - Make all custom types atomic with get() and get() methods [\#3]
-- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` [\#11] ([daniel])([androvich])
-- Goal navigation fuzzy controller `core::flctr_goal_nav()` [\#8] ([slaxzer])
 - Document fuzzy controller
 
 #### Features and enhancements
 
-- Item.
+- Add utilities module in `utils.h` with some helper methods
+- Add dimension type `dim_t`
+- Update constructors of `pos_t` and `dim_t` to work with `std::initializer_list<float>`
+- Obstacle avoidance fuzzy controller `core::flctrl_obs_avoid()` [\#11]
+- Goal navigation fuzzy controller `core::flctr_goal_nav()` [\#8]
+- Add dumplog to `debug.h`
 
 #### Bugfixes
 
@@ -108,6 +115,7 @@ A small paragraph about the major changes in this version could be written here;
 <!-- -- Issues -------------------------------------------------------------------------------------------------------------------- -->
 
 [\#19]:  https://github.com/github-changelog-generator/github-changelog-generator/issues/19
+[\#17]:  https://github.com/martinandrovich/rb-pro5/issues/17
 [\#14]:  https://github.com/martinandrovich/rb-pro5/issues/14
 [\#11]:  https://github.com/martinandrovich/rb-pro5/issues/11
 [\#10]:  https://github.com/martinandrovich/rb-pro5/issues/10
