@@ -77,9 +77,18 @@ flctrl::run(obs_list_t& obs_list, pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 		state = state_t::goal_nav;
 		goal_nav(pose, goal, vel_cmd);
 
+		static int i = 0;
+		std::vector<float>goalx = {20, 20, 35, 35 };
+		std::vector<float>goaly = {0,  20, 20, -30 };
+
 		// if goal is reached, then swap goal and origin
-		if (pose.dist(goal) < 0.1)
-			{ std::swap(origo.x, goal.x); std::swap(origo.y, goal.y); }	
+		if (pose.dist(goal) < 2)
+			{
+				std::swap(goalx[i], goal.x);
+				std::swap(goaly[i], goal.y);
+				i++;
+				//std::swap(origo.x, goal.x); std::swap(origo.y, goal.y); 
+			}	
 	}
 }
 
@@ -97,7 +106,9 @@ flctrl::goal_nav(pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("ang_vel");
 	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");	
 
-	// get inputs
+
+
+	//
 	float dir  = pose.dir(goal);
 	float dist = pose.dist(goal);
 

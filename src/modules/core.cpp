@@ -17,14 +17,17 @@ namespace core
 	gazebo::transport::PublisherPtr pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
-	lidar_t       lidar_data;
-	camera_t      camera_data;
-	pose_t        pose_data;
-	vel_t         vel_data;
-	pos_t         goal;
-	marble_t      nearest_marble;
-	obs_list_t    nearest_obs;
-	marble_list_t marbles;
+	lidar_t       	lidar_data;
+	camera_t      	camera_data;
+	pose_t        	pose_data;
+	pose_t 			pose_estimate;
+	vel_t         	vel_data;
+	pos_t         	goal;
+	marble_t      	nearest_marble;
+	obs_list_t    	nearest_obs;
+	marble_list_t 	marbles;
+
+	pose_estimate_t pose_est_data(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
 
 	// private methods
 
@@ -181,6 +184,7 @@ core::run()
 	// loop
 	while (true)
 	{
+
 		// sleep
 		std::this_thread::sleep_for(RUN_FREQ_MS);
 
@@ -194,6 +198,9 @@ core::run()
 		// show camera output
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());
 
+		// floor plane output
+		cv::imshow(WNDW_ESTIMATE, pose_est_data.get_img(pose_data));
+
 		// run main controller
 		core::controller();
 
@@ -202,6 +209,7 @@ core::run()
 
 		// align windows
 		core::align_windows();
+
 	}
 
 	// shutdown gazebo
@@ -219,8 +227,17 @@ core::publish_velcmd()
 	static gazebo::msgs::Pose msg;
 	gazebo::msgs::Set(&msg, vel_data.get_pose());
 
+	// 
+	pose_est_data.timing_start_t2();
+
 	// publish the velocity command
 	core::pub_velcmd->Publish(msg);
+
+	// should be performed right after 
+	pose_est_data.particle_filter(vel_data);
+
+	// 
+	pose_est_data.timing_start_t1();
 }
 
 void
@@ -236,6 +253,12 @@ core::controller()
 	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
 	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
 
+	pose_est_data.get_lidar_data(lidar_data);
+
+	pose_estimate.pos.x = pose_est_data.posX;
+	pose_estimate.pos.y = pose_est_data.posY;
+	pose_estimate.orient.yaw = pose_est_data.yaw;
+
 	// extract nearest marbles
 	// marbles = camera_data.get_marbles();
 	// nearest_marble = camera_data.get_nearest_marble();
@@ -245,6 +268,8 @@ core::controller()
 
 	// fuzzy controller
 	flctrl::run(nearest_obs, pose_data, goal, vel_data);
+	// flctrl::run(nearest_obs, pose_estimate, goal, vel_data);
+
 
 	// publish velocity command
 	core::publish_velcmd();
