@@ -15,7 +15,7 @@ constexpr auto    EPSILON                     = 1e-6; // used for float comparis
 
 // paths
 
-constexpr_string  PATH_ROOT = "";
+constexpr_string  PATH_ROOT                   = "";
 constexpr_string  PATH_ASSETS                 = PATH_ROOT + "assets/data/";
 constexpr_string  PATH_IMG_ENVIRON_DEMO       = PATH_ROOT + "assets/img/environ-01.png";
 constexpr_string  PATH_IMG_GVD_MAP            = PATH_ROOT + "assets/img/gvd-map.png";
@@ -30,19 +30,19 @@ constexpr_string  PATH_FONT_CONSOLAS          = PATH_ROOT + "assets/data/consola
 
 constexpr auto    RUN_FREQ_MS                 = std::chrono::milliseconds(20); // ms
 constexpr auto    MAX_DIST_TO_OBSTACLE        = 0.7f; // meters
-constexpr ilf     GOAL_POS                    = { 30.f, 0.f, 0.f }; // meters
-constexpr auto    LIDAR_RANGE_LIMIT           = 10; // number of rays
+constexpr ilf     GOAL_POS                    = { 0.f, 0.f, 0.f }; // meters
+constexpr auto    LIDAR_RANGE_LIMIT           = 0; // number of rays
 constexpr auto    FUZZY_SCALING_FACTOR        = 1.0f;
 constexpr auto    SCALE_METER_PER_PX          = 0.1f; // meters per pixel
 constexpr ilf     DIM_SMALLWORLD              = { 14.11f, 10.58f };
 constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 
-constexpr auto    FLOOR_PLAN_SCALE       = ( ( 120 / 84.67 ) + ( 80 / 56.44 ) ) / 2.0; // scale factor floor_plan.png image
+constexpr auto    FLOOR_PLAN_SCALE            = ( ( 120 / 84.67 ) + ( 80 / 56.44 ) ) / 2.0; // scale factor floor_plan.png image
 
 constexpr auto    TEST_CELL_DECOMP            = false;
-constexpr auto    TEST_MARBLE_DETECT          = true;
-constexpr auto    TEST_LINE_SEG               = true;
-constexpr auto    TEST_GVD                    = true;
+constexpr auto    TEST_MARBLE_DETECT          = false;
+constexpr auto    TEST_LINE_SEG               = false;
+constexpr auto    TEST_GVD                    = false;
 
 constexpr auto    USE_LOCALIZATION            = true;
 constexpr auto    USE_OBS_AVOID               = true;

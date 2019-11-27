@@ -26,7 +26,7 @@
 #include <types/lidar.h>
 
 
-constexpr auto PARTICLES = 5000;
+constexpr auto PARTICLES = 20000;
 constexpr auto IMG_SCALE = 10;
 constexpr auto LIDAR_SCALE = 10 * IMG_SCALE;
 constexpr auto ANGLES = 276;
@@ -129,11 +129,13 @@ public:
         auto temp = lidar_data_.get_vec_obs(data);
         int i = 0;
 
-        if (ray_data.size() != 180)
+        std::cout << temp.size() << std::endl;
+
+        if (ray_data.size() != 200)
         {
-            std::cout << "Resized Ray Data to 180" << std::endl;
+            std::cout << "Resized Ray Data to 200" << std::endl;
             ray_data.clear();
-            ray_data.resize(180, temp[0]);
+            ray_data.resize(200, temp[0]);
         }
 
         for (auto &temp_ : temp)
@@ -174,27 +176,9 @@ public:
 
             cv::Point robot(xaxis / 2 + robot_pose.pos.x * IMG_SCALE, yaxis / 2 - robot_pose.pos.y * IMG_SCALE);
             cv::circle(img_copy, robot, 5, cv::Scalar(0, 0, 255));
-            
-            float orientation = 0;
-
-            for (size_t i = 0; i < PARTICLES; i++)
-            {
-                orientation += particles[i].orient.yaw; 
-            }
-
-            // posX = mean_position.pos.x - xaxis/2;
-            // posY = mean_position.pos.y - yaxis/2;
-            // posX /= IMG_SCALE;
-            // posY /= -IMG_SCALE;
-            // yaw = -orientation/PARTICLES;
-
-            // std::string a = std::string("pictures/") + std::to_string(pic++) + std::string(".png");
-
-            // cv::imwrite( a , img_copy);
-            
 
             fpos.open("position.csv", std::ios::out | std::ios::app);
-            fpos << mean_pos.x << " , "<< mean_pos.y << " , " <<  orientation/PARTICLES << " , " << robot.x << " , " << robot.y << " , " << robot_pose.orient.yaw << std::endl;
+            fpos << mean_position.pos.x << " , "<< mean_position.pos.y << " , " <<  -mean_position.orient.yaw << " , " << robot.x << " , " << robot.y << " , " << robot_pose.orient.yaw << std::endl;
             fpos.close();
         }
 
@@ -294,6 +278,7 @@ private:
 
             if (index < 0 || index >= angle.size()) 
             {
+                std::cout << index << std::endl;
                 std::cout << "ERROR OCCURED" << std::endl;
             }
 
@@ -461,7 +446,7 @@ private:
                     }
                 }
             }
-            iterations++;
+            std::cout << iterations++ << std::endl;
         }
     }
 

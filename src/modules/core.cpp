@@ -258,9 +258,9 @@ core::controller()
 
 	pose_est_data.get_lidar_data(lidar_data);
 
-	pose_estimate.pos.x = pose_est_data.posX;
-	pose_estimate.pos.y = pose_est_data.posY;
-	pose_estimate.orient.yaw = pose_est_data.yaw;
+	// pose_estimate.pos.x = pose_est_data.posX;
+	// pose_estimate.pos.y = pose_est_data.posY;
+	// pose_estimate.orient.yaw = pose_est_data.yaw;
 
 	// extract nearest marbles
 	// marbles = camera_data.get_marbles();
@@ -349,6 +349,7 @@ core::test_run(const std::string& path_to_video_writer)
 	gazebo::client::shutdown();	
 
 }
+
 
 tune_morphology::morph_settings 
 core::tune_morphology_settings(const std::string& video_path)
