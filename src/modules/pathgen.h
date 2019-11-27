@@ -44,7 +44,7 @@ pathgen::test_cell_decomp()
 	
 	// load and scale image
 	auto img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
-	scale_image(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
+	scale_img(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
 
 	// generate adjacency graph
 	auto adj_graph = adj_graph_t::gen_adj_graph(img);

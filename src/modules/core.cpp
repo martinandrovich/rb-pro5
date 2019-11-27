@@ -13,8 +13,10 @@ namespace core
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::SubscriberPtr sub_camera;
 	gazebo::transport::SubscriberPtr sub_pose;
+	gazebo::transport::SubscriberPtr sub_test;
 	gazebo::transport::PublisherPtr pub_velcmd;
 	gazebo::transport::PublisherPtr pub_world;
+	gazebo::transport::PublisherPtr pub_test;
 	gazebo::msgs::WorldControl ctrl_msg;
 
 	lidar_t       lidar_data;
@@ -45,6 +47,9 @@ namespace core
 
 	void
 	callback_pose(ConstPosesStampedPtr& msg);
+
+	void
+	callback_test(const boost::shared_ptr<gazebo::msgs::Any const>& msg);
 
 	void
 	publish_velcmd();
@@ -131,6 +136,13 @@ core::callback_pose(ConstPosesStampedPtr& msg)
 	}
 }
 
+void
+core::callback_test(const boost::shared_ptr<gazebo::msgs::Any const>& msg)
+{
+	auto val = msg->int_value();
+	//std::cout << val << std::endl;
+}
+
 // --------------------------------------------------------------------------------
 // public method defintions for ::core
 // --------------------------------------------------------------------------------
@@ -154,10 +166,12 @@ core::init(int argc, char** argv)
 	core::sub_lidar  = node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", core::callback_lidar);
 	core::sub_pose   = node->Subscribe("~/pose/info", core::callback_pose);
 	core::sub_camera = node->Subscribe("~/pioneer2dx/camera/link/camera/image", core::callback_camera);
+	core::sub_test   = node->Subscribe("~/test", core::callback_test);
 
 	// setup gazebo publishers
 	core::pub_velcmd = node->Advertise<gazebo::msgs::Pose>("~/pioneer2dx/vel_cmd");
 	core::pub_world  = node->Advertise<gazebo::msgs::WorldControl>("~/world_control");
+	core::pub_test  = node->Advertise<gazebo::msgs::Any>("~/test");
 
 	// set mutable reset
 	core::ctrl_msg.mutable_reset()->set_all(true);
@@ -205,6 +219,10 @@ core::run()
 
 		// align windows
 		core::align_windows();
+
+		// test
+		auto msg = gazebo::msgs::ConvertAny(420);
+		pub_test->Publish(msg);
 	}
 
 	// shutdown gazebo
