@@ -26,7 +26,8 @@ namespace core
 	marble_t        nearest_marble;
 	obs_list_t      nearest_obs;
 	marble_list_t   marbles;
-	pose_estimate_t pose_est_data(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
+	pose_estimate_t pose_est_data;
+	// pose_estimate_t pose_est_data(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
 
 	// private methods
 
@@ -174,6 +175,10 @@ core::init(int argc, char** argv)
 	// set goal
 	core::goal = GOAL_POS;
 
+	// initialize particle filter
+	if (USE_PARTICLE_FILTER)
+		pose_est_data.init(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
+
 	// set initialization status
 	core::initialized = true;
 }
@@ -264,17 +269,20 @@ core::controller()
 		pose_estimate.pos.y = pose_est_data.posY;
 		pose_estimate.orient.yaw = pose_est_data.yaw;
 	}
-	
+
 	// path generation + AI
 	;
 
 	// fuzzy controller
 	// using global pose or estimated pose
-	if (USE_LOCALIZATION && USE_PARTICLE_FILTER)
+	if (USE_PARTICLE_FILTER && USE_LOCALIZATION)
+	{
 		flctrl::run(nearest_obs, pose_estimate, goal, vel_data);
-
+	}
 	else
+	{
 		flctrl::run(nearest_obs, pose_data, goal, vel_data);
+	}
 
 	// publish velocity command
 	core::publish_velcmd();

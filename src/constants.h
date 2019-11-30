@@ -34,29 +34,30 @@ constexpr auto    MAX_DIST_TO_OBSTACLE        = 0.7f; // meters
 constexpr ilf     GOAL_POS                    = { 0.f, 0.f, 0.f }; // meters
 constexpr auto    FUZZY_SCALING_FACTOR        = 1.0f;
 constexpr auto    SCALE_METER_PER_PX          = 0.1f; // meters per pixel
+constexpr auto    FLOOR_PLAN_SCALE            = ((120 / 84.67) + (80 / 56.44)) / 2.0; // scale factor floor_plan.png image
 constexpr ilf     DIM_SMALLWORLD              = { 14.11f, 10.58f };
 constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 constexpr auto    GVD_VERTEX_RADIUS           = SCALE_METER_PER_PX * 40;
 constexpr auto    LIDAR_MAX_RANGE             = 200;
 
-constexpr auto    FLOOR_PLAN_SCALE            = ((120 / 84.67) + (80 / 56.44)) / 2.0; // scale factor floor_plan.png image
+constexpr auto    TEST_GVD                    = true;
+constexpr auto    TEST_LINE_SEG               = false;
+constexpr auto    TEST_MARBLE_DETECT          = false;
+constexpr auto    TEST_EXIT_AFTER             = true;
 
-constexpr auto    PTCLFILT_PARTICLES          = 500;
+constexpr auto    USE_OBS_AVOID               = true;
+constexpr auto    USE_PARTICLE_FILTER         = false;
+constexpr auto    USE_LOCALIZATION            = false;
+
+constexpr auto    PTCLFILT_PARTICLES          = 2500;
 constexpr auto    PTCLFILT_IMG_SCALE          = 10;
 constexpr auto    PTCLFILT_LIDAR_SCALE        = 10 * PTCLFILT_IMG_SCALE;
 constexpr auto    PTCLFILT_ANGLES             = 276;
 constexpr auto    PTCLFILT_START_VAL          = 3.1347;
 constexpr auto    PTCLFILT_DELTA              = 2.04086 - 2.01806;
 constexpr auto    PTCLFILT_THREADS            = 16;
-
-constexpr auto    TEST_CELL_DECOMP            = false;
-constexpr auto    TEST_MARBLE_DETECT          = false;
-constexpr auto    TEST_LINE_SEG               = false;
-constexpr auto    TEST_GVD                    = false;
-
-constexpr auto    USE_PARTICLE_FILTER         = true;
-constexpr auto    USE_LOCALIZATION            = true;
-constexpr auto    USE_OBS_AVOID               = true;
+constexpr auto    PTCLFILT_POS_NOISE_SIGMA    = 1.8;
+constexpr auto    PTCLFILT_ANG_NOISE_SIGMA    = 0.1;
 
 // windows
 
@@ -79,3 +80,4 @@ constexpr auto    ERR_IMG_EMPTY               = "The image is empty.";
 constexpr auto    ERR_IMG_NOT_GRAY            = "The image is not grayscale.";
 constexpr auto    ERR_NO_IMPL                 = "No implementation.";
 constexpr auto    ERR_NUM_NOT_POS             = "Number must be positive.";
+constexpr auto    ERR_EXCEED_LIDAR_RANGE      = "Number of lidar rays exceed maximum; check model.sdf and cached model of lidar sensor.";

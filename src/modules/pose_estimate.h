@@ -33,8 +33,15 @@ class pose_estimate_t
 
 public:
 
-	pose_estimate_t(cv::String filepath, float scalefactor_) : scalefactor(scalefactor_), integral_mov(0), integral_dir(0)
+	pose_estimate_t() = default;
+
+	void
+	init(cv::String filepath, float scalefactor_)
 	{
+		// :  scalefactor(scalefactor_), integral_mov(0), integral_dir(0)
+		this->scalefactor = scalefactor_;
+		this->integral_mov = 0;
+		this->integral_dir = 0;
 
 		img = cv::imread(filepath, cv::IMREAD_GRAYSCALE);
 
@@ -124,11 +131,14 @@ public:
 		auto temp = lidar_data_.get_vec_obs(data);
 		int i = 0;
 
-		if (ray_data.size() != 200)
+		if (ray_data.size() > LIDAR_MAX_RANGE)
+			throw std::runtime_error(ERR_EXCEED_LIDAR_RANGE);
+
+		if (ray_data.size() != LIDAR_MAX_RANGE)
 		{
-			std::cout << "Resized Ray Data to 200" << std::endl;
+			std::cout << "Resized Ray Data to " << LIDAR_MAX_RANGE << std::endl;
 			ray_data.clear();
-			ray_data.resize(200, temp[0]);
+			ray_data.resize(LIDAR_MAX_RANGE, temp[0]);
 		}
 
 		for (auto &temp_ : temp)
@@ -177,16 +187,15 @@ public:
 				orientation += particles[i].orient.yaw; 
 			}
 
-			// posX = mean_position.pos.x - xaxis/2;
-			// posY = mean_position.pos.y - yaxis/2;
-			// posX /= PTCLFILT_IMG_SCALE;
-			// posY /= -PTCLFILT_IMG_SCALE;
-			// yaw = -orientation/PTCLFILT_PARTICLES;
+			posX = mean_position.pos.x - xaxis/2;
+			posY = mean_position.pos.y - yaxis/2;
+			posX /= PTCLFILT_IMG_SCALE;
+			posY /= -PTCLFILT_IMG_SCALE;
+			yaw = -orientation/PTCLFILT_PARTICLES;
 
 			// std::string a = std::string("pictures/") + std::to_string(pic++) + std::string(".png");
 
 			// cv::imwrite( a , img_copy);
-			
 
 			fpos.open("position.csv", std::ios::out | std::ios::app);
 			fpos << mean_pos.x << " , "<< mean_pos.y << " , " <<  orientation/PTCLFILT_PARTICLES << " , " << robot.x << " , " << robot.y << " , " << robot_pose.orient.yaw << std::endl;
@@ -205,9 +214,9 @@ public:
 	{
 		static std::random_device rd{};
 		static std::mt19937 gen{rd()};
-		static std::normal_distribution<float> distx(0, 1.2); // 0.4 0.5 0.6 1.2
-		static std::normal_distribution<float> disty(0, 1.2); // 0.4 0.5 0.6 1.2
-		static std::normal_distribution<float> angle(0, 0.1); // 0.1
+		static std::normal_distribution<float> distx(0, PTCLFILT_POS_NOISE_SIGMA); // 0.4 0.5 0.6 1.2
+		static std::normal_distribution<float> disty(0, PTCLFILT_POS_NOISE_SIGMA); // 0.4 0.5 0.6 1.2
+		static std::normal_distribution<float> angle(0, PTCLFILT_ANG_NOISE_SIGMA); // 0.1
 
 		// integrate the data
 		integral_mov = vel_data.trans * ((float)timing_get_time_ms()) / 1000.0;

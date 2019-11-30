@@ -59,9 +59,6 @@ namespace flctrl
 inline void
 flctrl::run(obs_list_t& obs_list, pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 {
-	// variables
-	static pos_t origo = { 0, 0 };
-
 	// check distace to nearest obstacle
 	// select appropriate fuzzy controller
 	if (obs_list["any"].dist < MAX_DIST_TO_OBSTACLE && USE_OBS_AVOID)
@@ -78,8 +75,8 @@ flctrl::run(obs_list_t& obs_list, pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 		goal_nav(pose, goal, vel_cmd);
 
 		static int i = 0;
-		std::vector<float>goalx = {20, 20, 35, 35 };
-		std::vector<float>goaly = {0,  20, 20, -30 };
+		std::vector<float>goalx = { 20, 20, 35,  35 };
+		std::vector<float>goaly = { 0,  20, 20, -30 };
 
 		// if goal is reached, then swap goal and origin
 		if (pose.dist(goal) < 2)
@@ -106,12 +103,9 @@ flctrl::goal_nav(pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 	static fl::OutputVariable* robot_dir   = engine->getOutputVariable("ang_vel");
 	static fl::OutputVariable* robot_speed = engine->getOutputVariable("robot_speed");	
 
-
-
 	//
 	float dir  = pose.dir(goal);
 	float dist = pose.dist(goal);
-
 
 	// feed input to the fl engine
 	goal_dir->setValue(dir);
