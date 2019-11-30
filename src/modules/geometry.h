@@ -41,15 +41,6 @@ struct gvd_t
 
 namespace geometry
 {
-
-	// -- morph structuring elements  -------------------------------------------------
-	
-	// structuring elements
-	inline auto str_elm_rect_2x2 = cv::getStructuringElement(cv::MORPH_RECT,    cv::Size(2, 2));
-	inline auto str_elm_rect_5x5 = cv::getStructuringElement(cv::MORPH_RECT,    cv::Size(5, 5));
-	inline auto str_elm_rect_9x9 = cv::getStructuringElement(cv::MORPH_RECT,    cv::Size(9, 9));
-	inline auto str_elm_cros_2x2 = cv::getStructuringElement(cv::MORPH_CROSS,   cv::Size(2, 2));
-	inline auto str_elm_elps_2x2 = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2, 2));
 	
 	// -- brushfire & GVD -------------------------------------------------------------
 
@@ -71,7 +62,7 @@ namespace geometry
 	cv::Mat
 	gvd_simple(const cv::Mat& img_map);
 
-	gvd_t
+	void
 	gvd_graph(const cv::Mat& img_gvd);
 
 	// -- points ----------------------------------------------------------------------
@@ -132,9 +123,12 @@ namespace geometry
 
 	void
 	test_gvd_draw_edges();
+	
+	void
+	test_gvd_houghlines();
 
 	void
-	test_gvd_draw_edges2();
+	test_gvd_houghlinesp();
 	
 	void
 	test_brushfire_and_gvd();
@@ -377,7 +371,7 @@ geometry::gvd(const cv::Mat& img_map)
 	// purge double lines
 
 	// first identify any double lines by eroding thick parts of the GVD
-	cv::erode(img_gvd, img_gvd_dl, str_elm_elps_2x2);
+	cv::erode(img_gvd, img_gvd_dl, MORPH::STR_ELM_ELPS_2x2);
 
 	// remove the detected lines from the GVD
 	// invert the found double lines and BITWISE_AND it with the original GVD
@@ -386,15 +380,15 @@ geometry::gvd(const cv::Mat& img_map)
 	// show_img("gvd: custom (thin)", img_gvd);
 
 	// make GVD lines thicker, i.e. dilute the black pixels (erode on inverse image)
-	cv::dilate(img_gvd, img_gvd, str_elm_rect_2x2);
+	cv::dilate(img_gvd, img_gvd, MORPH::STR_ELM_RECT_2x2);
 	// show_img("gvd: custom (thickened)", img_gvd);
 
 	// close any minor gaps
-	cv::morphologyEx(img_gvd, img_gvd, cv::MORPH_CLOSE, str_elm_rect_2x2);
+	cv::morphologyEx(img_gvd, img_gvd, cv::MORPH_CLOSE, MORPH::STR_ELM_RECT_2x2);
 	// show_img("gvd: custom (gaps closed)", img_gvd);
 
 	// remove any noise
-	cv::morphologyEx(img_gvd, img_gvd, cv::MORPH_OPEN, str_elm_elps_2x2);
+	cv::morphologyEx(img_gvd, img_gvd, cv::MORPH_OPEN, MORPH::STR_ELM_ELPS_2x2);
 	// show_img("gvd: custom (noise removal)", img_gvd);
 
 	// invert GVD, making the GVD edge black
@@ -402,22 +396,6 @@ geometry::gvd(const cv::Mat& img_map)
 
 	// return gvd image
 	return img_gvd;
-}
-
-inline void
-gradient_test()
-{
-	cv::Mat img, img_labels, img_laplace, img_sobel, img_canny, img_gvd;
-
-	img = load_img(PATH_IMG_GRAD_TEST, cv::IMREAD_GRAYSCALE);
-
-	std::cout << img << std::endl;
-	show_img("image", img);
-
-	// detect edges using canny
-	cv::Canny(img, img_canny, 50, 100, 3);
-	std::cout << img_canny << std::endl;
-	show_img("gvd: canny", img_canny);
 }
 
 inline cv::Mat
@@ -428,30 +406,7 @@ geometry::gvd_bf(const cv::Mat& img_map, cv::Mat img_bf)
 		throw std::runtime_error(ERR_IMG_NOT_GRAY);
 
 	// variables
-	cv::Mat img_map_inv, img_laplace, img_sobel, img_gvd, img_canny;
-
-	// auto self_collision = [&](const cv::Point& pt, const size_t n)
-	// {
-	// 	// boundary check for 3x3 kernel
-	// 	if ((pt.x - 1) < 0 || (pt.y - 1) < 0 || (pt.x + 1 > img.cols) || (pt.y + 1 > img.rows))
-	// 		return false;
-
-	// 	const auto& tl = img.at<uchar>({pt.x - 1, pt.y - 1 });
-	// 	const auto& tm = img.at<uchar>({pt.x    , pt.y - 1 });
-	// 	const auto& tr = img.at<uchar>({pt.x + 1, pt.y - 1 });
-	// 	const auto& ml = img.at<uchar>({pt.x + 1, pt.y     });
-	// 	const auto& mm = img.at<uchar>({pt.x    , pt.y     });
-	// 	const auto& mr = img.at<uchar>({pt.x - 1, pt.y     });
-	// 	const auto& bl = img.at<uchar>({pt.x - 1, pt.y + 1 });
-	// 	const auto& bm = img.at<uchar>({pt.x    , pt.y + 1 });
-	// 	const auto& br = img.at<uchar>({pt.x + 1, pt.y + 1 });
-
-	// 	// match pattern within kernel
-	// 	return 
-	// 	(
-	// 		(mm == n + 1 && mm == tm && bm == (mm - 1))
-	// 	);		
-	// };
+	cv::Mat img_bf_norm, img_map_inv, img_laplace, img_sobel, img_sobel_abs, img_gvd;
 
 	// compute inverse
 	cv::bitwise_not(img_map, img_map_inv);
@@ -460,45 +415,47 @@ geometry::gvd_bf(const cv::Mat& img_map, cv::Mat img_bf)
 	if (img_bf.empty())
 		img_bf = brushfire(img_map);
 
-	// use Canny to find gradient, i.e. the GVD
-	// cv::Canny(img_bf, img_canny, 0, 0, 5, true);
-	// show_img("gvd: canny", img_canny);
+	// normalize brushfire
+	img_bf.convertTo(img_bf_norm, CV_32F);
+	cv::normalize(img_bf_norm, img_bf_norm, 0, 1, cv::NORM_MINMAX);
 
-	// use Laplace operator to find gradient, i.e. the GVD
-	cv::Laplacian(img_bf, img_laplace, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
-	cv::convertScaleAbs(img_laplace, img_laplace);
+	// use Sobel operator to find gradient
+	cv::Mat grad_x, grad_y, abs_grad_x, abs_grad_y;
 
-	// fix laplace
-	// remove obstacle outlinees from GVD (subtract the inverse), invert the GVD, making the edges black
-	cv::threshold(img_laplace, img_laplace, 0, 255, cv::THRESH_BINARY);
-	img_laplace -= img_map_inv;
-	cv::bitwise_not(img_laplace, img_laplace);
+	// gradient X
+	cv::Sobel(img_bf_norm, grad_x, CV_32F, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
+	// cv::Scharr(img_bf, grad_x, CV_32F, 1, 0, 1, 0, cv::BORDER_DEFAULT);
+
+	// gradient Y
+	cv::Sobel(img_bf_norm, grad_y, CV_32F, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
+	// cv::Scharr(img_bf, grad_y, CV_32F, 0, 1, 1, 0, cv::BORDER_DEFAULT);
+
+	// euclidean gradient
+	cv::Mat grad_x2, grad_y2, grad, grad_norm;
+	cv::pow(grad_x, 2, grad_x2);
+	cv::pow(grad_y, 2, grad_y2);
+	cv::sqrt(grad_x2 + grad_y2, grad);
+
+	// normalize gradient
+	cv::normalize(grad, grad_norm, 0, 1, cv::NORM_MINMAX);
+	// show_img("gvd: sobel (normalized)", grad_norm);
+
+	// threshold gradient
+	cv::threshold(grad_norm, grad_norm, 0.8, 1.0, cv::THRESH_BINARY);
+	// show_img("gvd: sobel (th)", grad_norm);
+
+	// convert to 8-bit
+	cv::convertScaleAbs(grad_norm, img_sobel);
+	cv::threshold(img_sobel, img_sobel, 0, 255, cv::THRESH_BINARY);
+	// show_img("gvd: sobel (8-bit)", img_sobel);
+
+	// remove obstacles from gradient
+	img_sobel += img_map_inv;
+	// show_img("gvd: sobel (no obstacles)", img_sobel);
 	
-	img_gvd = img_laplace;
-
-	// show_img("gvd: laplace", img_laplace);
-
-	// // use Sobel operator to find gradient
-	// cv::Mat grad_x, grad_y, abs_grad_x, abs_grad_y;
-
-	// // gradient X
-	// cv::Sobel(img_bf, grad_x, CV_16S, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
-	// cv::convertScaleAbs(grad_x, abs_grad_x);
-
-	// // gradient Y
-	// cv::Sobel(img_bf, grad_y, CV_16S, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
-	// cv::convertScaleAbs(grad_y, abs_grad_y);
-
-	// // total gradient (approximate)
-	// cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, img_sobel);
-
-	// // fix sobel
-	// cv::threshold(img_sobel, img_sobel, 0, 255, cv::THRESH_BINARY);
-	// img_sobel += img_map_inv;
-	// show_img("gvd: sobel", img_sobel);
-	
-	// // combine sobel and laplace
-	// cv::bitwise_and(img_laplace, img_sobel, img_gvd);
+	// output
+	img_gvd = img_sobel;
+	// cv::imwrite("img_gvd.png", img_gvd);
 	
 	return img_gvd;
 }
@@ -572,12 +529,12 @@ geometry::gvd_opencv(const cv::Mat& img_map)
 	cv::threshold(img_laplace, img_laplace, 0, 255, cv::THRESH_BINARY);
 
 	// morph dilation
-	cv::dilate(img_laplace, img_laplace, str_elm_elps_2x2);
+	cv::dilate(img_laplace, img_laplace, MORPH::STR_ELM_ELPS_2x2);
 	cv::bitwise_not(img_laplace, img_laplace);
-	cv::dilate(img_laplace, img_laplace, str_elm_elps_2x2);
+	cv::dilate(img_laplace, img_laplace, MORPH::STR_ELM_ELPS_2x2);
 
 	// expand map walls and mask the GVD
-	cv::dilate(img_map_inv, img_map_inv, str_elm_rect_9x9);
+	cv::dilate(img_map_inv, img_map_inv, MORPH::STR_ELM_RECT_9x9);
 	cv::bitwise_or(img_laplace, img_map_inv, img_laplace);
 
 	// add map
@@ -587,58 +544,134 @@ geometry::gvd_opencv(const cv::Mat& img_map)
 	return img_gvd;
 }
 
-inline cv::Mat
-geometry::gvd_simple(const cv::Mat& img_map)
-{
-	// assert grayscale image
-	if (img_map.channels() != 1)
-		throw std::runtime_error(ERR_IMG_NOT_GRAY);
-
-	cv::Mat img     = img_map.clone();
-	cv::Mat img_gvd = cv::Mat::zeros(img_map.rows, img_map.cols, CV_8U);
-
-	// iterate all pixels of image
-	iterate_mat(img, [&](auto& pos, auto& pixel)
-	{
-		auto shortest_dist = INFINITY;
-		auto obs_count     = 0;
-
-		// for all white pixels
-		if (pixel == 255) iterate_mat(img, [&](auto& pos2, auto& pixel2)
-		{
-
-			if (pixel2 != 0)
-				return;
-
-			auto dx   = std::abs(pos.x - pos2.x);
-			auto dy   = std::abs(pos.y - pos2.y);
-			auto dist = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
-
-			if (dist == shortest_dist)
-				obs_count++;
-		
-			else
-			if (dist < shortest_dist)
-			{
-				shortest_dist = dist;
-				obs_count = 1;
-			}
-
-		});
-
-		// std::cout << pos << " | " << shortest_dist << " | " << obs_count << std::endl;
-
-		// set pixel value
-		img_gvd.at<uchar>(pos) = (obs_count > 1) ? 127 : (uchar)shortest_dist;
-	});
-
-	//std::cout << img_gvd << std::endl;
-	return img_gvd;
-}
-
-inline gvd_t
+inline void
 geometry::gvd_graph(const cv::Mat& img_gvd)
 {
+	// assert grayscale image
+	if (img_gvd.channels() != 1)
+		throw std::runtime_error(ERR_IMG_NOT_GRAY);
+
+	// variables
+	cv::Mat img, img_dl, img_out;
+	std::vector<line_t> vec_edges;
+	std::vector<vertex_t> vec_vertices;
+
+	// copy gvd
+	img = img_gvd.clone();
+
+	// create empty output
+	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
+	// img_out.setTo(cv::Scalar(255, 255, 255));
+
+	// -------------------------------------------------------------
+
+	// lambdas
+
+	auto is_diag = [&](const cv::Point& pt) -> std::optional<cv::Point>
+	{
+		// boundary check for 3x3 kernel
+		if ((pt.x - 1) < 0 || (pt.y - 1) < 0 || (pt.x + 1 > img.cols) || (pt.y + 1 > img.rows))
+			return std::nullopt;
+
+		// pixel values
+		const auto& tl = img.at<uchar>({pt.x - 1, pt.y - 1});
+		const auto& tm = img.at<uchar>({pt.x    , pt.y - 1});
+		const auto& tr = img.at<uchar>({pt.x + 1, pt.y - 1});
+		const auto& ml = img.at<uchar>({pt.x - 1, pt.y    });
+		const auto& mm = img.at<uchar>({pt.x    , pt.y    });
+		const auto& mr = img.at<uchar>({pt.x + 1, pt.y    });
+		const auto& bl = img.at<uchar>({pt.x - 1, pt.y + 1});
+		const auto& bm = img.at<uchar>({pt.x    , pt.y + 1});
+		const auto& br = img.at<uchar>({pt.x + 1, pt.y + 1});
+
+		// perform diagonal check within 3x3 kernel
+
+		if (not (mm == PIXEL::BLACK && tm == PIXEL::WHITE && ml == PIXEL::WHITE && mr == PIXEL::WHITE && bm == PIXEL::WHITE))
+			return std::nullopt;
+
+		if (tl == mm && tr == PIXEL::WHITE && bl == PIXEL::WHITE && br == PIXEL::WHITE)
+			return PIXEL::TL;
+			
+		if (tr == mm && tl == PIXEL::WHITE && bl == PIXEL::WHITE && br == PIXEL::WHITE)
+			return PIXEL::TR;
+
+		if (bl == mm && tr == PIXEL::WHITE && tl == PIXEL::WHITE && br == PIXEL::WHITE)
+			return PIXEL::BL;
+
+		if (br == mm && tl == PIXEL::WHITE && bl == PIXEL::WHITE && tr == PIXEL::WHITE)
+			return PIXEL::BR;
+	};
+
+	auto count_black_px = [&](const cv::Point& pt)
+	{
+		size_t count = 0;
+
+		iterate_3x3<uchar>(img, pt, [&](auto& pos, auto& pixel)
+		{
+			if (pixel == PIXEL::BLACK)
+				count++;
+		});
+
+		return count;
+	};
+
+	auto find_diag = [&]()
+	{
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (auto dir = is_diag(pos))
+			{
+				auto pos_start    = pos;
+				auto pos_end      = cv::Point();
+				auto pos_cur      = pos + dir.value();
+				// auto num_black_px = 3;
+
+				// add vertex to vector and make that pixel white
+				vec_vertices.push_back(pos_start);
+				img.at<uchar>(pos_start) = PIXEL::WHITE;
+
+				while (pt_within_boundary(img, pos_cur) && img.at<uchar>(pos_cur) == PIXEL::BLACK)
+				{
+					// num_black_px = count_black_px(pos_cur);
+					img.at<uchar>(pos_cur) = PIXEL::WHITE;
+					pos_cur   += dir.value();
+				}
+
+				// calculate end point, add to vector of edges and make it black
+				pos_end = pos_cur - dir.value();
+				vec_edges.push_back({ pos_start, pos_end });
+				img.at<uchar>(pos_end) = PIXEL::BLACK;
+
+				cv::line(img_out, pos_start, pos_end, {0, 0, 255 }, 1, 8);
+			}
+		});
+
+	};
+
+	// -------------------------------------------------------------
+
+	// find (most) diagonal edges
+	find_diag();
+	show_img("diagonals", img);
+
+	// purge double edges
+	cv::dilate(img, img_dl, MORPH::STR_ELM_ELPS_2x2);
+	cv::bitwise_not(img_dl, img_dl);
+	cv::bitwise_or(img, img_dl, img);
+	show_img("doubles removed", img);
+
+	// find vertical edges
+	;
+
+	// find horizontal edges
+	;
+
+	// find remaining diagonals
+	;
+
+	// show output
+	cv::imwrite("assets/output/img_out.png", img_out);
+	show_img("output", img_out);
 
 }
 
@@ -895,7 +928,7 @@ geometry::test_gvd_draw_edges()
 
 	// inverse GVD and dilate
 	cv::bitwise_not(img_gvd, img_gvd_inv);
-	cv::dilate(img_gvd_inv, img_gvd_inv, str_elm_rect_2x2);
+	cv::dilate(img_gvd_inv, img_gvd_inv, MORPH::STR_ELM_RECT_2x2);
 	show_img("gvd (custom, inv, dilated)", img_gvd_inv);
 
 	// create output
@@ -921,10 +954,10 @@ geometry::test_gvd_draw_edges()
 }
 
 inline void
-geometry::test_gvd_draw_edges2()
+geometry::test_gvd_houghlines()
 {
 	// variables
-	cv::Mat img, img_gvd, img_edges, img_canny, img_out;
+	cv::Mat img, img_gvd, img_edges, img_out;
 
 	// big world
 	img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
@@ -934,70 +967,196 @@ geometry::test_gvd_draw_edges2()
 	img_gvd = gvd(img);
 	show_img("gvd (custom)", img_gvd);
 
-	// vertices
-	auto vec_vert = extract_vertices(img_gvd, true, GVD_VERTEX_RADIUS);
-	auto img_vert = draw_pts(img_gvd, vec_vert);
-	show_img("vertices (custom)", img_vert);
+	// create empty output
+	cv::cvtColor(img_gvd, img_out, cv::COLOR_GRAY2BGR);
+	//img_out.setTo(cv::Scalar(255, 255, 255));
+
+	// manual edges
+	img_edges = img_gvd.clone();
+	cv::bitwise_not(img_edges, img_edges);
+	cv::erode(img_edges, img_edges, MORPH::STR_ELM_RECT_2x2);
+	show_img("gvd: edges", img_edges);
+
+	// hough lines configuration
+	struct houghlines_config_t
+	{
+		// images
+		cv::Mat img_gvd;
+		cv::Mat img_edges;
+		cv::Mat img_out;
+
+		// variables
+		const char*
+		      wndw_name            = "gvd: hough lines";
+
+		double   precision         = 1000;
+
+		double   rho               = 0.1;
+		int      rho_int           = rho * precision;
+		double   theta             = CV_PI/45.0;
+		int      theta_int         = theta * precision;
+		int      th                = 1;
+
+		double   get_rho()     { return (rho_int / precision); }
+		double   get_theta()   { return (theta_int / precision); }
+
+		int      max_double(double val) { return val * precision;}
+	};
+
+	// initialize config
+	static houghlines_config_t hl_config;
+	hl_config.img_gvd   = img_gvd.clone();
+	hl_config.img_edges = img_edges.clone();
+	hl_config.img_out   = img_out.clone();
+	
+	// lambda for callback
+	auto on_trackbar = [](int val, void* userdata)
+	{
+		// get data
+		auto data = (houghlines_config_t*)userdata;
+
+		// clean image
+		// data->img_out = data->img_gvd;
+		cv::cvtColor(data->img_edges, data->img_out, cv::COLOR_GRAY2BGR);
+		cv::bitwise_not(data->img_out, data->img_out);
+
+		// perform standard hough line extraction
+		std::vector<cv::Vec2f> vec_lines;
+		cv::HoughLines(data->img_edges, vec_lines, data->get_rho(), data->get_theta(), data->th, 0, 0);
+
+		// draw lines
+		for (size_t i = 0; i < vec_lines.size(); i++)
+		{
+			float rho = vec_lines[i][0], theta = vec_lines[i][1];
+			cv::Point pt1, pt2;
+			double a = cos(theta), b = sin(theta);
+			double x0 = a*rho, y0 = b*rho;
+
+			pt1.x = cvRound(x0 + 1000*(-b));
+			pt1.y = cvRound(y0 + 1000*(a));
+			pt2.x = cvRound(x0 - 1000*(-b));
+			pt2.y = cvRound(y0 - 1000*(a));
+
+			cv::line(data->img_out, pt1, pt2, cv::Scalar(255, 0, 255), 1, 8);
+		}
+
+		cv::imshow(data->wndw_name, data->img_out);
+	};
+
+	// create window for sliders and output
+	cv::namedWindow(hl_config.wndw_name, cv::WINDOW_AUTOSIZE);
+
+	// add trackbars with callbacks
+	cv::createTrackbar("rho", hl_config.wndw_name, &(hl_config.rho_int), hl_config.max_double(10), on_trackbar, (void*)(&hl_config));
+	cv::createTrackbar("theta", hl_config.wndw_name, &(hl_config.theta_int), hl_config.max_double(CV_PI), on_trackbar, (void*)(&hl_config));
+	cv::createTrackbar("threshold", hl_config.wndw_name, &(hl_config.th), 100, on_trackbar, (void*)(&hl_config));
+
+	// call callback and display img
+	on_trackbar(0, &hl_config);
+	cv::waitKey(0);
+}
+
+inline void
+geometry::test_gvd_houghlinesp()
+{
+	// variables
+	cv::Mat img, img_gvd, img_edges, img_out;
+
+	// big world
+	img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
+	scale_img(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
+
+	// gvd using custom implementation
+	img_gvd = gvd(img);
+	show_img("gvd (custom)", img_gvd);
 
 	// create empty output
 	cv::cvtColor(img_gvd, img_out, cv::COLOR_GRAY2BGR);
 	img_out.setTo(cv::Scalar(255, 255, 255));
 
-	// canny
-	// cv::Canny(img_gvd, img_canny, 50, 100, 3);
-	// show_img("gvd: canny", img_canny);
-
 	// manual edges
 	img_edges = img_gvd.clone();
 	cv::bitwise_not(img_edges, img_edges);
-	cv::erode(img_edges, img_edges, str_elm_rect_2x2);
+	cv::erode(img_edges, img_edges, MORPH::STR_ELM_RECT_2x2);
 	show_img("gvd: edges", img_edges);
 
-#if 1
-
-	// perform standard hough line extraction (shit)
-	std::vector<cv::Vec2f> vec_lines;
-	cv::HoughLines(img_edges, vec_lines, 1, CV_PI/180, 75, 0, 0);
-
-	// draw lines
-	for (size_t i = 0; i < vec_lines.size(); i++)
+	// hough lines p configuration
+	struct houghlinesp_config_t
 	{
-		float rho = vec_lines[i][0], theta = vec_lines[i][1];
-		cv::Point pt1, pt2;
-		double a = cos(theta), b = sin(theta);
-		double x0 = a*rho, y0 = b*rho;
+		// images
+		cv::Mat img_edges;
+		cv::Mat img_out;
 
-		pt1.x = cvRound(x0 + 1000*(-b));
-		pt1.y = cvRound(y0 + 1000*(a));
-		pt2.x = cvRound(x0 - 1000*(-b));
-		pt2.y = cvRound(y0 - 1000*(a));
+		// variables
+		const char*
+		      wndw_name            = "gvd: hough lines p";
 
-		cv::line(img_out, pt1, pt2, cv::Scalar(255, 0, 255), 1, 8);
-	}
+		double   precision         = 1000;
 
-#else
+		double   rho               = 1.0;
+		int      rho_int           = rho * precision;
+		double   theta             = CV_PI/360.0;
+		int      theta_int         = theta * precision;
+		int      min_intersections = 1;
+		double   min_pts           = 1;
+		int      min_pts_int       = min_pts * precision;
+		double   max_gap           = 1;
+		int      max_gap_int       = max_gap * precision;
 
-	// perform probabilistic hough line extraction
-	std::vector<cv::Vec4i> vec_lines;
-	cv::HoughLinesP(
-		img_edges,    // input img (from edge detector)
-		vec_lines,    // ouput vector of [x_start, y_start, x_end, y_end] for each line
-		1,            // resolution of parameter rho in pixels
-		CV_PI/180,    // resolution of theta in radians
-		10,           // minimum number of intersections to “detect” a line
-		5,            // minimum number of points that can form a line
-		0             // maximum gap between two points to be considered in the same line
-	);
+		double   get_rho()     { return (rho_int / precision); }
+		double   get_theta()   { return (theta_int / precision); }
+		double   get_min_pts() { return (min_pts_int / precision); }
+		double   get_max_gap() { return (max_gap_int / precision); }
 
-	// draw lines
-	for (const auto& l : vec_lines)
-		cv::line(img_out, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(255, 0, 255), 1, 8);
+		int      max_double(double val) { return val * precision;}
+	};
 
-#endif
+	// initialize config
+	static houghlinesp_config_t hl_config;
+	hl_config.img_edges = img_edges.clone();
+	hl_config.img_out   = img_out.clone();
 
-	// img_out = draw_pts(img_out, vec_vert);
-	show_img("gvd w/ edges", img_out);
+	// lambda for callback
+	auto on_trackbar = [](int val, void* userdata)
+	{
+		// get data
+		auto data = (houghlinesp_config_t*)userdata;
 
+		// clean image
+		data->img_out.setTo(cv::Scalar(255, 255, 255));
+
+		// perform probabilistic hough line extraction
+		std::vector<cv::Vec4i> vec_lines;
+		cv::HoughLinesP(
+			data->img_edges,           // input img (from edge detector)
+			vec_lines,                 // ouput vector of [x_start, y_start, x_end, y_end] for each line
+			data->get_rho(),           // resolution of parameter rho in pixels
+			data->get_theta(),         // resolution of theta in radians
+			data->min_intersections,   // minimum number of intersections to “detect” a line
+			data->get_min_pts(),       // minimum number of points that can form a line
+			data->get_max_gap()        // maximum gap between two points to be considered in the same line
+		);
+
+		// draw lines
+		for (const auto& l : vec_lines)
+			cv::line(data->img_out, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(255, 0, 255), 1, 8);
+
+		cv::imshow(data->wndw_name, data->img_out);
+	};
+
+	// create window for sliders and output
+	cv::namedWindow(hl_config.wndw_name, cv::WINDOW_AUTOSIZE);
+
+	// add trackbars with callbacks
+	cv::createTrackbar("rho", hl_config.wndw_name, &(hl_config.rho_int), hl_config.max_double(10), on_trackbar, (void*)(&hl_config));
+	cv::createTrackbar("theta", hl_config.wndw_name, &(hl_config.theta_int), hl_config.max_double(CV_PI), on_trackbar, (void*)(&hl_config));
+	cv::createTrackbar("min_intersections", hl_config.wndw_name, &(hl_config.min_intersections), 100, on_trackbar, (void*)(&hl_config));
+	cv::createTrackbar("min_pts", hl_config.wndw_name, &(hl_config.min_pts_int), hl_config.max_double(100), on_trackbar, (void*)(&hl_config));
+	cv::createTrackbar("max_gap", hl_config.wndw_name, &(hl_config.max_gap_int), hl_config.max_double(100), on_trackbar, (void*)(&hl_config));
+
+	// call callback and display img
+	on_trackbar(0, &hl_config);
+	cv::waitKey(0);
 }
 
 inline void
@@ -1012,45 +1171,35 @@ geometry::test_brushfire_and_gvd()
 	// big world
 	auto img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
 	scale_img(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
+	// cv::resize(img, img, cv::Size(846, 564), 0.0, 0.0, cv::INTER_NEAREST);
 
-	// manual
-	// auto img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
-	// cv::resize(img, img, cv::Size(), 5.f, 5.f, cv::INTER_NEAREST);
-	
-	// gradient test
-	// gradient_test();
-
-	// show input
+	// show map
 	show_img("map", img);
 
-	// vertex edges test
-	test_gvd_draw_edges2();
+	// detecting GVD edges using HoughLinesP w/ trackbars
+	// test_gvd_houghlinesp();
+
+	// detecting GVD edges using HoughLines overlaying method
+	// test_gvd_houghlines();
 
 	// brushfire
 	auto img_bf = brushfire(img);
-	// show_img("brushfire", img_bf);
+	show_img("brushfire", img_bf);
 
 	// gvd using brushfire
 	auto img_gvdbf = gvd_bf(img, img_bf);
-	// show_img("gvd (bf)", img_gvdbf);
+	show_img("gvd (bf)", img_gvdbf);
 
 	// gvd using custom implementation
-	auto img_gvd = gvd(img);
-	show_img("gvd (custom)", img_gvd);
+	// auto img_gvd = gvd(img);
+	// show_img("gvd (custom)", img_gvd);
+
+	// make graph from GVD image
+	gvd_graph(img_gvdbf);
 
 	// opencv GVD
-	auto img_gvdcv = gvd_opencv(img);
-	show_img("gvd (opencv)", img_gvdcv);
-
-	// vertices (bf)
-	auto vec_vert_bf = extract_vertices(img_gvdbf, true, GVD_VERTEX_RADIUS);
-	auto img_vert_bf = draw_pts(img_gvdbf, vec_vert_bf);
-	show_img("vertices (bf) ", img_vert_bf);
-
-	// vertices (custom)
-	auto vec_vert = extract_vertices(img_gvd, true, GVD_VERTEX_RADIUS);
-	auto img_vert = draw_pts(img_gvd, vec_vert);
-	show_img("vertices (custom)", img_vert);
+	// auto img_gvdcv = gvd_opencv(img);
+	// show_img("gvd (opencv)", img_gvdcv);
 }
 
 inline void
