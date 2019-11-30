@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <chrono>
 #include <functional>
+#include <cmath>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
@@ -246,4 +247,18 @@ substract_vector(std::vector<T>& a, const std::vector<T>& b)
 
 		it2 = b.begin();
 	}
+}
+
+inline float
+norm_pdf(float x, float m = 0, float s = 1)
+{
+	float a = (x - m) / s;
+	return INV_SQRT_2PI / s * std::exp(-0.5f * a * a);
+}
+
+inline float
+euclidean_dist(const cv::Point2f& a, const cv::Point2f& b)
+{
+	cv::Point diff = a - b;
+	return diff.x * diff.x + diff.y * diff.y;
 }

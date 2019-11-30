@@ -27,6 +27,7 @@
 #include <types/lidar.h>
 
 #include "../constants.h"
+#include "utils.h"
 
 class pose_estimate_t
 {
@@ -82,7 +83,7 @@ public:
 			cv::circle(img_scaled, marble, 10, cv::Scalar(0, 0, 255) );
 			*/
 
-			cv::imwrite("picture_of_map.jpg", img_scaled);
+			// cv::imwrite("picture_of_map.jpg", img_scaled);
 
 			// genereate some particles
 			static std::mt19937 generator;
@@ -179,26 +180,9 @@ public:
 
 			cv::Point robot(xaxis / 2 + robot_pose.pos.x * PTCLFILT_IMG_SCALE, yaxis / 2 - robot_pose.pos.y * PTCLFILT_IMG_SCALE);
 			cv::circle(img_copy, robot, 5, cv::Scalar(0, 0, 255));
-			
-			float orientation = 0;
-
-			for (size_t i = 0; i < PTCLFILT_PARTICLES; i++)
-			{
-				orientation += particles[i].orient.yaw; 
-			}
-
-			posX = mean_position.pos.x - xaxis/2;
-			posY = mean_position.pos.y - yaxis/2;
-			posX /= PTCLFILT_IMG_SCALE;
-			posY /= -PTCLFILT_IMG_SCALE;
-			yaw = -orientation/PTCLFILT_PARTICLES;
-
-			// std::string a = std::string("pictures/") + std::to_string(pic++) + std::string(".png");
-
-			// cv::imwrite( a , img_copy);
 
 			fpos.open("position.csv", std::ios::out | std::ios::app);
-			fpos << mean_pos.x << " , "<< mean_pos.y << " , " <<  orientation/PTCLFILT_PARTICLES << " , " << robot.x << " , " << robot.y << " , " << robot_pose.orient.yaw << std::endl;
+			fpos << mean_position.pos.x << " , "<< mean_position.pos.y << " , " <<  -mean_position.orient.yaw << " , " << robot.x << " , " << robot.y << " , " << robot_pose.orient.yaw << std::endl;
 			fpos.close();
 		}
 
@@ -461,7 +445,7 @@ private:
 							++it;
 							++j;
 						}
-						lookuptable_mean[y][x][i] = sqrt(euclideanDist(start, end));
+						lookuptable_mean[y][x][i] = std::sqrt(euclidean_dist(start, end));
 					}
 				}
 			}
@@ -492,27 +476,6 @@ private:
 		mean_position.pos.y         /= PTCLFILT_PARTICLES;
 		mean_position.orient.yaw    /= PTCLFILT_PARTICLES;
 
-	}
-
-	inline float
-	norm_pdf(float x, float m = 0, float s = 1)
-	/*
-	* Calculates the normal distribution fast.
-	*/
-	{
-		static const float inv_sqrt_2pi = 0.3989422804014327;
-		float a = (x - m) / s;
-		return inv_sqrt_2pi / s * std::exp(-0.5f * a * a);
-	}
-
-	inline float
-	euclideanDist(const cv::Point2f &a, const cv::Point2f &b)
-	/*
-	* Euclidean Distance rather than openCV's slow version.
-	*/
-	{
-		cv::Point diff = a - b;
-		return diff.x * diff.x + diff.y * diff.y;
 	}
 
 private:

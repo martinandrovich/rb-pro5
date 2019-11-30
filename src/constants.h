@@ -12,10 +12,11 @@ using ilf = std::initializer_list<float>;
 // constants
 
 constexpr auto    EPSILON                     = 1e-6; // used for float comparisons
+constexpr auto    INV_SQRT_2PI                = 0.3989422804014327;
 
 // paths
 
-constexpr_string  PATH_ROOT = "";
+constexpr_string  PATH_ROOT                   = "";
 constexpr_string  PATH_ASSETS                 = PATH_ROOT + "assets/data/";
 constexpr_string  PATH_IMG_ENVIRON_DEMO       = PATH_ROOT + "assets/img/environ-01.png";
 constexpr_string  PATH_IMG_GVD_MAP            = PATH_ROOT + "assets/img/gvd-map.png";
@@ -43,10 +44,10 @@ constexpr auto    LIDAR_MAX_RANGE             = 200;
 constexpr auto    TEST_GVD                    = true;
 constexpr auto    TEST_LINE_SEG               = false;
 constexpr auto    TEST_MARBLE_DETECT          = false;
-constexpr auto    TEST_EXIT_AFTER             = true;
+constexpr auto    TEST_EXIT_AFTER             = false;
 
 constexpr auto    USE_OBS_AVOID               = true;
-constexpr auto    USE_PARTICLE_FILTER         = false;
+constexpr auto    USE_PARTICLE_FILTER         = true;
 constexpr auto    USE_LOCALIZATION            = false;
 
 constexpr auto    PTCLFILT_PARTICLES          = 2500;
