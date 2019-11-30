@@ -23,6 +23,7 @@
 #include "types/pose.h"
 #include "types/lidar.h"
 #include "types/camera.h"
+#include "pose_estimate.h"
 #include "types/morph_settings.h"
 
 #include "debug.h"

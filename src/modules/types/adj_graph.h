@@ -110,7 +110,7 @@ inline cv::Mat
 adj_graph_t::get_img_vertices() const
 {
 	cv::Mat img_vertices;
-	cv::cvtColor(img, img_vertices, CV_GRAY2BGR);
+	cv::cvtColor(img, img_vertices, cv::COLOR_GRAY2BGR);
 
 	for (const auto& v : this->vertices)
 		cv::circle(img_vertices, cv::Point(v.x, v.y), 3, cv::Scalar(255, 0, 255));
@@ -133,7 +133,7 @@ adj_graph_t::extract_lines(const cv::Mat& img)
 	cv::Mat img_canny, img_lines;
 
 	// convert output image to color
-	cv::cvtColor(img, img_lines, CV_GRAY2BGR);
+	cv::cvtColor(img, img_lines, cv::COLOR_GRAY2BGR);
 
 	// detect edges using canny
 	cv::Canny(img, img_canny, 50, 100, 3);
@@ -178,7 +178,7 @@ adj_graph_t::extract_lines(const cv::Mat& img)
 
 	// draw lines
 	for (const auto& l : vec_lines)
-		cv::line(img_lines, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(255,0,255), 1, CV_AA);
+		cv::line(img_lines, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]), cv::Scalar(255,0,255), 1, 8);
 
 #endif
 
@@ -202,7 +202,7 @@ adj_graph_t::extract_vertices(const cv::Mat& img)
 
 	// vector of contours
 	std::vector<std::vector<cv::Point>> vec_contours;
-	cv::findContours(img, vec_contours, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1);
+	cv::findContours(img, vec_contours, cv::RETR_LIST, cv::CHAIN_APPROX_TC89_L1);
 
 	// flatten vector of contours into vector of vertices
 	std::vector<vertex_t> vec_vertices;

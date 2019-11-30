@@ -174,8 +174,8 @@ _Morphology_Operations( int, void* user_data )
   
   //Apply HoughCircle transform and save all circles found to a vector
   cv::Mat grey_dst;
-  cv::cvtColor(*args->dst, grey_dst, CV_BGR2GRAY );
-  cv::HoughCircles(grey_dst, morph.circles, CV_HOUGH_GRADIENT, 1, 100, morph.hough_upper_tresh, morph.hough_center_tresh, morph.hough_min_radius, 0);
+  cv::cvtColor(*args->dst, grey_dst, cv::COLOR_BGR2GRAY );
+  cv::HoughCircles(grey_dst, morph.circles, cv::HOUGH_GRADIENT, 1, 100, morph.hough_upper_tresh, morph.hough_center_tresh, morph.hough_min_radius, 0);
   
   args->settings.element = element.clone();
   args->settings.operation = operation;

@@ -22,35 +22,48 @@ constexpr_string  PATH_IMG_GVD_MAP            = PATH_ROOT + "assets/img/gvd-map.
 constexpr_string  PATH_IMG_GRAD_TEST          = PATH_ROOT + "assets/img/grad-test-3.png";
 constexpr_string  PATH_IMG_SMALLWORLD         = PATH_ROOT + "gazebo/models/smallworld/meshes/floor_plan.png";
 constexpr_string  PATH_IMG_BIGWORLD           = PATH_ROOT + "gazebo/models/bigworld/meshes/floor_plan.png";
+constexpr_string  PATH_FLOOR_PLAN             = PATH_ROOT + "assets/img/floor_plan.png";
 constexpr_string  PATH_FUZZY_OBS_AVOID        = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
 constexpr_string  PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
 constexpr_string  PATH_FONT_CONSOLAS          = PATH_ROOT + "assets/data/consolas.ttf";
 
 // system config
 
-constexpr auto    RUN_FREQ_MS                 = std::chrono::milliseconds(10); // ms
+constexpr auto    RUN_FREQ_MS                 = std::chrono::milliseconds(20); // ms
 constexpr auto    MAX_DIST_TO_OBSTACLE        = 0.7f; // meters
-constexpr ilf     GOAL_POS                    = { 4.f, -3.f, 0.f }; // meters
-constexpr auto    LIDAR_RANGE_LIMIT           = 10; // number of rays
+constexpr ilf     GOAL_POS                    = { 0.f, 0.f, 0.f }; // meters
 constexpr auto    FUZZY_SCALING_FACTOR        = 1.0f;
 constexpr auto    SCALE_METER_PER_PX          = 0.1f; // meters per pixel
 constexpr ilf     DIM_SMALLWORLD              = { 14.11f, 10.58f };
 constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 constexpr auto    GVD_VERTEX_RADIUS           = SCALE_METER_PER_PX * 40;
+constexpr auto    LIDAR_MAX_RANGE             = 200;
+
+constexpr auto    FLOOR_PLAN_SCALE            = ((120 / 84.67) + (80 / 56.44)) / 2.0; // scale factor floor_plan.png image
+
+constexpr auto    PTCLFILT_PARTICLES          = 500;
+constexpr auto    PTCLFILT_IMG_SCALE          = 10;
+constexpr auto    PTCLFILT_LIDAR_SCALE        = 10 * PTCLFILT_IMG_SCALE;
+constexpr auto    PTCLFILT_ANGLES             = 276;
+constexpr auto    PTCLFILT_START_VAL          = 3.1347;
+constexpr auto    PTCLFILT_DELTA              = 2.04086 - 2.01806;
+constexpr auto    PTCLFILT_THREADS            = 16;
 
 constexpr auto    TEST_CELL_DECOMP            = false;
-constexpr auto    TEST_MARBLE_DETECT          = true;
-constexpr auto    TEST_LINE_SEG               = true;
-constexpr auto    TEST_GVD                    = true;
+constexpr auto    TEST_MARBLE_DETECT          = false;
+constexpr auto    TEST_LINE_SEG               = false;
+constexpr auto    TEST_GVD                    = false;
 
+constexpr auto    USE_PARTICLE_FILTER         = true;
 constexpr auto    USE_LOCALIZATION            = true;
 constexpr auto    USE_OBS_AVOID               = true;
 
 // windows
 
-constexpr auto    WNDW_CAMERA                 = "camera";
-constexpr auto    WNDW_LIDAR                  = "lidar";
 constexpr auto    WNDW_DEBUG                  = "debug";
+constexpr auto    WNDW_LIDAR                  = "lidar";
+constexpr auto    WNDW_CAMERA                 = "camera";
+constexpr auto    WNDW_PTCLFILT               = "particle filter";
 constexpr auto	  WNDW_HANDLES                = { WNDW_DEBUG, WNDW_LIDAR, WNDW_CAMERA };
 constexpr size_t  WNDW_WIDTHS[]               = { 700, 400, 200 };
 constexpr size_t  WNDW_ORIGIN[]               = { 100, 50 };

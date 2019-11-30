@@ -13,3 +13,5 @@ dump.txt
 *.o
 *.out
 *.exe
+assets/csvfiles/show.m
+dump.txt

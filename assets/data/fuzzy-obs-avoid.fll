@@ -30,11 +30,9 @@ OutputVariable: omega
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
-  term: vleft  Triangle    -0.2 -0.4 -0.6
-  term: left  Triangle     0.0 -0.2 -0.4
-  term: forward Triangle  -0.2 0.0 0.2
-  term: right Triangle     0.0 0.2 0.4
-  term: vright Triangle    0.2 0.4 0.6
+  term: left  Triangle     0.0 -0.3 -0.6
+  term: forward Triangle  -0.3 0.0 0.3
+  term: right Triangle     0.0 0.3 0.6
 
 OutputVariable: velocity
   enabled: true
@@ -54,14 +52,13 @@ RuleBlock: mamdani
   implication: AlgebraicProduct
   activation: General
 
-  rule: if forward is close and left is close and right is close then omega is     vright and velocity is stop
-  rule: if forward is close and left is close and right is middle then omega is    vright and velocity is stop
+  rule: if forward is close and left is close and right is close then omega is right and velocity is stop
+  rule: if forward is close and left is close and right is middle then omega is right and velocity is stop
+  rule: if forward is close and left is middle and right is close then omega is left and velocity is stop
+  rule: if forward is close and left is middle and right is middle then omega is right and velocity is stop
+  rule: if forward is middle and left is close and right is close then omega is forward and velocity is slow
+  rule: if forward is middle and left is close and right is middle then omega is right and velocity is slow
+  rule: if forward is middle and left is middle and right is close then omega is left and velocity is slow
+  rule: if forward is middle and left is middle and right is middle then omega is right and velocity is slow
+ 
 
-  rule: if forward is close and left is middle and right is close then omega is     vleft and velocity is stop
-  rule: if forward is close and left is middle and right is middle then omega is   vright and velocity is stop
-
-  rule: if forward is middle and left is close and right is close then omega is    vright and velocity is slow
-  rule: if forward is middle and left is close and right is middle then omega is   vright and velocity is slow
-
-  rule: if forward is middle and left is middle and right is close then omega is    vleft and velocity is slow
-  rule: if forward is middle and left is middle and right is middle then omega is  vright and velocity is slow
