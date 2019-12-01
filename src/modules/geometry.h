@@ -872,6 +872,15 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		return std::nullopt;
 	};
 
+	auto is_t_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
+	{
+		for (const auto& p : PIXEL::PAT_T_VEC)
+			if (match_pattern_3x3(img, pt, p))
+				return p;
+
+		return std::nullopt;
+	};
+
 	auto is_asym_v_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
 	{
 		for (const auto& p : PIXEL::PAT_ASYM_V_VEC)
@@ -879,11 +888,6 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 				return p;
 
 		return std::nullopt;
-	};
-
-	auto is_t_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
-	{
-		;
 	};
 
 	auto is_diag = [&](const cv::Point& pt)
@@ -964,9 +968,13 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		});
 	};
 
-	auto fix_t_shapes = [&](const cv::Point& pt)
+	auto fix_t_shapes = [&]()
 	{
-		;
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (auto pattern = is_t_shape(pos))
+				img.at<uchar>(pos) = PIXEL::WHITE;
+		});
 	};
 
 	auto expand_pt = [&](const cv::Point& pt, const cv::Point& dir) -> line_t
@@ -1026,10 +1034,18 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 	show_img("gvd: thin lines (step 1)", img);
 	cv::imwrite("assets/output/img_gvd_step1.png", img);
 
-	// fix t-shapes
+	// create output copy
+	// cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
+
+	// fix asymmetric V-shapes
 	fix_asym_v_shapes();
 	show_img("gvd: fix asym v shapes (step 2)", img);
 	cv::imwrite("assets/output/img_gvd_step2.png", img);
+
+	// fix T-shapes
+	fix_t_shapes();
+	show_img("gvd: fix t shapes (step 3)", img);
+	cv::imwrite("assets/output/img_gvd_step3.png", img);
 
 	// create output copy
 	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);

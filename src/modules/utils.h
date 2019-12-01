@@ -38,13 +38,22 @@ namespace PIXEL
 	constexpr auto IS_OBS  = BLACK;
 
 	// patterns
-	// order in vectors must match
+
+	// V-shapes
 	inline const cv::Mat PAT_V_UP    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK);
 	inline const cv::Mat PAT_V_DOWN  = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE);
 	inline const cv::Mat PAT_V_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
 	inline const cv::Mat PAT_V_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
 	inline const auto    PAT_V_VEC   = std::array{ PAT_V_UP, PAT_V_DOWN, PAT_V_LEFT, PAT_V_RIGHT };
+
+	// T-shapes
+	inline const cv::Mat PAT_T_UP    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE);
+	inline const cv::Mat PAT_T_DOWN  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_T_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_T_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE, WHITE);
+	inline const auto    PAT_T_VEC   = std::array{ PAT_T_UP, PAT_T_DOWN, PAT_T_LEFT, PAT_T_RIGHT };
 	
+	// asymmetric V-shapes
 	inline const cv::Mat PAT_ASYM_V_UP_LEFT    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
 	inline const cv::Mat PAT_ASYM_V_UP_RIGHT   = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
 	inline const cv::Mat PAT_ASYM_V_DOWN_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
