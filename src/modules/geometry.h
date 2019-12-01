@@ -65,7 +65,7 @@ namespace geometry
 	void
 	gvd_graph(const cv::Mat& img_gvd);
 
-	void
+	cv::Mat
 	gvd_graph2(const cv::Mat& img_gvd);
 
 	// -- points ----------------------------------------------------------------------
@@ -94,6 +94,9 @@ namespace geometry
 	// -- line segment intersection ---------------------------------------------------
 
 	// https://martin-thoma.com/how-to-check-if-two-line-segments-intersect/
+
+	size_t
+	count_duplicate_lines(std::vector<line_t> vec_lines);
 
 	float
 	cross(const cv::Point& a, const cv::Point& b);
@@ -816,7 +819,7 @@ geometry::gvd_graph(const cv::Mat& img_gvd)
 
 }
 
-inline void
+inline cv::Mat
 geometry::gvd_graph2(const cv::Mat& img_gvd)
 {
 	// assert grayscale image
@@ -890,9 +893,28 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		return std::nullopt;
 	};
 
-	auto is_diag = [&](const cv::Point& pt)
+	auto is_diag = [&](const cv::Point& pt) -> std::optional<cv::Point>
 	{
-		;
+		// boundary check
+		if (not pt_within_boundary(img, pt))
+			return std::nullopt;
+
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_DIAG_NW))
+			return PIXEL::DIR_NW;
+
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_DIAG_NE))
+			return PIXEL::DIR_NE;
+
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_DIAG_SW))
+			return PIXEL::DIR_SW;
+
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_DIAG_SE))
+			return PIXEL::DIR_SE;
+
+		return std::nullopt;
 	};
 
 	auto fix_asym_v_shapes = [&]()
@@ -904,6 +926,9 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 			if (auto pattern = is_asym_v_shape(pos))
 			{
 				// determine appropriate fixer pattern
+
+				// default shape
+				fixer_pattern = PIXEL::PAT_EMPTY;
 
 				// asymmetric v-shape pointing either up or left
 				if (mat_equal(pattern.value(), PIXEL::PAT_ASYM_V_UP_LEFT))
@@ -960,8 +985,16 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 				else
 					throw std::runtime_error(ERR_FIX_ASYM_V_SHAPE);
 				
-				// apply the derived fixer pattern to ROI
+				// region of interest
 				roi = img(cv::Rect(pos.x - 1, pos.y - 1, 3, 3));
+				
+				// debug
+				// std::cout << pos << std::endl;
+				// std::cout << "ROI (" << roi.size() << ")\n" << roi << std::endl;
+				// std::cout << "PAT (" << pattern.value().size() << ")\n" << pattern.value() << std::endl;
+				// std::cout << "FIX (" << fixer_pattern.size() << ")\n" << fixer_pattern << std::endl;
+
+				// apply the derived fixer pattern to ROI
 				cv::bitwise_or(roi, fixer_pattern, roi);
 				cv::bitwise_and(roi, fixer_pattern, roi);
 			}
@@ -977,7 +1010,7 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		});
 	};
 
-	auto expand_pt = [&](const cv::Point& pt, const cv::Point& dir) -> line_t
+	auto expand_pt = [](cv::Mat& img, const cv::Point& pt, const cv::Point& dir) -> line_t
 	{
 		// expand point until white pixel occurs
 		cv::Point pos_start = pt;
@@ -986,12 +1019,13 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 
 		while (pt_within_boundary(img, pos_cur + dir) && img.at<uchar>(pos_cur + dir) == PIXEL::BLACK)
 		{
-			// img.at<uchar>(pos_cur) = PIXEL::WHITE;
+			img.at<uchar>(pos_cur) = PIXEL::WHITE;
 			pos_cur += dir;
 		}
 
 		// end point
 		pos_end = pos_cur;
+		img.at<uchar>(pos_end) = PIXEL::WHITE;
 
 		// construct line
 		return line_t{ pos_start, pos_end };
@@ -999,6 +1033,10 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 
 	auto expand_v_shapes = [&]()
 	{
+		// expansion must be performed on copy
+		// such that the white pixels are only removed after all iterations
+		auto img_temp = img.clone();
+
 		iterate_mat(img, [&](auto& pos, auto& pixel)
 		{
 			if (auto vec_pts = is_v_shape(pos))
@@ -1009,7 +1047,7 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 					auto dir = find_expand_dir(pt, vec_pts.value());
 					
 					// expand point in specified dir
-					auto edge = expand_pt(pt, dir);
+					auto edge = expand_pt(img_temp, pt, dir);
 					
 					// append edge and vertices
 					vec_vertices.push_back(edge.from);
@@ -1020,11 +1058,28 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 				}
 			}
 		});
+
+		// write back changes
+		img = img_temp;
 	};
 
-	auto expand_diag = [&](const cv::Point& pt)
+	auto expand_diag = [&]()
 	{
-		;
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (auto dir = is_diag(pos))
+			{
+				// expand point in specified dir
+				auto edge = expand_pt(img, pos, dir.value());
+				
+				// append edge and vertices
+				vec_vertices.push_back(edge.from);
+				vec_vertices.push_back(edge.to);
+				vec_edges.push_back(edge);
+
+				cv::line(img_out, edge.from, edge.to, { 0, 0, 255 }, 1, 8);
+			}
+		});
 	};
 
 	// -------------------------------------------------------------
@@ -1052,13 +1107,23 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 
 	// expand v-shapes
 	expand_v_shapes();
+	show_img("gvd: expand v shapes (step 4)", img);
+	cv::imwrite("assets/output/img_gvd_step4.png", img);
 
-	// number of edges found
-	std::cout << "number of edges: " << vec_edges.size() << std::endl;
+	// expand diagonals
+	expand_diag();
+	show_img("gvd: expand diagonals (step 5)", img);
+	cv::imwrite("assets/output/img_gvd_step5.png", img);
 
+	// final output
 	cv::imwrite("assets/output/img_gvd_final.png", img_out);
 	show_img("gvd: final", img_out);
 
+	// number of edges found
+	std::cout << "number of edges: " << vec_edges.size() << std::endl;
+	std::cout << "number of duplicate edges: " << count_duplicate_lines(vec_edges) << std::endl;
+
+	return img_out;
 }
 
 // -- points ----------------------------------------------------------------------
@@ -1212,6 +1277,25 @@ line_t::bounding_box() const
 	box[1] = cv::Point(std::max(this->from.x, this->to.x), std::max(this->from.y, this->to.y));
 
 	return box;
+}
+
+inline size_t
+geometry::count_duplicate_lines(std::vector<line_t> vec_lines)
+{
+	std::sort(vec_lines.begin(), vec_lines.end(), [](const auto& a, const auto& b){
+		return a.from.x < b.from.x;
+	});
+	
+	std::sort(vec_lines.begin(), vec_lines.end(), [](const auto& a, const auto& b){
+		return a.from.y < b.from.y;
+	});
+
+	auto unique_end = std::unique(vec_lines.begin(), vec_lines.end(), [](const auto& a, const auto& b){
+		return (a.from == b.from && a.to == b.to);
+	});
+
+	return (unique_end == vec_lines.end() ? 0 : std::distance(vec_lines.begin(), unique_end));
+	return std::distance(vec_lines.begin(), unique_end);
 }
 
 inline float
@@ -1373,7 +1457,7 @@ geometry::test_gvd_houghlines()
 
 		// variables
 		const char*
-		      wndw_name            = "gvd: hough lines";
+			  wndw_name            = "gvd: hough lines";
 
 		double   precision         = 1000;
 
@@ -1475,7 +1559,7 @@ geometry::test_gvd_houghlinesp()
 
 		// variables
 		const char*
-		      wndw_name            = "gvd: hough lines p";
+			  wndw_name            = "gvd: hough lines p";
 
 		double   precision         = 1000;
 
@@ -1555,13 +1639,13 @@ geometry::test_brushfire_and_gvd()
 	//scale_img(img, DIM_SMALLWORLD, SCALE_METER_PER_PX);
 
 	// big world: load, add black border and resize
-	auto img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
-	add_border(img, IMG_BORDER_SIZE, cv::Scalar(0));
-	scale_img(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
+	auto img_map = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
+	add_border(img_map, IMG_BORDER_SIZE, cv::Scalar(0));
+	scale_img(img_map, DIM_BIGWORLD, SCALE_METER_PER_PX);
 	// cv::resize(img, img, cv::Size(846, 564), 0.0, 0.0, cv::INTER_NEAREST);
 
 	// show map
-	// show_img("map", img);
+	// show_img("map", img_map);
 
 	// detecting GVD edges using HoughLinesP w/ trackbars
 	// test_gvd_houghlinesp();
@@ -1570,19 +1654,24 @@ geometry::test_brushfire_and_gvd()
 	// test_gvd_houghlines();
 
 	// brushfire
-	auto img_bf = brushfire(img);
+	auto img_bf = brushfire(img_map);
 	// show_img("brushfire", img_bf);
 
 	// gvd using brushfire
-	auto img_gvdbf = gvd_bf(img, img_bf);
+	auto img_gvdbf = gvd_bf(img_map, img_bf);
 	// show_img("gvd (bf)", img_gvdbf);
 
 	// gvd using custom implementation
-	// auto img_gvd = gvd(img);
+	// auto img_gvd = gvd(img_map);
 	// show_img("gvd (custom)", img_gvd);
 
 	// make graph from GVD image
-	gvd_graph2(img_gvdbf);
+	auto img_gvd = gvd_graph2(img_gvdbf);
+
+	// final image
+	combine_img(img_gvd, img_map);
+	cv::imwrite("assets/output/img_gvd.png", img_gvd);
+	show_img("gvd (final)", img_gvd);
 
 	// opencv GVD
 	// auto img_gvdcv = gvd_opencv(img);

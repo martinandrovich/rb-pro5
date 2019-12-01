@@ -39,19 +39,22 @@ namespace PIXEL
 
 	// patterns
 
+	inline const cv::Mat PAT_FILL              = (cv::Mat_<uchar>(3,3) << BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK);
+	inline const cv::Mat PAT_EMPTY             = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
+
 	// V-shapes
-	inline const cv::Mat PAT_V_UP    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK);
-	inline const cv::Mat PAT_V_DOWN  = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE);
-	inline const cv::Mat PAT_V_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
-	inline const cv::Mat PAT_V_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
-	inline const auto    PAT_V_VEC   = std::array{ PAT_V_UP, PAT_V_DOWN, PAT_V_LEFT, PAT_V_RIGHT };
+	inline const cv::Mat PAT_V_UP              = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK);
+	inline const cv::Mat PAT_V_DOWN            = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_V_LEFT            = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
+	inline const cv::Mat PAT_V_RIGHT           = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
+	inline const auto    PAT_V_VEC             = std::array{ PAT_V_UP, PAT_V_DOWN, PAT_V_LEFT, PAT_V_RIGHT };
 
 	// T-shapes
-	inline const cv::Mat PAT_T_UP    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE);
-	inline const cv::Mat PAT_T_DOWN  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE);
-	inline const cv::Mat PAT_T_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
-	inline const cv::Mat PAT_T_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE, WHITE);
-	inline const auto    PAT_T_VEC   = std::array{ PAT_T_UP, PAT_T_DOWN, PAT_T_LEFT, PAT_T_RIGHT };
+	inline const cv::Mat PAT_T_UP              = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE);
+	inline const cv::Mat PAT_T_DOWN            = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_T_LEFT            = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_T_RIGHT           = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE, WHITE);
+	inline const auto    PAT_T_VEC             = std::array{ PAT_T_UP, PAT_T_DOWN, PAT_T_LEFT, PAT_T_RIGHT };
 	
 	// asymmetric V-shapes
 	inline const cv::Mat PAT_ASYM_V_UP_LEFT    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
@@ -59,6 +62,13 @@ namespace PIXEL
 	inline const cv::Mat PAT_ASYM_V_DOWN_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
 	inline const cv::Mat PAT_ASYM_V_DOWN_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE);
 	inline const auto    PAT_ASYM_V_VEC        = std::array{ PAT_ASYM_V_UP_LEFT, PAT_ASYM_V_UP_RIGHT, PAT_ASYM_V_DOWN_LEFT, PAT_ASYM_V_DOWN_RIGHT };
+
+	// diagonals
+	inline const cv::Mat PAT_DIAG_NW           = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, WHITE, WHITE, WHITE, WHITE);
+	inline const cv::Mat PAT_DIAG_NE           = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, WHITE, WHITE);
+	inline const cv::Mat PAT_DIAG_SW           = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE);
+	inline const cv::Mat PAT_DIAG_SE           = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, WHITE, BLACK, WHITE, WHITE, WHITE, BLACK);
+	inline const auto    PAT_DIAG_VEC          = std::array{ PAT_DIAG_NW, PAT_DIAG_NE, PAT_DIAG_SW, PAT_DIAG_SE };
 
 	// cardinal directions
 	inline const auto DIR_NW  = cv::Point(-1, -1);
@@ -154,6 +164,18 @@ scale_img(cv::Mat& img, const dim_t& dim_world, const float meter_per_px)
 	cv::resize(img, img, cv::Size(), scale_width, scale_height, cv::INTER_NEAREST);
 
 	return scale;
+}
+
+inline void
+combine_img(cv::Mat& img_color, const cv::Mat& img_gray)
+{
+	std::vector<cv::Mat> channels;
+	cv::split(img_color, channels);
+
+	for (auto& c : channels)
+		cv::bitwise_and(c, img_gray, c);
+
+	cv::merge(channels, img_color);
 }
 
 inline bool

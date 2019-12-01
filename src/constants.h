@@ -23,6 +23,7 @@ constexpr_string  PATH_IMG_GVD_MAP            = PATH_ROOT + "assets/img/gvd-map.
 constexpr_string  PATH_IMG_GRAD_TEST          = PATH_ROOT + "assets/img/grad-test-3.png";
 constexpr_string  PATH_IMG_SMALLWORLD         = PATH_ROOT + "gazebo/models/smallworld/meshes/floor_plan.png";
 constexpr_string  PATH_IMG_BIGWORLD           = PATH_ROOT + "gazebo/models/bigworld/meshes/floor_plan.png";
+constexpr_string  PATH_IMG_BIGWORLD_ABSTRACT  = PATH_ROOT + "assets/img/floor_plan_abstract.png";
 constexpr_string  PATH_FLOOR_PLAN             = PATH_ROOT + "assets/img/floor_plan.png";
 constexpr_string  PATH_FUZZY_OBS_AVOID        = PATH_ROOT + "assets/data/fuzzy-obs-avoid.fll";
 constexpr_string  PATH_FUZZY_SIMPLE_NAVIGATOR = PATH_ROOT + "assets/data/simpleNavigator.fll";
