@@ -38,22 +38,29 @@ namespace PIXEL
 	constexpr auto IS_OBS  = BLACK;
 
 	// patterns
+	// order in vectors must match
 	inline const cv::Mat PAT_V_UP    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK);
 	inline const cv::Mat PAT_V_DOWN  = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE);
 	inline const cv::Mat PAT_V_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
 	inline const cv::Mat PAT_V_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
+	inline const auto    PAT_V_VEC   = std::array{ PAT_V_UP, PAT_V_DOWN, PAT_V_LEFT, PAT_V_RIGHT };
+	
+	inline const cv::Mat PAT_ASYM_V_UP_LEFT    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
+	inline const cv::Mat PAT_ASYM_V_UP_RIGHT   = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
+	inline const cv::Mat PAT_ASYM_V_DOWN_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_ASYM_V_DOWN_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE);
+	inline const auto    PAT_ASYM_V_VEC        = std::array{ PAT_ASYM_V_UP_LEFT, PAT_ASYM_V_UP_RIGHT, PAT_ASYM_V_DOWN_LEFT, PAT_ASYM_V_DOWN_RIGHT };
 
 	// cardinal directions
-	inline const auto DIR_NW         = cv::Point(-1, -1);
-	inline const auto DIR_N          = cv::Point( 0, -1);
-	inline const auto DIR_NE         = cv::Point( 1, -1);
-	inline const auto DIR_W          = cv::Point(-1,  0);
-	inline const auto DIR_E          = cv::Point( 1,  0);
-	inline const auto DIR_SW         = cv::Point(-1,  1);
-	inline const auto DIR_S          = cv::Point( 0,  1);
-	inline const auto DIR_SE         = cv::Point( 1,  1);
-
-	inline const auto DIR_VEC        = std::array{ DIR_NW, DIR_N, DIR_NE, DIR_W, DIR_E, DIR_SW, DIR_S, DIR_SE };
+	inline const auto DIR_NW  = cv::Point(-1, -1);
+	inline const auto DIR_N   = cv::Point( 0, -1);
+	inline const auto DIR_NE  = cv::Point( 1, -1);
+	inline const auto DIR_W   = cv::Point(-1,  0);
+	inline const auto DIR_E   = cv::Point( 1,  0);
+	inline const auto DIR_SW  = cv::Point(-1,  1);
+	inline const auto DIR_S   = cv::Point( 0,  1);
+	inline const auto DIR_SE  = cv::Point( 1,  1);
+	inline const auto DIR_VEC = std::array{ DIR_NW, DIR_N, DIR_NE, DIR_W, DIR_E, DIR_SW, DIR_S, DIR_SE };
 
 	// point locations
 	template<typename T = uchar>
@@ -267,6 +274,26 @@ iterate_3x3(cv::Mat& img, cv::Point pt, std::function<void(cv::Point&, T&)> call
 	}
 }
 
+inline cv::Mat
+get_3x3_roi(const cv::Mat& img, const cv::Point& pt_center)
+{
+
+};
+
+template<typename T = uchar>
+inline bool
+mat_equal(const cv::Mat& a, const cv::Mat& b)
+{
+	return std::equal(a.begin<T>(), a.end<T>(), b.begin<T>());
+
+	// cv::Mat result;
+	// cv::bitwise_xor(a, b, result);
+	// return (cv::countNonZero(result) == 0);
+
+	// cv::Mat diff = a != b;
+	// return (cv::countNonZero(diff) == 0);
+}
+
 inline bool
 match_pattern_3x3(const cv::Mat& img, const cv::Point& pt_center, const cv::Mat& pattern)
 {
@@ -278,22 +305,9 @@ match_pattern_3x3(const cv::Mat& img, const cv::Point& pt_center, const cv::Mat&
 	if (not kernel_3x3_within_boundary(img, pt_center))
 		return false;
 
-	
-	cv::Mat result;
 	auto roi = img(cv::Rect(pt_center.x - 1, pt_center.y - 1, ROI_SIZE, ROI_SIZE));
 
-	cv::bitwise_xor(roi, pattern, result);
-
-	if (pt_center.x == 374 && pt_center.y == 501)
-	{
-		std::cout << pt_center << std::endl;
-		std::cout << roi << std::endl;
-		std::cout << pattern << std::endl;
-		std::cout << result << std::endl;
-		std::cout << cv::countNonZero(result) << std::endl;
-	}
-
-	return (cv::countNonZero(result) == 0);
+	return mat_equal(roi, pattern);
 }
 
 inline bool
@@ -402,7 +416,7 @@ thin_edges(const cv::Mat& img)
 
 	// https://answers.opencv.org/question/3207/what-is-a-good-thinning-algorithm-for-getting-the-skeleton-of-characters-for-ocr/
 	// https://stackoverflow.com/questions/6409759/extracting-segments-from-a-list-of-8-connected-pixels
-	
+
 	using namespace cv;
 
 	auto ThinSubiteration1 = [](Mat & pSrc, Mat & pDst)

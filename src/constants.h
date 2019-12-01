@@ -84,3 +84,4 @@ constexpr auto    ERR_NO_IMPL                 = "No implementation.";
 constexpr auto    ERR_NUM_NOT_POS             = "Number must be positive.";
 constexpr auto    ERR_EXCEED_LIDAR_RANGE      = "Number of lidar rays exceed maximum; check model.sdf and cached model of lidar sensor.";
 constexpr auto    ERR_PATTERN_MISMATCH_3x3    = "Pattern is not of size 3x3.";
+constexpr auto    ERR_FIX_ASYM_V_SHAPE        = "Unexpected error when fixing asymmetric v-shapes; undefined fixer pattern.";

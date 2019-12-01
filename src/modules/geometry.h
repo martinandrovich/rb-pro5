@@ -851,45 +851,37 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 
 	auto is_v_shape = [&](const cv::Point& pt) -> std::optional<std::vector<cv::Point>>
 	{
-		std::vector<cv::Point> vec_pts;
+		// return vector extendable points if match found
 
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_UP))
-		{
-			vec_pts.push_back(pt);
-			vec_pts.push_back(pt + PIXEL::DIR_SE);
-			vec_pts.push_back(pt + PIXEL::DIR_SW);
-		}
+			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_SE, pt + PIXEL::DIR_SW };
+
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_DOWN))
-		{
-			vec_pts.push_back(pt);
-			vec_pts.push_back(pt + PIXEL::DIR_NE);
-			vec_pts.push_back(pt + PIXEL::DIR_NW);
-		}
+			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NE, pt + PIXEL::DIR_NW };
+
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_LEFT))
-		{
-			vec_pts.push_back(pt);
-			vec_pts.push_back(pt + PIXEL::DIR_NE);
-			vec_pts.push_back(pt + PIXEL::DIR_SE);
-		}
+			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NE, pt + PIXEL::DIR_SE };
+
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_RIGHT))
-		{
-			vec_pts.push_back(pt);
-			vec_pts.push_back(pt + PIXEL::DIR_NW);
-			vec_pts.push_back(pt + PIXEL::DIR_SW);
-		}
-		
-		return vec_pts.empty() ? std::nullopt : std::optional(vec_pts);
+			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NW, pt + PIXEL::DIR_SW };
+
+		// no match
+		return std::nullopt;
 	};
 
-	auto is_t_shape = [&](const cv::Point& pt)
+	auto is_asym_v_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
 	{
-		;
+		for (const auto& p : PIXEL::PAT_ASYM_V_VEC)
+			if (match_pattern_3x3(img, pt, p))
+				return p;
+
+		return std::nullopt;
 	};
 
-	auto is_asym_v_shape = [&](const cv::Point& pt)
+	auto is_t_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
 	{
 		;
 	};
@@ -899,9 +891,77 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		;
 	};
 
-	auto fix_asym_v_shapes = [&](const cv::Point& pt)
+	auto fix_asym_v_shapes = [&]()
 	{
-		;
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			cv::Mat fixer_pattern, roi;
+
+			if (auto pattern = is_asym_v_shape(pos))
+			{
+				// determine appropriate fixer pattern
+
+				// asymmetric v-shape pointing either up or left
+				if (mat_equal(pattern.value(), PIXEL::PAT_ASYM_V_UP_LEFT))
+				{
+					// v-shape must be upward
+					if (img.at<uchar>(pos + PIXEL::DIR_SE + PIXEL::DIR_W) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_UP;
+
+					// v-shape must be leftward
+					if (img.at<uchar>(pos + PIXEL::DIR_NE + PIXEL::DIR_N) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_LEFT;
+				}
+
+				// asymmetric v-shape pointing either up or right
+				else
+				if (mat_equal(pattern.value(), PIXEL::PAT_ASYM_V_UP_RIGHT))
+				{
+					// v-shape must be upward
+					if (img.at<uchar>(pos + PIXEL::DIR_SE + PIXEL::DIR_E) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_UP;
+
+					// v-shape must be rightward
+					if (img.at<uchar>(pos + PIXEL::DIR_NW + PIXEL::DIR_N) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_RIGHT;
+				}
+
+				// asymmetric v-shape pointing either down or left
+				else
+				if (mat_equal(pattern.value(), PIXEL::PAT_ASYM_V_DOWN_LEFT))
+				{
+					// v-shape must be downward
+					if (img.at<uchar>(pos + PIXEL::DIR_NW + PIXEL::DIR_W) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_DOWN;
+
+					// v-shape must be rightward
+					if (img.at<uchar>(pos + PIXEL::DIR_SE + PIXEL::DIR_S) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_LEFT;
+				}
+
+				// asymmetric v-shape pointing either down or right (darius)
+				else
+				if (mat_equal(pattern.value(), PIXEL::PAT_ASYM_V_DOWN_RIGHT))
+				{
+					// v-shape must be downward
+					if (img.at<uchar>(pos + PIXEL::DIR_NE + PIXEL::DIR_E) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_DOWN;
+
+					// v-shape must be rightward
+					if (img.at<uchar>(pos + PIXEL::DIR_SW + PIXEL::DIR_S) == PIXEL::BLACK)
+						fixer_pattern = PIXEL::PAT_V_RIGHT;
+				}
+
+				// something went wrong
+				else
+					throw std::runtime_error(ERR_FIX_ASYM_V_SHAPE);
+				
+				// apply the derived fixer pattern to ROI
+				roi = img(cv::Rect(pos.x - 1, pos.y - 1, 3, 3));
+				cv::bitwise_or(roi, fixer_pattern, roi);
+				cv::bitwise_and(roi, fixer_pattern, roi);
+			}
+		});
 	};
 
 	auto fix_t_shapes = [&](const cv::Point& pt)
@@ -962,9 +1022,14 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 	// -------------------------------------------------------------
 
 	// perform thinning
-	auto img_gvd_thin = thin_edges(img_gvd);
-	show_img("gvd: thinned", img_gvd_thin);
-	img = img_gvd_thin;
+	img = thin_edges(img_gvd);
+	show_img("gvd: thin lines (step 1)", img);
+	cv::imwrite("assets/output/img_gvd_step1.png", img);
+
+	// fix t-shapes
+	fix_asym_v_shapes();
+	show_img("gvd: fix asym v shapes (step 2)", img);
+	cv::imwrite("assets/output/img_gvd_step2.png", img);
 
 	// create output copy
 	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
@@ -972,14 +1037,11 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 	// expand v-shapes
 	expand_v_shapes();
 
-	// iterate_mat(img, [&](auto& pos, auto& pixel)
-	// {
-	// 	if (match_pattern_3x3(img, pos, { 0, 255, 255, 255, 0, 0, 0, 255, 255 }))
-	// 		img_out.at<cv::Vec3b>(pos) = { 0, 0, 255 };
-	// });
+	// number of edges found
+	std::cout << "number of edges: " << vec_edges.size() << std::endl;
 
-	cv::imwrite("assets/output/img_pattern_test.png", img_out);
-	show_img("pattern test", img_out);
+	cv::imwrite("assets/output/img_gvd_final.png", img_out);
+	show_img("gvd: final", img_out);
 
 }
 
