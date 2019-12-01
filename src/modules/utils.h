@@ -1,11 +1,12 @@
 #pragma once
 
+#include <cmath>
 #include <string>
+#include <array>
 #include <vector>
 #include <stdexcept>
 #include <chrono>
 #include <functional>
-#include <cmath>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
@@ -36,15 +37,23 @@ namespace PIXEL
 	constexpr auto NOT_OBS = WHITE;
 	constexpr auto IS_OBS  = BLACK;
 
+	// patterns
+	inline const cv::Mat PAT_V_UP    = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK);
+	inline const cv::Mat PAT_V_DOWN  = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE);
+	inline const cv::Mat PAT_V_LEFT  = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE, BLACK);
+	inline const cv::Mat PAT_V_RIGHT = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE);
+
 	// cardinal directions
-	inline const auto DIR_NW = cv::Point(-1, -1);
-	inline const auto DIR_N  = cv::Point( 0, -1);
-	inline const auto DIR_NE = cv::Point( 1, -1);
-	inline const auto DIR_W  = cv::Point(-1,  0);
-	inline const auto DIR_E  = cv::Point( 1,  0);
-	inline const auto DIR_SW = cv::Point(-1,  1);
-	inline const auto DIR_S  = cv::Point( 0,  1);
-	inline const auto DIR_SE = cv::Point( 1,  1);
+	inline const auto DIR_NW         = cv::Point(-1, -1);
+	inline const auto DIR_N          = cv::Point( 0, -1);
+	inline const auto DIR_NE         = cv::Point( 1, -1);
+	inline const auto DIR_W          = cv::Point(-1,  0);
+	inline const auto DIR_E          = cv::Point( 1,  0);
+	inline const auto DIR_SW         = cv::Point(-1,  1);
+	inline const auto DIR_S          = cv::Point( 0,  1);
+	inline const auto DIR_SE         = cv::Point( 1,  1);
+
+	inline const auto DIR_VEC        = std::array{ DIR_NW, DIR_N, DIR_NE, DIR_W, DIR_E, DIR_SW, DIR_S, DIR_SE };
 
 	// point locations
 	template<typename T = uchar>
@@ -135,6 +144,12 @@ inline bool
 pt_within_boundary(const cv::Mat& img, const cv::Point& pt)
 {
 	return not ((pt.x - 1) < 0 || (pt.y - 1) < 0 || (pt.x + 1) > img.cols || (pt.y + 1) > img.rows);
+}
+
+inline bool
+kernel_3x3_within_boundary(const cv::Mat& img, const cv::Point& pt)
+{
+	return not ((pt.x - 2) < 0 || (pt.y - 2) < 0 || (pt.x + 2) > img.cols || (pt.y + 2) > img.rows);
 }
 
 inline void
@@ -252,6 +267,42 @@ iterate_3x3(cv::Mat& img, cv::Point pt, std::function<void(cv::Point&, T&)> call
 	}
 }
 
+inline bool
+match_pattern_3x3(const cv::Mat& img, const cv::Point& pt_center, const cv::Mat& pattern)
+{
+	constexpr auto ROI_SIZE = 3;
+
+	if (pattern.rows != ROI_SIZE || pattern.cols != ROI_SIZE)
+		throw std::runtime_error(ERR_PATTERN_MISMATCH_3x3);
+
+	if (not kernel_3x3_within_boundary(img, pt_center))
+		return false;
+
+	
+	cv::Mat result;
+	auto roi = img(cv::Rect(pt_center.x - 1, pt_center.y - 1, ROI_SIZE, ROI_SIZE));
+
+	cv::bitwise_xor(roi, pattern, result);
+
+	if (pt_center.x == 374 && pt_center.y == 501)
+	{
+		std::cout << pt_center << std::endl;
+		std::cout << roi << std::endl;
+		std::cout << pattern << std::endl;
+		std::cout << result << std::endl;
+		std::cout << cv::countNonZero(result) << std::endl;
+	}
+
+	return (cv::countNonZero(result) == 0);
+}
+
+inline bool
+match_pattern_3x3(const cv::Mat& img, const cv::Point& pt_center, std::array<uchar, 9> pattern)
+{
+	auto mat_pattern = cv::Mat(3, 3, CV_8U, pattern.data());
+	return match_pattern_3x3(img, pt_center, mat_pattern);
+}
+
 template<typename D = std::chrono::microseconds, typename F> float
 benchmark(F lambda, bool print = true)
 {
@@ -349,6 +400,9 @@ inline cv::Mat
 thin_edges(const cv::Mat& img)
 {
 
+	// https://answers.opencv.org/question/3207/what-is-a-good-thinning-algorithm-for-getting-the-skeleton-of-characters-for-ocr/
+	// https://stackoverflow.com/questions/6409759/extracting-segments-from-a-list-of-8-connected-pixels
+	
 	using namespace cv;
 
 	auto ThinSubiteration1 = [](Mat & pSrc, Mat & pDst)

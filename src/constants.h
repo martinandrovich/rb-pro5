@@ -40,14 +40,15 @@ constexpr ilf     DIM_SMALLWORLD              = { 14.11f, 10.58f };
 constexpr ilf     DIM_BIGWORLD                = { 84.66f, 56.44f };
 constexpr auto    GVD_VERTEX_RADIUS           = SCALE_METER_PER_PX * 40;
 constexpr auto    LIDAR_MAX_RANGE             = 200;
+constexpr auto    IMG_BORDER_SIZE             = 1 ; // width in pixels
 
 constexpr auto    TEST_GVD                    = true;
 constexpr auto    TEST_LINE_SEG               = false;
 constexpr auto    TEST_MARBLE_DETECT          = false;
-constexpr auto    TEST_EXIT_AFTER             = false;
+constexpr auto    TEST_EXIT_AFTER             = true;
 
 constexpr auto    USE_OBS_AVOID               = true;
-constexpr auto    USE_PARTICLE_FILTER         = true;
+constexpr auto    USE_PARTICLE_FILTER         = false;
 constexpr auto    USE_LOCALIZATION            = false;
 
 constexpr auto    PTCLFILT_PARTICLES          = 2500;
@@ -82,3 +83,4 @@ constexpr auto    ERR_IMG_NOT_GRAY            = "The image is not grayscale.";
 constexpr auto    ERR_NO_IMPL                 = "No implementation.";
 constexpr auto    ERR_NUM_NOT_POS             = "Number must be positive.";
 constexpr auto    ERR_EXCEED_LIDAR_RANGE      = "Number of lidar rays exceed maximum; check model.sdf and cached model of lidar sensor.";
+constexpr auto    ERR_PATTERN_MISMATCH_3x3    = "Pattern is not of size 3x3.";

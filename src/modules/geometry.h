@@ -65,6 +65,9 @@ namespace geometry
 	void
 	gvd_graph(const cv::Mat& img_gvd);
 
+	void
+	gvd_graph2(const cv::Mat& img_gvd);
+
 	// -- points ----------------------------------------------------------------------
 
 	cv::Mat
@@ -220,6 +223,9 @@ geometry::brushfire(const cv::Mat& img_map)
 inline cv::Mat
 geometry::gvd(const cv::Mat& img_map)
 {
+	// http://www.tapas-project.eu/files/lau13ras.pdf
+	// https://www.hindawi.com/journals/mpe/2014/456739/#B23
+
 	// assert grayscale image
 	if (img_map.channels() != 1)
 		throw std::runtime_error(ERR_IMG_NOT_GRAY);
@@ -463,6 +469,9 @@ geometry::gvd_bf(const cv::Mat& img_map, cv::Mat img_bf)
 inline cv::Mat
 geometry::gvd_opencv(const cv::Mat& img_map)
 {
+
+	// https://www.learnopencv.com/delaunay-triangulation-and-voronoi-diagram-using-opencv-c-python/
+
 	// assert grayscale image
 	if (img_map.channels() != 1)
 		throw std::runtime_error(ERR_IMG_NOT_GRAY);
@@ -552,7 +561,7 @@ geometry::gvd_graph(const cv::Mat& img_gvd)
 		throw std::runtime_error(ERR_IMG_NOT_GRAY);
 
 	// variables
-	cv::Mat img, img_dl, img_out;
+	cv::Mat img, img_out;
 	std::vector<line_t> vec_edges;
 	std::vector<vertex_t> vec_vertices;
 
@@ -569,37 +578,29 @@ geometry::gvd_graph(const cv::Mat& img_gvd)
 
 	auto is_diag = [&](const cv::Point& pt) -> std::optional<cv::Point>
 	{
-		// boundary check for 3x3 kernel
-		if ((pt.x - 1) < 0 || (pt.y - 1) < 0 || (pt.x + 1 > img.cols) || (pt.y + 1 > img.rows))
+		// boundary check
+		if (not pt_within_boundary(img, pt))
 			return std::nullopt;
 
-		// pixel values
-		const auto& tl = img.at<uchar>({pt.x - 1, pt.y - 1});
-		const auto& tm = img.at<uchar>({pt.x    , pt.y - 1});
-		const auto& tr = img.at<uchar>({pt.x + 1, pt.y - 1});
-		const auto& ml = img.at<uchar>({pt.x - 1, pt.y    });
-		const auto& mm = img.at<uchar>({pt.x    , pt.y    });
-		const auto& mr = img.at<uchar>({pt.x + 1, pt.y    });
-		const auto& bl = img.at<uchar>({pt.x - 1, pt.y + 1});
-		const auto& bm = img.at<uchar>({pt.x    , pt.y + 1});
-		const auto& br = img.at<uchar>({pt.x + 1, pt.y + 1});
+		// pixel object
+		auto pxl = PIXEL::pixel_t(img, pt);
 
 		// perform diagonal check within 3x3 kernel
 
-		if (not (mm == PIXEL::BLACK && tm == PIXEL::WHITE && ml == PIXEL::WHITE && mr == PIXEL::WHITE && bm == PIXEL::WHITE))
+		if (not (pxl.mm() == PIXEL::BLACK && pxl.tm() == PIXEL::WHITE && pxl.ml() == PIXEL::WHITE && pxl.mr() == PIXEL::WHITE && pxl.bm() == PIXEL::WHITE))
 			return std::nullopt;
 
-		if (tl == mm && tr == PIXEL::WHITE && bl == PIXEL::WHITE && br == PIXEL::WHITE)
-			return PIXEL::TL;
+		if (pxl.tl() == pxl.mm() && pxl.tr() == PIXEL::WHITE && pxl.bl() == PIXEL::WHITE && pxl.br() == PIXEL::WHITE)
+			return PIXEL::DIR_NW;
 			
-		if (tr == mm && tl == PIXEL::WHITE && bl == PIXEL::WHITE && br == PIXEL::WHITE)
-			return PIXEL::TR;
+		if (pxl.tr() == pxl.mm() && pxl.tl() == PIXEL::WHITE && pxl.bl() == PIXEL::WHITE && pxl.br() == PIXEL::WHITE)
+			return PIXEL::DIR_NE;
 
-		if (bl == mm && tr == PIXEL::WHITE && tl == PIXEL::WHITE && br == PIXEL::WHITE)
-			return PIXEL::BL;
+		if (pxl.bl() == pxl.mm() && pxl.tr() == PIXEL::WHITE && pxl.tl() == PIXEL::WHITE && pxl.br() == PIXEL::WHITE)
+			return PIXEL::DIR_SW;
 
-		if (br == mm && tl == PIXEL::WHITE && bl == PIXEL::WHITE && tr == PIXEL::WHITE)
-			return PIXEL::BR;
+		if (pxl.br() == pxl.mm() && pxl.tl() == PIXEL::WHITE && pxl.bl() == PIXEL::WHITE && pxl.tr() == PIXEL::WHITE)
+			return PIXEL::DIR_SE;
 	};
 
 	auto count_black_px = [&](const cv::Point& pt)
@@ -617,6 +618,12 @@ geometry::gvd_graph(const cv::Mat& img_gvd)
 
 	auto find_diag = [&]()
 	{
+
+		// finding diagonals done on clone
+		// such that new diagonals dont appear dynamically
+		auto img_temp = img.clone();
+
+		// iterate the original img, remove pixels from copy
 		iterate_mat(img, [&](auto& pos, auto& pixel)
 		{
 			if (auto dir = is_diag(pos))
@@ -624,54 +631,355 @@ geometry::gvd_graph(const cv::Mat& img_gvd)
 				auto pos_start    = pos;
 				auto pos_end      = cv::Point();
 				auto pos_cur      = pos + dir.value();
-				// auto num_black_px = 3;
 
 				// add vertex to vector and make that pixel white
 				vec_vertices.push_back(pos_start);
-				img.at<uchar>(pos_start) = PIXEL::WHITE;
+				img_temp.at<uchar>(pos_start) = PIXEL::WHITE;
 
-				while (pt_within_boundary(img, pos_cur) && img.at<uchar>(pos_cur) == PIXEL::BLACK)
+				while (pt_within_boundary(img_temp, pos_cur) && count_black_px(pos_cur) <= 6 && img_temp.at<uchar>(pos_cur) == PIXEL::BLACK)
 				{
-					// num_black_px = count_black_px(pos_cur);
-					img.at<uchar>(pos_cur) = PIXEL::WHITE;
-					pos_cur   += dir.value();
+					img_temp.at<uchar>(pos_cur) = PIXEL::WHITE;
+					pos_cur += dir.value();
 				}
 
 				// calculate end point, add to vector of edges and make it black
 				pos_end = pos_cur - dir.value();
 				vec_edges.push_back({ pos_start, pos_end });
-				img.at<uchar>(pos_end) = PIXEL::BLACK;
-
-				cv::line(img_out, pos_start, pos_end, {0, 0, 255 }, 1, 8);
+				// img_temp.at<uchar>(pos_end) = PIXEL::BLACK;
+				img_temp.at<uchar>(pos_end) = PIXEL::WHITE;
+				
+				cv::line(img_out, pos_start, pos_end, { 0, 0, 255 }, 1, 8);
+				img_out.at<cv::Vec3b>(pos_start) = { 255, 0, 255 };
+				img_out.at<cv::Vec3b>(pos_end)   = { 255, 0, 255 };
 			}
 		});
 
+		// when done, write back removed pixels to original img
+		img = img_temp;
+	};
+
+	auto purge_doublelines = [&]()
+	{
+		cv::Mat img_dl;
+
+		cv::dilate(img, img_dl, MORPH::STR_ELM_ELPS_2x2);
+		cv::bitwise_not(img_dl, img_dl);
+		cv::bitwise_or(img, img_dl, img);
+	};
+
+	auto fill_diag_gaps = [&]()
+	{
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (auto dir = is_diag(pos))
+				img.at<uchar>(pos - dir.value()) = PIXEL::BLACK;
+		});
+	};
+
+	auto find_horz = [&]()
+	{
+
+		bool on_line = false;
+
+		cv::Point pos_start, pos_end;
+		size_t dist = 0;
+
+		iterate_rows(img, [&](auto& pos, auto& pixel)
+		{
+
+			// currently following a line
+			if (on_line && pixel == PIXEL::BLACK)
+			{
+				dist++;
+				
+				if (dist > 1)
+					pixel = PIXEL::WHITE;
+			}
+			// was following line but reached white pixel, stop following line
+			else
+			if (on_line && pixel == PIXEL::WHITE)
+			{
+				pos_end = pos;
+				on_line = false;
+
+				if (dist > 1)
+					vec_edges.push_back({pos_start, pos_end});
+
+				cv::line(img_out, pos_start, pos_end, { 0, 0, 255 }, 1, 8);
+			}
+			// encountered black pixel, start following line
+			else
+			if (pixel == PIXEL::BLACK)
+			{
+				pos_start = pos;
+				dist = 0;
+				on_line = true;
+			}
+		});
+	};
+
+	auto find_vert = [&]()
+	{
+
+		bool on_line = false;
+
+		cv::Point pos_start, pos_end;
+		size_t dist = 0;
+
+		iterate_cols(img, [&](auto& pos, auto& pixel)
+		{
+
+			// currently following a line
+			if (on_line && pixel == PIXEL::BLACK)
+			{
+				dist++;
+				
+				if (dist > 1)
+					pixel = PIXEL::WHITE;
+			}
+			// was following line but reached white pixel, stop following line
+			else
+			if (on_line && pixel == PIXEL::WHITE)
+			{
+				pos_end = pos;
+				on_line = false;
+
+				if (dist > 1)
+					vec_edges.push_back({pos_start, pos_end});
+
+				cv::line(img_out, pos_start, pos_end, { 0, 0, 255 }, 1, 8);
+			}
+			// encountered black pixel, start following line
+			else
+			if (pixel == PIXEL::BLACK)
+			{
+				pos_start = pos;
+				dist = 0;
+				on_line = true;
+			}
+		});
 	};
 
 	// -------------------------------------------------------------
 
+	// start
+	cv::imwrite("assets/output/img_gvd_step0.png", img_gvd);
+
+	// thin edges test
+	auto img_gvd_thin = thin_edges(img_gvd);
+	show_img("gvd: thinned", img_gvd_thin);
+	cv::imwrite("assets/output/img_gvd_thin.png", img_gvd_thin);
+
+	// img = img_gvd_thin;
+
 	// find (most) diagonal edges
 	find_diag();
-	show_img("diagonals", img);
+	show_img("gvd: find diag (step 1)", img);
+	cv::imwrite("assets/output/img_gvd_step1.png", img);
 
 	// purge double edges
-	cv::dilate(img, img_dl, MORPH::STR_ELM_ELPS_2x2);
-	cv::bitwise_not(img_dl, img_dl);
-	cv::bitwise_or(img, img_dl, img);
-	show_img("doubles removed", img);
+	purge_doublelines();
+	cv::imwrite("assets/output/img_gvd_step2.png", img);
+	show_img("gvd: remove doubles (step 2)", img);
 
-	// find vertical edges
-	;
+	// fill diagonal gaps
+	fill_diag_gaps();
+	cv::imwrite("assets/output/img_gvd_step3.png", img);
+	show_img("gvd: fill diag gaps (step 3)", img);
 
 	// find horizontal edges
-	;
+	find_horz();
+	cv::imwrite("assets/output/img_gvd_step4.png", img);
+	show_img("gvd: find horz (step 4)", img);
+
+	// find vertical edges
+	find_vert();
+	cv::imwrite("assets/output/img_gvd_step5.png", img);
+	show_img("gvd: find horz (step 5)", img);
 
 	// find remaining diagonals
 	;
 
+	// re-construct gvd
+	cv::Mat img_final = cv::Mat(img_gvd.size(), CV_8UC3, cv::Scalar(255, 255, 255));
+	
+	for (const auto& e : vec_edges)
+		cv::line(img_final, e.from, e.to, { 255, 0, 0 }, 1, 8);
+
+	cv::imwrite("assets/output/img_gvd_reconstructed.png", img_final);
+	show_img("gvd: reconstructed", img_final);	
+
+
 	// show output
-	cv::imwrite("assets/output/img_out.png", img_out);
+	cv::imwrite("assets/output/img_gvd_final.png", img_out);
 	show_img("output", img_out);
+
+}
+
+inline void
+geometry::gvd_graph2(const cv::Mat& img_gvd)
+{
+	// assert grayscale image
+	if (img_gvd.channels() != 1)
+		throw std::runtime_error(ERR_IMG_NOT_GRAY);
+
+	// variables
+	cv::Mat img, img_out;
+	std::vector<line_t> vec_edges;
+	std::vector<vertex_t> vec_vertices;
+
+	// copy gvd
+	img = img_gvd.clone();
+
+	// create empty output
+	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
+	// img_out.setTo(cv::Scalar(255, 255, 255));
+
+	// -------------------------------------------------------------
+
+	// lambdas
+
+	auto find_expand_dir = [&](const cv::Point& pt, const std::vector<cv::Point>& vec_other_pts = {})
+	{
+		for (const auto& dir : PIXEL::DIR_VEC)
+		{
+			if (img.at<uchar>(pt + dir) == PIXEL::BLACK &&
+				std::none_of(vec_other_pts.begin(), vec_other_pts.end(), [&](const auto& other_pt) { return (pt + dir == other_pt); })
+			) return dir;
+		}
+	};
+
+	auto is_v_shape = [&](const cv::Point& pt) -> std::optional<std::vector<cv::Point>>
+	{
+		std::vector<cv::Point> vec_pts;
+
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_UP))
+		{
+			vec_pts.push_back(pt);
+			vec_pts.push_back(pt + PIXEL::DIR_SE);
+			vec_pts.push_back(pt + PIXEL::DIR_SW);
+		}
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_DOWN))
+		{
+			vec_pts.push_back(pt);
+			vec_pts.push_back(pt + PIXEL::DIR_NE);
+			vec_pts.push_back(pt + PIXEL::DIR_NW);
+		}
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_LEFT))
+		{
+			vec_pts.push_back(pt);
+			vec_pts.push_back(pt + PIXEL::DIR_NE);
+			vec_pts.push_back(pt + PIXEL::DIR_SE);
+		}
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_RIGHT))
+		{
+			vec_pts.push_back(pt);
+			vec_pts.push_back(pt + PIXEL::DIR_NW);
+			vec_pts.push_back(pt + PIXEL::DIR_SW);
+		}
+		
+		return vec_pts.empty() ? std::nullopt : std::optional(vec_pts);
+	};
+
+	auto is_t_shape = [&](const cv::Point& pt)
+	{
+		;
+	};
+
+	auto is_asym_v_shape = [&](const cv::Point& pt)
+	{
+		;
+	};
+
+	auto is_diag = [&](const cv::Point& pt)
+	{
+		;
+	};
+
+	auto fix_asym_v_shapes = [&](const cv::Point& pt)
+	{
+		;
+	};
+
+	auto fix_t_shapes = [&](const cv::Point& pt)
+	{
+		;
+	};
+
+	auto expand_pt = [&](const cv::Point& pt, const cv::Point& dir) -> line_t
+	{
+		// expand point until white pixel occurs
+		cv::Point pos_start = pt;
+		cv::Point pos_end;
+		cv::Point pos_cur = pos_start;
+
+		while (pt_within_boundary(img, pos_cur + dir) && img.at<uchar>(pos_cur + dir) == PIXEL::BLACK)
+		{
+			// img.at<uchar>(pos_cur) = PIXEL::WHITE;
+			pos_cur += dir;
+		}
+
+		// end point
+		pos_end = pos_cur;
+
+		// construct line
+		return line_t{ pos_start, pos_end };
+	};
+
+	auto expand_v_shapes = [&]()
+	{
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (auto vec_pts = is_v_shape(pos))
+			{
+				for (const auto& pt : vec_pts.value())
+				{
+					// find expand dir; cannot be in dir of pts from vec_pts
+					auto dir = find_expand_dir(pt, vec_pts.value());
+					
+					// expand point in specified dir
+					auto edge = expand_pt(pt, dir);
+					
+					// append edge and vertices
+					vec_vertices.push_back(edge.from);
+					vec_vertices.push_back(edge.to);
+					vec_edges.push_back(edge);
+
+					cv::line(img_out, edge.from, edge.to, { 0, 0, 255 }, 1, 8);
+				}
+			}
+		});
+	};
+
+	auto expand_diag = [&](const cv::Point& pt)
+	{
+		;
+	};
+
+	// -------------------------------------------------------------
+
+	// perform thinning
+	auto img_gvd_thin = thin_edges(img_gvd);
+	show_img("gvd: thinned", img_gvd_thin);
+	img = img_gvd_thin;
+
+	// create output copy
+	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
+
+	// expand v-shapes
+	expand_v_shapes();
+
+	// iterate_mat(img, [&](auto& pos, auto& pixel)
+	// {
+	// 	if (match_pattern_3x3(img, pos, { 0, 255, 255, 255, 0, 0, 0, 255, 255 }))
+	// 		img_out.at<cv::Vec3b>(pos) = { 0, 0, 255 };
+	// });
+
+	cv::imwrite("assets/output/img_pattern_test.png", img_out);
+	show_img("pattern test", img_out);
 
 }
 
@@ -1168,13 +1476,14 @@ geometry::test_brushfire_and_gvd()
 	//auto img = load_img(PATH_IMG_SMALLWORLD, cv::IMREAD_GRAYSCALE);
 	//scale_img(img, DIM_SMALLWORLD, SCALE_METER_PER_PX);
 
-	// big world
+	// big world: load, add black border and resize
 	auto img = load_img(PATH_IMG_BIGWORLD, cv::IMREAD_GRAYSCALE);
+	add_border(img, IMG_BORDER_SIZE, cv::Scalar(0));
 	scale_img(img, DIM_BIGWORLD, SCALE_METER_PER_PX);
 	// cv::resize(img, img, cv::Size(846, 564), 0.0, 0.0, cv::INTER_NEAREST);
 
 	// show map
-	show_img("map", img);
+	// show_img("map", img);
 
 	// detecting GVD edges using HoughLinesP w/ trackbars
 	// test_gvd_houghlinesp();
@@ -1184,18 +1493,18 @@ geometry::test_brushfire_and_gvd()
 
 	// brushfire
 	auto img_bf = brushfire(img);
-	show_img("brushfire", img_bf);
+	// show_img("brushfire", img_bf);
 
 	// gvd using brushfire
 	auto img_gvdbf = gvd_bf(img, img_bf);
-	show_img("gvd (bf)", img_gvdbf);
+	// show_img("gvd (bf)", img_gvdbf);
 
 	// gvd using custom implementation
 	// auto img_gvd = gvd(img);
 	// show_img("gvd (custom)", img_gvd);
 
 	// make graph from GVD image
-	gvd_graph(img_gvdbf);
+	gvd_graph2(img_gvdbf);
 
 	// opencv GVD
 	// auto img_gvdcv = gvd_opencv(img);
