@@ -1205,6 +1205,37 @@ geometry::gvd_graph2(const cv::Mat& img_map, const cv::Mat& img_gvd)
 		});
 	};
 
+	auto find_vertices = [&]()
+	{
+		vec_vertices.clear();
+
+		for (const auto& l : vec_edges)
+		{
+			bool found_v_from = false;
+			bool found_v_to   = false;
+
+			iterate_8adj(img, l.from, [&](auto& pos, auto& pixel)
+			{
+				if (std::any_of(vec_vertices.begin(), vec_vertices.end(), [&](const auto& pt){
+					return pos == pt;
+				}))	found_v_from = true;
+			});
+
+			iterate_8adj(img, l.to, [&](auto& pos, auto& pixel)
+			{
+				if (std::any_of(vec_vertices.begin(), vec_vertices.end(), [&](const auto& pt){
+					return pos == pt;
+				}))	found_v_to = true;
+			});
+
+			if (not found_v_from)
+				vec_vertices.push_back(l.from);
+
+			if (not found_v_to)
+				vec_vertices.push_back(l.to);
+		}
+	};
+
 	// -------------------------------------------------------------
 
 	// perform thinning
@@ -1245,6 +1276,11 @@ geometry::gvd_graph2(const cv::Mat& img_map, const cv::Mat& img_gvd)
 	expand_diag();
 	show_img("gvd: expand diagonals (step 7)", img);
 	cv::imwrite("assets/output/img_gvd_step7.png", img);
+
+	// draw vertices
+	find_vertices();
+	for (const auto& v : vec_vertices)
+		img_out.at<cv::Vec3b>(v) = { 255, 0, 0 };
 
 	// final output
 	cv::imwrite("assets/output/img_gvd_final.png", img_out);
