@@ -66,7 +66,7 @@ namespace geometry
 	gvd_graph(const cv::Mat& img_gvd);
 
 	cv::Mat
-	gvd_graph2(const cv::Mat& img_gvd);
+	gvd_graph2(const cv::Mat& img_map, const cv::Mat& img_gvd);
 
 	// -- points ----------------------------------------------------------------------
 
@@ -820,7 +820,7 @@ geometry::gvd_graph(const cv::Mat& img_gvd)
 }
 
 inline cv::Mat
-geometry::gvd_graph2(const cv::Mat& img_gvd)
+geometry::gvd_graph2(const cv::Mat& img_map, const cv::Mat& img_gvd)
 {
 	// assert grayscale image
 	if (img_gvd.channels() != 1)
@@ -852,36 +852,57 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		}
 	};
 
-	auto is_v_shape = [&](const cv::Point& pt) -> std::optional<std::vector<cv::Point>>
+	auto is_v_shape = [&](const cv::Point& pt) -> std::tuple<cv::Point, std::vector<cv::Point>>
 	{
-		// return vector extendable points if match found
+		// return direction and vector of expandable node if match found
 
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_UP))
-			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_SE, pt + PIXEL::DIR_SW };
+			return { PIXEL::DIR_N, std::vector<cv::Point>{ pt, pt + PIXEL::DIR_SE, pt + PIXEL::DIR_SW } };
 
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_DOWN))
-			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NE, pt + PIXEL::DIR_NW };
+			return { PIXEL::DIR_S, std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NE, pt + PIXEL::DIR_NW } };
 
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_LEFT))
-			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NE, pt + PIXEL::DIR_SE };
+			return { PIXEL::DIR_W, std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NE, pt + PIXEL::DIR_SE } };
 
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_V_RIGHT))
-			return std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NW, pt + PIXEL::DIR_SW };
+			return { PIXEL::DIR_E, std::vector<cv::Point>{ pt, pt + PIXEL::DIR_NW, pt + PIXEL::DIR_SW } };
 
 		// no match
-		return std::nullopt;
+		return { PIXEL::DIR_NONE, {} };
 	};
 
-	auto is_t_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
+	// auto is_t_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
+	auto is_t_shape = [&](const cv::Point& pt) -> std::optional<cv::Point>
 	{
-		for (const auto& p : PIXEL::PAT_T_VEC)
-			if (match_pattern_3x3(img, pt, p))
-				return p;
 
-		return std::nullopt;
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_T_UP))
+			return PIXEL::DIR_N;
+
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_T_DOWN))
+			return PIXEL::DIR_S;
+
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_T_LEFT))
+			return PIXEL::DIR_W;
+
+		else
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_T_RIGHT))
+			return PIXEL::DIR_E;
+
+		// no match
+		else
+			return std::nullopt;
+
+		// for (const auto& p : PIXEL::PAT_T_VEC)
+		// 	if (match_pattern_3x3(img, pt, p))
+		// 		return p;
+
+		// return std::nullopt;
 	};
 
 	auto is_asym_v_shape = [&](const cv::Point& pt) -> std::optional<cv::Mat>
@@ -891,6 +912,15 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 				return p;
 
 		return std::nullopt;
+	};
+
+	auto is_cross_shape = [&](const cv::Point& pt) -> std::optional<std::vector<cv::Point>>
+	{
+		if (match_pattern_3x3(img, pt, PIXEL::PAT_CROSS))
+			return std::vector<cv::Point>{ PIXEL::DIR_N, PIXEL::DIR_S, PIXEL::DIR_E, PIXEL::DIR_W };
+
+		else
+			return std::nullopt;
 	};
 
 	auto is_diag = [&](const cv::Point& pt) -> std::optional<cv::Point>
@@ -913,8 +943,8 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		else
 		if (match_pattern_3x3(img, pt, PIXEL::PAT_DIAG_SE))
 			return PIXEL::DIR_SE;
-
-		return std::nullopt;
+		else
+			return std::nullopt;
 	};
 
 	auto fix_asym_v_shapes = [&]()
@@ -1005,7 +1035,16 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 	{
 		iterate_mat(img, [&](auto& pos, auto& pixel)
 		{
-			if (auto pattern = is_t_shape(pos))
+			if (auto dir = is_t_shape(pos))
+				img.at<uchar>(pos) = PIXEL::WHITE;
+		});
+	};
+
+	auto fix_cross_shapes = [&]()
+	{
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (is_cross_shape(pos))
 				img.at<uchar>(pos) = PIXEL::WHITE;
 		});
 	};
@@ -1031,6 +1070,90 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 		return line_t{ pos_start, pos_end };
 	};
 
+	auto expand_node = [&](const cv::Point& pt, const cv::Point& dir, const std::vector<cv::Point>& vec_pts_self)
+	{
+		// expand point until black pixel occurs
+		cv::Point pos_start = pt;
+		cv::Point pos_cur   = pos_start;
+
+		auto img_temp = img.clone();
+
+		while (pt_within_boundary(img, pos_cur + dir) && img.at<uchar>(pos_cur + dir) == PIXEL::WHITE)
+		{
+			pos_cur += dir;
+			img_temp.at<uchar>(pos_cur) = PIXEL::BLACK;
+
+			// if endpoint hits an obstacle on map, discard changes
+			if (img_map.at<uchar>(pos_cur) == PIXEL::BLACK)
+				return;
+		}
+
+		// if endpoint connects to same blob as self, discard changes
+		if (std::any_of(vec_pts_self.begin(), vec_pts_self.end(), [&](const auto& pt_self){
+			return (pos_cur == pt_self || pos_cur + dir == pt_self);
+		})) return;
+
+		img = img_temp;
+	};
+
+	auto connect_all_networks = [&]()
+	{
+		// find all 8-adj connected components (blos) sorted by size
+		auto vec_blobs = connected_blobs(img, 8, true);
+
+		// expand all blobs; skip the first being the largest network
+		for (size_t i = 1; i < vec_blobs.size(); i++)
+		{
+			auto& vec_pts = vec_blobs[i].vec_pts;
+
+			for (const auto& pt : vec_pts)
+			{
+				if (auto [dir, vec_nodes] = is_v_shape(pt); dir != PIXEL::DIR_NONE)
+					expand_node(pt, -dir, vec_pts);
+
+				if (auto dir = is_t_shape(pt))
+					expand_node(pt, -dir.value(), vec_pts);
+			}
+		}
+	};
+
+	auto remove_disjoint_networks = [&]()
+	{
+		auto vec_blobs = connected_blobs(img, 8, true);
+		img.setTo(PIXEL::WHITE);
+		for (const auto& pt : vec_blobs[0].vec_pts)
+			img.at<uchar>(pt) = PIXEL::BLACK;
+	};
+
+	auto expand_cross_shapes = [&]()
+	{
+		// expansion must be performed on copy
+		// such that the white pixels are only removed after all iterations
+		auto img_temp = img.clone();
+
+		iterate_mat(img, [&](auto& pos, auto& pixel)
+		{
+			if (auto vec_dir = is_cross_shape(pos))
+			{
+				for (const auto& dir : *vec_dir)
+				{					
+					// expand point in specified dir
+					auto edge = expand_pt(img_temp, pos, dir);
+					
+					// append edge and vertices
+					vec_vertices.push_back(edge.from);
+					vec_vertices.push_back(edge.to);
+					vec_edges.push_back(edge);
+
+					cv::line(img_out, edge.from, edge.to, { 0, 0, 255 }, 1, 8);
+				}
+			}
+		});
+
+		// apply changes
+		img = img_temp;
+	};
+
 	auto expand_v_shapes = [&]()
 	{
 		// expansion must be performed on copy
@@ -1039,12 +1162,12 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 
 		iterate_mat(img, [&](auto& pos, auto& pixel)
 		{
-			if (auto vec_pts = is_v_shape(pos))
+			if (auto [dir, vec_nodes] = is_v_shape(pos); dir != PIXEL::DIR_NONE)
 			{
-				for (const auto& pt : vec_pts.value())
+				for (const auto& pt : vec_nodes)
 				{
 					// find expand dir; cannot be in dir of pts from vec_pts
-					auto dir = find_expand_dir(pt, vec_pts.value());
+					auto dir = find_expand_dir(pt, vec_nodes);
 					
 					// expand point in specified dir
 					auto edge = expand_pt(img_temp, pt, dir);
@@ -1059,7 +1182,7 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 			}
 		});
 
-		// write back changes
+		// apply changes
 		img = img_temp;
 	};
 
@@ -1089,39 +1212,47 @@ geometry::gvd_graph2(const cv::Mat& img_gvd)
 	show_img("gvd: thin lines (step 1)", img);
 	cv::imwrite("assets/output/img_gvd_step1.png", img);
 
-	// create output copy
-	// cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
+	// connect all networks and remove any remaining disjoint networks (closed rooms)
+	connect_all_networks();
+	remove_disjoint_networks();
+	show_img("gvd: connect all networks + remove disjoint (step 2)", img);
+	cv::imwrite("assets/output/img_gvd_step2.png", img);
+
+	// fix cross shapes
+	fix_cross_shapes();
+	show_img("gvd: fix cross shapes (step 3)", img);
+	cv::imwrite("assets/output/img_gvd_step3.png", img);
 
 	// fix asymmetric V-shapes
 	fix_asym_v_shapes();
-	show_img("gvd: fix asym v shapes (step 2)", img);
-	cv::imwrite("assets/output/img_gvd_step2.png", img);
+	show_img("gvd: fix asym v shapes (step 4)", img);
+	cv::imwrite("assets/output/img_gvd_step4.png", img);
 
 	// fix T-shapes
 	fix_t_shapes();
-	show_img("gvd: fix t shapes (step 3)", img);
-	cv::imwrite("assets/output/img_gvd_step3.png", img);
+	show_img("gvd: fix t shapes (step 5)", img);
+	cv::imwrite("assets/output/img_gvd_step5.png", img);
 
 	// create output copy
 	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
 
 	// expand v-shapes
 	expand_v_shapes();
-	show_img("gvd: expand v shapes (step 4)", img);
-	cv::imwrite("assets/output/img_gvd_step4.png", img);
+	show_img("gvd: expand v shapes (step 6)", img);
+	cv::imwrite("assets/output/img_gvd_step6.png", img);
 
 	// expand diagonals
 	expand_diag();
-	show_img("gvd: expand diagonals (step 5)", img);
-	cv::imwrite("assets/output/img_gvd_step5.png", img);
+	show_img("gvd: expand diagonals (step 7)", img);
+	cv::imwrite("assets/output/img_gvd_step7.png", img);
 
 	// final output
 	cv::imwrite("assets/output/img_gvd_final.png", img_out);
 	show_img("gvd: final", img_out);
 
 	// number of edges found
-	std::cout << "number of edges: " << vec_edges.size() << std::endl;
-	std::cout << "number of duplicate edges: " << count_duplicate_lines(vec_edges) << std::endl;
+	// std::cout << "number of edges: " << vec_edges.size() << std::endl;
+	// std::cout << "number of duplicate edges: " << count_duplicate_lines(vec_edges) << std::endl;
 
 	return img_out;
 }
@@ -1295,7 +1426,6 @@ geometry::count_duplicate_lines(std::vector<line_t> vec_lines)
 	});
 
 	return (unique_end == vec_lines.end() ? 0 : std::distance(vec_lines.begin(), unique_end));
-	return std::distance(vec_lines.begin(), unique_end);
 }
 
 inline float
@@ -1666,7 +1796,7 @@ geometry::test_brushfire_and_gvd()
 	// show_img("gvd (custom)", img_gvd);
 
 	// make graph from GVD image
-	auto img_gvd = gvd_graph2(img_gvdbf);
+	auto img_gvd = gvd_graph2(img_map, img_gvdbf);
 
 	// final image
 	combine_img(img_gvd, img_map);

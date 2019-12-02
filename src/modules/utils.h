@@ -41,6 +41,7 @@ namespace PIXEL
 
 	inline const cv::Mat PAT_FILL              = (cv::Mat_<uchar>(3,3) << BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK);
 	inline const cv::Mat PAT_EMPTY             = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
+	inline const cv::Mat PAT_CROSS             = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE);
 
 	// V-shapes
 	inline const cv::Mat PAT_V_UP              = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK);
@@ -53,7 +54,7 @@ namespace PIXEL
 	inline const cv::Mat PAT_T_UP              = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE);
 	inline const cv::Mat PAT_T_DOWN            = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE);
 	inline const cv::Mat PAT_T_LEFT            = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, WHITE, BLACK, WHITE);
-	inline const cv::Mat PAT_T_RIGHT           = (cv::Mat_<uchar>(3,3) << BLACK, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE, WHITE);
+	inline const cv::Mat PAT_T_RIGHT           = (cv::Mat_<uchar>(3,3) << WHITE, BLACK, WHITE, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE);
 	inline const auto    PAT_T_VEC             = std::array{ PAT_T_UP, PAT_T_DOWN, PAT_T_LEFT, PAT_T_RIGHT };
 	
 	// asymmetric V-shapes
@@ -71,15 +72,16 @@ namespace PIXEL
 	inline const auto    PAT_DIAG_VEC          = std::array{ PAT_DIAG_NW, PAT_DIAG_NE, PAT_DIAG_SW, PAT_DIAG_SE };
 
 	// cardinal directions
-	inline const auto DIR_NW  = cv::Point(-1, -1);
-	inline const auto DIR_N   = cv::Point( 0, -1);
-	inline const auto DIR_NE  = cv::Point( 1, -1);
-	inline const auto DIR_W   = cv::Point(-1,  0);
-	inline const auto DIR_E   = cv::Point( 1,  0);
-	inline const auto DIR_SW  = cv::Point(-1,  1);
-	inline const auto DIR_S   = cv::Point( 0,  1);
-	inline const auto DIR_SE  = cv::Point( 1,  1);
-	inline const auto DIR_VEC = std::array{ DIR_NW, DIR_N, DIR_NE, DIR_W, DIR_E, DIR_SW, DIR_S, DIR_SE };
+	inline const auto DIR_NONE                 = cv::Point( 0,  0);
+	inline const auto DIR_NW                   = cv::Point(-1, -1);
+	inline const auto DIR_N                    = cv::Point( 0, -1);
+	inline const auto DIR_NE                   = cv::Point( 1, -1);
+	inline const auto DIR_W                    = cv::Point(-1,  0);
+	inline const auto DIR_E                    = cv::Point( 1,  0);
+	inline const auto DIR_SW                   = cv::Point(-1,  1);
+	inline const auto DIR_S                    = cv::Point( 0,  1);
+	inline const auto DIR_SE                   = cv::Point( 1,  1);
+	inline const auto DIR_VEC                  = std::array{ DIR_NW, DIR_N, DIR_NE, DIR_W, DIR_E, DIR_SW, DIR_S, DIR_SE };
 
 	// point locations
 	template<typename T = uchar>
@@ -126,6 +128,15 @@ namespace PIXEL
 		cv::Point pt;
 	};
 }
+
+// -- helper constructs  ----------------------------------------------------------
+
+// blob type for connected components
+struct blob_t
+{
+	std::vector<cv::Point> vec_pts;
+	size_t size;
+};
 
 // -- helper methods  -------------------------------------------------------------
 
@@ -305,12 +316,6 @@ iterate_3x3(cv::Mat& img, cv::Point pt, std::function<void(cv::Point&, T&)> call
 	}
 }
 
-inline cv::Mat
-get_3x3_roi(const cv::Mat& img, const cv::Point& pt_center)
-{
-
-};
-
 template<typename T = uchar>
 inline bool
 mat_equal(const cv::Mat& a, const cv::Mat& b)
@@ -346,6 +351,51 @@ match_pattern_3x3(const cv::Mat& img, const cv::Point& pt_center, std::array<uch
 {
 	auto mat_pattern = cv::Mat(3, 3, CV_8U, pattern.data());
 	return match_pattern_3x3(img, pt_center, mat_pattern);
+}
+
+inline std::vector<blob_t>
+connected_blobs(const cv::Mat& img, int connectivity = 8, bool sort_by_size = false)
+{
+	// assert grayscale image
+	if (img.channels() != 1)
+		throw std::runtime_error(ERR_IMG_NOT_GRAY);
+
+	// variables
+	cv::Mat img_inv, img_out, labels, stats, centroids;
+
+	// invert image; black pixels are treated as a background
+	cv::bitwise_not(img, img_inv);
+
+	// segregate image into blobs
+	auto n_labels = cv::connectedComponentsWithStats(img_inv, labels, stats, centroids, connectivity);
+
+	// create map of blobs
+	std::vector<blob_t> vec_blobs(n_labels);
+	for (int r = 0; r < img.rows; ++r)
+	{
+		for (int c = 0; c < img.cols; ++c)
+		{
+			auto label = labels.at<int>(r, c);
+			vec_blobs[label].vec_pts.emplace_back(cv::Point(c, r));
+		}
+	}
+
+	// determine sizes of each blob; index 1 is background
+	for (size_t label = 1; label < n_labels; label++)
+		vec_blobs[label].size = stats.at<int>(label, cv::CC_STAT_AREA);
+
+	// remove background blob, being the first
+	vec_blobs.erase(vec_blobs.begin() + 0);
+
+	// sort in descending order; largest first
+	if (sort_by_size)
+	{
+		std::sort(vec_blobs.begin(), vec_blobs.end(), [](const auto& a, const auto& b) {
+			return a.size > b.size;
+		});
+	}
+
+	return vec_blobs;
 }
 
 template<typename D = std::chrono::microseconds, typename F> float
