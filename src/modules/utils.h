@@ -71,7 +71,7 @@ namespace PIXEL
 	inline const cv::Mat PAT_DIAG_SE           = (cv::Mat_<uchar>(3,3) << WHITE, WHITE, WHITE, WHITE, BLACK, WHITE, WHITE, WHITE, BLACK);
 	inline const auto    PAT_DIAG_VEC          = std::array{ PAT_DIAG_NW, PAT_DIAG_NE, PAT_DIAG_SW, PAT_DIAG_SE };
 
-	// cardinal directions
+	// cardinal directionscv::
 	inline const auto DIR_NONE                 = cv::Point( 0,  0);
 	inline const auto DIR_NW                   = cv::Point(-1, -1);
 	inline const auto DIR_N                    = cv::Point( 0, -1);
@@ -498,165 +498,198 @@ thin_edges(const cv::Mat& img)
 	// https://answers.opencv.org/question/3207/what-is-a-good-thinning-algorithm-for-getting-the-skeleton-of-characters-for-ocr/
 	// https://stackoverflow.com/questions/6409759/extracting-segments-from-a-list-of-8-connected-pixels
 
-	using namespace cv;
-
-	auto ThinSubiteration1 = [](Mat & pSrc, Mat & pDst)
+	auto thin_subiter1 = [](const cv::Mat& mat_src, cv::Mat& mat_dst)
 	{
-		int rows = pSrc.rows;
-		int cols = pSrc.cols;
-		pSrc.copyTo(pDst);
-		for(int i = 0; i < rows; i++) {
-				for(int j = 0; j < cols; j++) {
-						if(pSrc.at<float>(i, j) == 1.0f) {
-								/// get 8 neighbors
-								/// calculate C(p)
-								int neighbor0 = (int) pSrc.at<float>( i-1, j-1);
-								int neighbor1 = (int) pSrc.at<float>( i-1, j);
-								int neighbor2 = (int) pSrc.at<float>( i-1, j+1);
-								int neighbor3 = (int) pSrc.at<float>( i, j+1);
-								int neighbor4 = (int) pSrc.at<float>( i+1, j+1);
-								int neighbor5 = (int) pSrc.at<float>( i+1, j);
-								int neighbor6 = (int) pSrc.at<float>( i+1, j-1);
-								int neighbor7 = (int) pSrc.at<float>( i, j-1);
-								int C = int(~neighbor1 & ( neighbor2 | neighbor3)) +
-												 int(~neighbor3 & ( neighbor4 | neighbor5)) +
-												 int(~neighbor5 & ( neighbor6 | neighbor7)) +
-												 int(~neighbor7 & ( neighbor0 | neighbor1));
-								if(C == 1) {
-										/// calculate N
-										int N1 = int(neighbor0 | neighbor1) +
-														 int(neighbor2 | neighbor3) +
-														 int(neighbor4 | neighbor5) +
-														 int(neighbor6 | neighbor7);
-										int N2 = int(neighbor1 | neighbor2) +
-														 int(neighbor3 | neighbor4) +
-														 int(neighbor5 | neighbor6) +
-														 int(neighbor7 | neighbor0);
-										int N = min(N1,N2);
-										if ((N == 2) || (N == 3)) {
-												/// calculate criteria 3
-												int c3 = ( neighbor1 | neighbor2 | ~neighbor4) & neighbor3;
-												if(c3 == 0) {
-														pDst.at<float>( i, j) = 0.0f;
-												}
-										}
-								}
+		int rows = mat_src.rows;
+		int cols = mat_src.cols;
+		mat_src.copyTo(mat_dst);
+
+		for (int i = 0; i < rows; i++)
+		{
+			for (int j = 0; j < cols; j++)
+			{
+				if (mat_src.at<float>(i, j) == 1.0f)
+				{
+					// get 8 neighbors
+					// calculate C(p)
+					int neighbor0 = (int) mat_src.at<float>(i-1, j-1);
+					int neighbor1 = (int) mat_src.at<float>(i-1, j);
+					int neighbor2 = (int) mat_src.at<float>(i-1, j+1);
+					int neighbor3 = (int) mat_src.at<float>(i,   j+1);
+					int neighbor4 = (int) mat_src.at<float>(i+1, j+1);
+					int neighbor5 = (int) mat_src.at<float>(i+1, j);
+					int neighbor6 = (int) mat_src.at<float>(i+1, j-1);
+					int neighbor7 = (int) mat_src.at<float>(i,   j-1);
+					
+					int C = int(~neighbor1 & ( neighbor2 | neighbor3)) +
+					        int(~neighbor3 & ( neighbor4 | neighbor5)) +
+					        int(~neighbor5 & ( neighbor6 | neighbor7)) +
+					        int(~neighbor7 & ( neighbor0 | neighbor1));
+
+					if(C == 1)
+					{
+						// calculate N
+						int N1 = int(neighbor0 | neighbor1) +
+						         int(neighbor2 | neighbor3) +
+						         int(neighbor4 | neighbor5) +
+						         int(neighbor6 | neighbor7);
+
+						int N2 = int(neighbor1 | neighbor2) +
+						         int(neighbor3 | neighbor4) +
+						         int(neighbor5 | neighbor6) +
+						         int(neighbor7 | neighbor0);
+
+						int N = std::min(N1, N2);
+
+						if ((N == 2) || (N == 3))
+						{
+							// calculate criteria 3
+							int c3 = (neighbor1 | neighbor2 | ~neighbor4) & neighbor3;
+							
+							if (c3 == 0)
+								mat_dst.at<float>(i, j) = 0.0f;
 						}
+					}
 				}
+			}
 		}
 	};
 
-	auto ThinSubiteration2 = [](Mat & pSrc, Mat & pDst)
+	auto thin_subiter2 = [](const cv::Mat& mat_src, cv::Mat& mat_dst)
 	{
-		int rows = pSrc.rows;
-		int cols = pSrc.cols;
-		pSrc.copyTo( pDst);
-		for(int i = 0; i < rows; i++) {
-				for(int j = 0; j < cols; j++) {
-						if (pSrc.at<float>( i, j) == 1.0f) {
-								/// get 8 neighbors
-								/// calculate C(p)
-							int neighbor0 = (int) pSrc.at<float>( i-1, j-1);
-							int neighbor1 = (int) pSrc.at<float>( i-1, j);
-							int neighbor2 = (int) pSrc.at<float>( i-1, j+1);
-							int neighbor3 = (int) pSrc.at<float>( i, j+1);
-							int neighbor4 = (int) pSrc.at<float>( i+1, j+1);
-							int neighbor5 = (int) pSrc.at<float>( i+1, j);
-							int neighbor6 = (int) pSrc.at<float>( i+1, j-1);
-							int neighbor7 = (int) pSrc.at<float>( i, j-1);
-								int C = int(~neighbor1 & ( neighbor2 | neighbor3)) +
-										int(~neighbor3 & ( neighbor4 | neighbor5)) +
-										int(~neighbor5 & ( neighbor6 | neighbor7)) +
-										int(~neighbor7 & ( neighbor0 | neighbor1));
-								if(C == 1) {
-										/// calculate N
-										int N1 = int(neighbor0 | neighbor1) +
-												int(neighbor2 | neighbor3) +
-												int(neighbor4 | neighbor5) +
-												int(neighbor6 | neighbor7);
-										int N2 = int(neighbor1 | neighbor2) +
-												int(neighbor3 | neighbor4) +
-												int(neighbor5 | neighbor6) +
-												int(neighbor7 | neighbor0);
-										int N = min(N1,N2);
-										if((N == 2) || (N == 3)) {
-												int E = (neighbor5 | neighbor6 | ~neighbor0) & neighbor7;
-												if(E == 0) {
-														pDst.at<float>(i, j) = 0.0f;
-												}
-										}
-								}
+		int rows = mat_src.rows;
+		int cols = mat_src.cols;
+		mat_src.copyTo( mat_dst);
+
+		for (int i = 0; i < rows; i++)
+		{
+			for (int j = 0; j < cols; j++)
+			{
+				if (mat_src.at<float>( i, j) == 1.0f)
+				{
+					// get 8 neighbors
+					// calculate C(p)
+					int neighbor0 = (int) mat_src.at<float>(i-1, j-1);
+					int neighbor1 = (int) mat_src.at<float>(i-1, j);
+					int neighbor2 = (int) mat_src.at<float>(i-1, j+1);
+					int neighbor3 = (int) mat_src.at<float>(i,   j+1);
+					int neighbor4 = (int) mat_src.at<float>(i+1, j+1);
+					int neighbor5 = (int) mat_src.at<float>(i+1, j);
+					int neighbor6 = (int) mat_src.at<float>(i+1, j-1);
+					int neighbor7 = (int) mat_src.at<float>(i,   j-1);
+
+					int C = int(~neighbor1 & ( neighbor2 | neighbor3)) +
+					        int(~neighbor3 & ( neighbor4 | neighbor5)) +
+					        int(~neighbor5 & ( neighbor6 | neighbor7)) +
+					        int(~neighbor7 & ( neighbor0 | neighbor1));
+
+					if(C == 1)
+					{
+						// calculate N
+						int N1 = int(neighbor0 | neighbor1) +
+						         int(neighbor2 | neighbor3) +
+						         int(neighbor4 | neighbor5) +
+						         int(neighbor6 | neighbor7);
+
+						int N2 = int(neighbor1 | neighbor2) +
+						         int(neighbor3 | neighbor4) +
+						         int(neighbor5 | neighbor6) +
+						         int(neighbor7 | neighbor0);
+
+						int N = std::min(N1, N2);
+
+						if((N == 2) || (N == 3))
+						{
+							int E = (neighbor5 | neighbor6 | ~neighbor0) & neighbor7;
+
+							if(E == 0)
+								mat_dst.at<float>(i, j) = 0.0f;
 						}
+					}
 				}
+			}
 		}
 	};
 
-		bool bDone = false;
-		int rows = img.rows;
-		int cols = img.cols;
+	bool done = false;
+	int  rows = img.rows;
+	int  cols = img.cols;
 
-		auto inputarray  = img.clone();
-		auto outputarray = img.clone();
+	auto mat_input  = img.clone();
+	auto mat_output = img.clone();
 
-		cv::bitwise_not(inputarray, inputarray);
+	// invert input (lines to thin must be white)
+	cv::bitwise_not(mat_input, mat_input);
 
-		inputarray.convertTo(inputarray,CV_32FC1);
+	// convert data
+	mat_input.convertTo(mat_input, CV_32FC1);
+	mat_input.copyTo(mat_output);
+	mat_output.convertTo(mat_output, CV_32FC1);
 
-		inputarray.copyTo(outputarray);
+	// pad source
+	cv::Mat mat_src_enlarged = cv::Mat(rows + 2, cols + 2, CV_32FC1);
 
-		outputarray.convertTo(outputarray,CV_32FC1);
+	for (int i = 0; i < (rows+2); i++)
+	{
+		mat_src_enlarged.at<float>(i, 0) = 0.0f;
+		mat_src_enlarged.at<float>(i, cols+1) = 0.0f;
+	}
 
-		/// pad source
-		Mat p_enlarged_src = Mat(rows + 2, cols + 2, CV_32FC1);
-		for(int i = 0; i < (rows+2); i++) {
-			p_enlarged_src.at<float>(i, 0) = 0.0f;
-			p_enlarged_src.at<float>( i, cols+1) = 0.0f;
+	for (int j = 0; j < (cols+2); j++)
+	{
+			mat_src_enlarged.at<float>(0, j) = 0.0f;
+			mat_src_enlarged.at<float>(rows+1, j) = 0.0f;
+	}
+
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			if (mat_input.at<float>(i, j) >= 20.0f)
+					mat_src_enlarged.at<float>(i+1, j+1) = 1.0f;
+			else
+				mat_src_enlarged.at<float>(i+1, j+1) = 0.0f;
 		}
-		for(int j = 0; j < (cols+2); j++) {
-				p_enlarged_src.at<float>(0, j) = 0.0f;
-				p_enlarged_src.at<float>(rows+1, j) = 0.0f;
-		}
-		for(int i = 0; i < rows; i++) {
-				for(int j = 0; j < cols; j++) {
-						if (inputarray.at<float>(i, j) >= 20.0f) {
-								p_enlarged_src.at<float>( i+1, j+1) = 1.0f;
-						}
-						else
-								p_enlarged_src.at<float>( i+1, j+1) = 0.0f;
-				}
-		}
+	}
 
-		/// start to thin
-		Mat p_thinMat1 = Mat::zeros(rows + 2, cols + 2, CV_32FC1);
-		Mat p_thinMat2 = Mat::zeros(rows + 2, cols + 2, CV_32FC1);
-		Mat p_cmp = Mat::zeros(rows + 2, cols + 2, CV_8UC1);
+	// start thinning process
+	cv::Mat mat_thin1 = cv::Mat::zeros(rows + 2, cols + 2, CV_32FC1);
+	cv::Mat mat_thin2 = cv::Mat::zeros(rows + 2, cols + 2, CV_32FC1);
+	cv::Mat mat_cmp   = cv::Mat::zeros(rows + 2, cols + 2, CV_8UC1);
 
-		while (bDone != true) {
-				/// sub-iteration 1
-				ThinSubiteration1(p_enlarged_src, p_thinMat1);
-				/// sub-iteration 2
-				ThinSubiteration2(p_thinMat1, p_thinMat2);
-				/// compare
-				compare(p_enlarged_src, p_thinMat2, p_cmp, CV_CMP_EQ);
-				/// check
-				int num_non_zero = countNonZero(p_cmp);
-				if(num_non_zero == (rows + 2) * (cols + 2)) {
-						bDone = true;
-				}
-				/// copy
-				p_thinMat2.copyTo(p_enlarged_src);
+	while (not done)
+	{
+		// sub-iteration 1
+		thin_subiter1(mat_src_enlarged, mat_thin1);
+
+		// sub-iteration 2
+		thin_subiter2(mat_thin1, mat_thin2);
+
+		// compare
+		cv::compare(mat_src_enlarged, mat_thin2, mat_cmp, CV_CMP_EQ);
+
+		// check
+		if (cv::countNonZero(mat_cmp) == (rows + 2) * (cols + 2))
+			done = true;
+
+		// copy
+		mat_thin2.copyTo(mat_src_enlarged);
+	}
+
+	// copy result
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			mat_output.at<float>(i, j) = mat_src_enlarged.at<float>(i+1, j+1);
 		}
-		// copy result
-		for(int i = 0; i < rows; i++) {
-				for(int j = 0; j < cols; j++) {
-						outputarray.at<float>( i, j) = p_enlarged_src.at<float>( i+1, j+1);
-				}
-		}
+	}
 
-		cv::Mat img_out;
-		cv::convertScaleAbs(outputarray, img_out);
-		cv::threshold(img_out, img_out, 0, 255, cv::THRESH_BINARY);
-		cv::bitwise_not(img_out, img_out);
+	// convert result to 8-bit
+	cv::Mat img_out;
+	cv::convertScaleAbs(mat_output, img_out);
+	cv::threshold(img_out, img_out, 0, 255, cv::THRESH_BINARY);
+	cv::bitwise_not(img_out, img_out);
 
-		return img_out;
+	return img_out;
 }

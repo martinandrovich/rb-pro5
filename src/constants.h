@@ -20,6 +20,7 @@ constexpr_string  PATH_ROOT                   = "";
 constexpr_string  PATH_ASSETS                 = PATH_ROOT + "assets/data/";
 constexpr_string  PATH_IMG_ENVIRON_DEMO       = PATH_ROOT + "assets/img/environ-01.png";
 constexpr_string  PATH_IMG_GVD_MAP            = PATH_ROOT + "assets/img/gvd-map.png";
+constexpr_string  PATH_IMG_GVD_OUTPUT         = PATH_ROOT + "assets/gvd-output/";
 constexpr_string  PATH_IMG_GRAD_TEST          = PATH_ROOT + "assets/img/grad-test-3.png";
 constexpr_string  PATH_IMG_SMALLWORLD         = PATH_ROOT + "gazebo/models/smallworld/meshes/floor_plan.png";
 constexpr_string  PATH_IMG_BIGWORLD           = PATH_ROOT + "gazebo/models/bigworld/meshes/floor_plan.png";
