@@ -184,9 +184,9 @@ _Morphology_Operations( int, void* user_data )
   // Draw the circles detected
   for( size_t i = 0; i < morph.circles.size(); i++ )
   {
-      std::cout << "Circles found:" << std::endl;
       cv::Point center(cvRound(morph.circles[i][0]), cvRound(morph.circles[i][1]));
       int radius = cvRound(morph.circles[i][2]);
+	  std::cout << "Marble found, C: " << 2 * M_PI * radius << std::endl;
       // circle center
       cv::circle(*args->dst, center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
       // circle outline
