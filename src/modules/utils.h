@@ -666,7 +666,7 @@ thin_edges(const cv::Mat& img)
 		thin_subiter2(mat_thin1, mat_thin2);
 
 		// compare
-		cv::compare(mat_src_enlarged, mat_thin2, mat_cmp, CV_CMP_EQ);
+		cv::compare(mat_src_enlarged, mat_thin2, mat_cmp, cv::CMP_EQ);
 
 		// check
 		if (cv::countNonZero(mat_cmp) == (rows + 2) * (cols + 2))

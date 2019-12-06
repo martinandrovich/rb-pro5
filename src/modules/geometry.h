@@ -124,7 +124,7 @@ geometry::draw_pt(const cv::Mat& img, cv::Point pt, cv::Scalar color)
 	cv::Mat img_out;
 
 	if (img.channels() == 1)
-		cv::cvtColor(img, img_out, CV_GRAY2BGR);
+		cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
 	else
 		img_out = img.clone();
 
@@ -139,7 +139,7 @@ geometry::draw_pts(const cv::Mat& img, std::vector<cv::Point> pts, cv::Scalar co
 	cv::Mat img_out;
 
 	if (img.channels() == 1)
-		cv::cvtColor(img, img_out, CV_GRAY2BGR);
+		cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
 	else
 		img_out = img.clone();
 
@@ -211,7 +211,7 @@ geometry::extract_vertices(const cv::Mat& img, bool remove_duplicates, float dup
 
 	// vector of contours
 	std::vector<std::vector<cv::Point>> vec_contours;
-	cv::findContours(img, vec_contours, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1);
+	cv::findContours(img, vec_contours, cv::RETR_LIST, cv::CHAIN_APPROX_TC89_L1);
 
 	// flatten vector of contours into vector of vertices
 	std::vector<vertex_t> vec_vertices;
