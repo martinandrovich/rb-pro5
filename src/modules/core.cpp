@@ -237,17 +237,20 @@ core::publish_velcmd()
 	static gazebo::msgs::Pose msg;
 	gazebo::msgs::Set(&msg, vel_data.get_pose());
 
-	// 
-	pose_est_data.timing_start_t2();
+	//
+	if (USE_PARTICLE_FILTER)
+		pose_est_data.timing_start_t2();
 
 	// publish the velocity command
 	core::pub_velcmd->Publish(msg);
 
 	// should be performed right after 
-	pose_est_data.particle_filter(vel_data);
+	if (USE_PARTICLE_FILTER)
+		pose_est_data.particle_filter(vel_data);
 
 	// 
-	pose_est_data.timing_start_t1();
+	if (USE_PARTICLE_FILTER)
+		pose_est_data.timing_start_t1();
 }
 
 void
@@ -298,7 +301,6 @@ core::stop_vehicle()
 void
 core::test_run(const std::string& path_to_video_writer)
 {
-	cv::VideoWriter video_writer(PATH_ASSETS + path_to_video_writer, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
 
 	// assert that system is initialized
 	if (not core::initialized)
@@ -311,7 +313,8 @@ core::test_run(const std::string& path_to_video_writer)
   	const int key_right = 83;  	
 	const float scale_factor = 0.5;
 
-	auto settings =  tune_morphology_settings("Marble_data_big_world.avi");
+	// open video writer to record video
+	cv::VideoWriter video_writer(PATH_ASSETS + path_to_video_writer, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
 
 	// loop
 	while (true)
@@ -352,12 +355,17 @@ core::test_run(const std::string& path_to_video_writer)
 
 		// align windows
 		core::align_windows();
-	}	
+	}
+
+	// end recording
 	video_writer.release();
+	cv::destroyAllWindows();
+
+	// perform tuning
+	auto settings =  tune_morphology_settings(path_to_video_writer);
 
 	// shutdown gazebo
-	gazebo::client::shutdown();	
-
+	gazebo::client::shutdown();
 }
 
 

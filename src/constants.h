@@ -44,9 +44,9 @@ constexpr auto    GVD_VERTEX_RADIUS           = SCALE_METER_PER_PX * 40;
 constexpr auto    LIDAR_MAX_RANGE             = 200;
 constexpr auto    IMG_BORDER_SIZE             = 1 ; // width in pixels
 
-constexpr auto    TEST_GVD                    = true;
+constexpr auto    TEST_GVD                    = false;
 constexpr auto    TEST_LINE_SEG               = false;
-constexpr auto    TEST_MARBLE_DETECT          = false;
+constexpr auto    TEST_MARBLE_DETECT          = true;
 constexpr auto    TEST_EXIT_AFTER             = true;
 
 constexpr auto    USE_OBS_AVOID               = true;
