@@ -299,7 +299,7 @@ core::stop_vehicle()
 }
 
 void
-core::test_run(const std::string& path_to_video_writer)
+core::test_run(const std::string& video_filename)
 {
 
 	// assert that system is initialized
@@ -307,14 +307,23 @@ core::test_run(const std::string& path_to_video_writer)
 		throw std::runtime_error(ERR_NOT_INIT);
 	
 	int key = 0;
-	const int key_left = 81;
-  	const int key_up = 82;
-  	const int key_down = 84;
-  	const int key_right = 83;  	
+	const int key_left = 'a';
+  	const int key_up = 'w';
+  	const int key_down = 's';
+  	const int key_right = 'd';  	
 	const float scale_factor = 0.5;
 
+	// if video already recorded, perform marble detection
+	if (file_exists(PATH_ASSETS + video_filename))
+	{
+		// perform tuning
+		auto settings =  tune_morphology_settings(video_filename);
+		return;
+	}
+	// otherwise record video using control
+
 	// open video writer to record video
-	cv::VideoWriter video_writer(PATH_ASSETS + path_to_video_writer, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
+	cv::VideoWriter video_writer(PATH_ASSETS + video_filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, camera_data.get_img_size() );
 
 	// loop
 	while (true)
@@ -360,9 +369,6 @@ core::test_run(const std::string& path_to_video_writer)
 	// end recording
 	video_writer.release();
 	cv::destroyAllWindows();
-
-	// perform tuning
-	auto settings =  tune_morphology_settings(path_to_video_writer);
 
 	// shutdown gazebo
 	gazebo::client::shutdown();

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cmath>
+#include <iostream>
+#include <fstream>
 #include <string>
 #include <array>
 #include <vector>
@@ -139,6 +141,13 @@ struct blob_t
 };
 
 // -- helper methods  -------------------------------------------------------------
+
+inline bool
+file_exists(const std::string& filename)
+{
+	std::ifstream f(filename.c_str());
+	return f.good();
+}
 
 inline cv::Mat
 load_img(const std::string& filepath, cv::ImreadModes mode = cv::IMREAD_UNCHANGED)
@@ -522,22 +531,22 @@ thin_edges(const cv::Mat& img)
 					int neighbor7 = (int) mat_src.at<float>(i,   j-1);
 					
 					int C = int(~neighbor1 & ( neighbor2 | neighbor3)) +
-					        int(~neighbor3 & ( neighbor4 | neighbor5)) +
-					        int(~neighbor5 & ( neighbor6 | neighbor7)) +
-					        int(~neighbor7 & ( neighbor0 | neighbor1));
+							int(~neighbor3 & ( neighbor4 | neighbor5)) +
+							int(~neighbor5 & ( neighbor6 | neighbor7)) +
+							int(~neighbor7 & ( neighbor0 | neighbor1));
 
 					if(C == 1)
 					{
 						// calculate N
 						int N1 = int(neighbor0 | neighbor1) +
-						         int(neighbor2 | neighbor3) +
-						         int(neighbor4 | neighbor5) +
-						         int(neighbor6 | neighbor7);
+								 int(neighbor2 | neighbor3) +
+								 int(neighbor4 | neighbor5) +
+								 int(neighbor6 | neighbor7);
 
 						int N2 = int(neighbor1 | neighbor2) +
-						         int(neighbor3 | neighbor4) +
-						         int(neighbor5 | neighbor6) +
-						         int(neighbor7 | neighbor0);
+								 int(neighbor3 | neighbor4) +
+								 int(neighbor5 | neighbor6) +
+								 int(neighbor7 | neighbor0);
 
 						int N = std::min(N1, N2);
 
@@ -579,22 +588,22 @@ thin_edges(const cv::Mat& img)
 					int neighbor7 = (int) mat_src.at<float>(i,   j-1);
 
 					int C = int(~neighbor1 & ( neighbor2 | neighbor3)) +
-					        int(~neighbor3 & ( neighbor4 | neighbor5)) +
-					        int(~neighbor5 & ( neighbor6 | neighbor7)) +
-					        int(~neighbor7 & ( neighbor0 | neighbor1));
+							int(~neighbor3 & ( neighbor4 | neighbor5)) +
+							int(~neighbor5 & ( neighbor6 | neighbor7)) +
+							int(~neighbor7 & ( neighbor0 | neighbor1));
 
 					if(C == 1)
 					{
 						// calculate N
 						int N1 = int(neighbor0 | neighbor1) +
-						         int(neighbor2 | neighbor3) +
-						         int(neighbor4 | neighbor5) +
-						         int(neighbor6 | neighbor7);
+								 int(neighbor2 | neighbor3) +
+								 int(neighbor4 | neighbor5) +
+								 int(neighbor6 | neighbor7);
 
 						int N2 = int(neighbor1 | neighbor2) +
-						         int(neighbor3 | neighbor4) +
-						         int(neighbor5 | neighbor6) +
-						         int(neighbor7 | neighbor0);
+								 int(neighbor3 | neighbor4) +
+								 int(neighbor5 | neighbor6) +
+								 int(neighbor7 | neighbor0);
 
 						int N = std::min(N1, N2);
 
