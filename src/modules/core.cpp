@@ -265,7 +265,6 @@ core::publish_velcmd()
 void
 core::controller()
 {
-
 	// extract nearest obstacles
 	nearest_obs["center"] = lidar_data.get_nearest_obs(pose_data.pos, { 0.38, -0.38 });
 	nearest_obs["right"]  = lidar_data.get_nearest_obs(pose_data.pos, {-1.37, -1.76 });
@@ -290,7 +289,7 @@ core::controller()
 	;
 
 	// robot control
-	// using manual, fuzzy w/ global pose or estimated pose
+	// using manual or fuzzy w/ global pose or estimated pose
 	if (USE_MANUAL_CONTROL)
 	{
 		if ((key == 'w') && (core::vel_data.trans <= 1.2f))
@@ -431,16 +430,23 @@ core::marble_detect()
 	cv::HoughCircles(img, vec_circles, cv::HOUGH_GRADIENT, 1, 100, hough_upper_tresh, hough_center_tresh, hough_min_radius, 0);
 
 	// Draw the circles detected
-	for( size_t i = 0; i < vec_circles.size(); i++ )
+	for (size_t i = 0; i < vec_circles.size(); i++ )
 	{
 		auto center = cv::Point(cvRound(vec_circles[i][0]), cvRound(vec_circles[i][1]));
 		auto radius = cvRound(vec_circles[i][2]);
+		auto dist   = 0.5f * 277.0f / radius;
+		auto text = "marble: r: " + std::to_string(radius) + " | d: " + std::to_string(dist);
 
-		// log marble radius and distance from robot
-		std::cout
-			<< "Marble found\n" 
-			<< " r: " << radius	<< " | d: " << 0.5f * 277.0f / radius
-			<< std::endl;
+		// output text on image
+		cv::putText(
+			img_camera,
+			text,
+			cv::Point(10, 20),
+			cv::FONT_HERSHEY_SIMPLEX,
+			0.5,
+			CV_RGB(255, 255, 255),
+			1
+		);
 
 		// circle center
 		cv::circle(img_camera, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
@@ -449,7 +455,7 @@ core::marble_detect()
 		cv::circle(img_camera, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);
 	}
 
-	// output image
+	// override output image
 	cv::imshow(WNDW_CAMERA, img_camera);
 }
 
