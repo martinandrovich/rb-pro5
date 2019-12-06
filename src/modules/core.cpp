@@ -17,6 +17,8 @@ namespace core
 	gazebo::transport::PublisherPtr  pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
+	int             key = 0;
+
 	lidar_t         lidar_data;
 	camera_t        camera_data;
 	pose_t          pose_data;
@@ -27,6 +29,7 @@ namespace core
 	obs_list_t      nearest_obs;
 	marble_list_t   marbles;
 	pose_estimate_t pose_est_data;
+	cv::Mat         img_camera;
 	// pose_estimate_t pose_est_data(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
 
 	// private methods
@@ -57,6 +60,9 @@ namespace core
 
 	void
 	controller();
+
+	void
+	marble_detect();
 
 	void
 	stop_vehicle();
@@ -199,21 +205,24 @@ core::run()
 		std::this_thread::sleep_for(RUN_FREQ_MS);
 
 		// acquire key input from opencv and draw any imshow() windows
+		key = cv::waitKey(1);
+
 		// close app if ESC key has been pressed
-		if (cv::waitKey(1) == 27) break;
+		if (key == 27) break;
 
 		// show lidar outout
 		cv::imshow(WNDW_LIDAR, lidar_data.get_img());
 		
 		// show camera output
-		cv::imshow(WNDW_CAMERA, camera_data.get_img());
+		img_camera = camera_data.get_img();
+		cv::imshow(WNDW_CAMERA, img_camera);
 
 		// show particle filter output (if enabled)
 		if (USE_PARTICLE_FILTER)
 			cv::imshow(WNDW_PTCLFILT, pose_est_data.get_img(pose_data));
 
 		// run main controller
-		core::controller();
+		core::controller();		
 
 		// show debug information
 		debug::show(&core::make_debug_data);
@@ -262,6 +271,10 @@ core::controller()
 	nearest_obs["right"]  = lidar_data.get_nearest_obs(pose_data.pos, {-1.37, -1.76 });
 	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
 	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
+	
+	// marble detection
+	if (USE_MARBLE_DETECT)
+		marble_detect();
 
 	// particle filter
 	if (USE_PARTICLE_FILTER)
@@ -276,8 +289,26 @@ core::controller()
 	// path generation + AI
 	;
 
-	// fuzzy controller
-	// using global pose or estimated pose
+	// robot control
+	// using manual, fuzzy w/ global pose or estimated pose
+	if (USE_MANUAL_CONTROL)
+	{
+		if ((key == 'w') && (core::vel_data.trans <= 1.2f))
+			vel_data.trans += 0.05;
+
+		else
+		if ((key == 's') && (vel_data.trans >= -1.2f))
+			vel_data.trans -= 0.05;
+
+		else
+		if ((key == 'd') && (vel_data.ang <= 0.4f))
+			vel_data.ang  += 0.05;
+
+		else
+		if ((key == 'a') && (vel_data.ang  >= -0.4f))
+			vel_data.ang  -= 0.05;
+	}
+	else
 	if (USE_PARTICLE_FILTER && USE_LOCALIZATION)
 	{
 		flctrl::run(nearest_obs, pose_estimate, goal, vel_data);
@@ -306,7 +337,6 @@ core::test_run(const std::string& video_filename)
 	if (not core::initialized)
 		throw std::runtime_error(ERR_NOT_INIT);
 	
-	int key = 0;
 	const int key_left = 'a';
   	const int key_up = 'w';
   	const int key_down = 's';
@@ -334,7 +364,7 @@ core::test_run(const std::string& video_filename)
 		// acquire key input from opencv and draw any imshow() windows
 		// close app if ESC key has been pressed
 		
-    	key = cv::waitKey(1);    	
+		key = cv::waitKey(1);    	
 		if(key == 27) break;		
 	
 		// show camera output
@@ -372,6 +402,55 @@ core::test_run(const std::string& video_filename)
 
 	// shutdown gazebo
 	gazebo::client::shutdown();
+}
+
+inline void
+core::marble_detect()
+{
+
+	std::vector<cv::Vec3f> vec_circles;
+
+	auto gauss_ksize = 3;
+	auto gauss_sigma = 13;
+	auto morph_ksize = 5;
+	auto morph_op = cv::MORPH_GRADIENT;
+	auto hough_upper_tresh = 42;
+	auto hough_center_tresh = 24;
+	auto hough_min_radius = 25;
+
+	cv::Mat img = img_camera.clone();
+	cvtColor(img, img, cv::COLOR_BGR2GRAY);
+
+	static cv::Mat morph_elm = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(morph_ksize, morph_ksize));
+
+	// apply blur and do the morphology with the chosen settings.
+	cv::GaussianBlur(img, img, cv::Size(gauss_ksize, gauss_ksize), gauss_sigma);
+	cv::morphologyEx(img, img, morph_op, morph_elm);
+
+	// apply HoughCircle transform and save all circles found to a vector
+	cv::HoughCircles(img, vec_circles, cv::HOUGH_GRADIENT, 1, 100, hough_upper_tresh, hough_center_tresh, hough_min_radius, 0);
+
+	// Draw the circles detected
+	for( size_t i = 0; i < vec_circles.size(); i++ )
+	{
+		auto center = cv::Point(cvRound(vec_circles[i][0]), cvRound(vec_circles[i][1]));
+		auto radius = cvRound(vec_circles[i][2]);
+
+		// log marble radius and distance from robot
+		std::cout
+			<< "Marble found\n" 
+			<< " r: " << radius	<< " | d: " << 0.5f * 277.0f / radius
+			<< std::endl;
+
+		// circle center
+		cv::circle(img_camera, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
+
+		// circle outline
+		cv::circle(img_camera, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);
+	}
+
+	// output image
+	cv::imshow(WNDW_CAMERA, img_camera);
 }
 
 
