@@ -68,7 +68,7 @@ namespace core
 	stop_vehicle();
 
 	void 
-	experiment_marble_plot(pose_t & pose, cv::Point marble);
+	experiment_marble_plot(pose_t & pose, cv::Point2f marble);
 
 	tune_morphology::morph_settings 
 	tune_morphology_settings(const std::string& video_path);
@@ -195,7 +195,7 @@ core::init(int argc, char** argv)
 
 
 void 
-core::experiment_marble_plot(pose_t & pose, cv::Point marble)
+core::experiment_marble_plot(pose_t & pose, cv::Point2f marble)
 {
 	static std::fstream fpos;
 	fpos.open("assets/csvfiles/exp_marble.csv", std::ios::out | std::ios::app);
@@ -472,7 +472,7 @@ core::marble_detect()
 
 		experiment_marble_plot(
 								pose_data, 
-					 			cv::Point(
+					 			cv::Point2f(
 									 		pose_data.pos.x + cos(pose_data.orient.yaw) * dist, 
 							   			  	pose_data.pos.y + sin(pose_data.orient.yaw) * dist 
 										 )
