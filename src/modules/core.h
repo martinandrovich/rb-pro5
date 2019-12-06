@@ -29,6 +29,7 @@
 #include "debug.h"
 #include "utils.h"
 #include "geometry.h"
+#include "roadmap.h"
 #include "flctrl.h"
 #include "pathgen.h"
 

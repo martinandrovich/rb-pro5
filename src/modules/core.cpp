@@ -13,21 +13,21 @@ namespace core
 	gazebo::transport::SubscriberPtr sub_lidar;
 	gazebo::transport::SubscriberPtr sub_camera;
 	gazebo::transport::SubscriberPtr sub_pose;
-	gazebo::transport::PublisherPtr pub_velcmd;
-	gazebo::transport::PublisherPtr pub_world;
+	gazebo::transport::PublisherPtr  pub_velcmd;
+	gazebo::transport::PublisherPtr  pub_world;
 	gazebo::msgs::WorldControl ctrl_msg;
 
-	lidar_t       	lidar_data;
-	camera_t      	camera_data;
-	pose_t        	pose_data;
-	pose_t 			pose_estimate;
-	vel_t         	vel_data;
-	pos_t         	goal;
-	marble_t      	nearest_marble;
-	obs_list_t    	nearest_obs;
-	marble_list_t 	marbles;
-
-	pose_estimate_t pose_est_data(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
+	lidar_t         lidar_data;
+	camera_t        camera_data;
+	pose_t          pose_data;
+	pose_t          pose_estimate;
+	vel_t           vel_data;
+	pos_t           goal;
+	marble_t        nearest_marble;
+	obs_list_t      nearest_obs;
+	marble_list_t   marbles;
+	pose_estimate_t pose_est_data;
+	// pose_estimate_t pose_est_data(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
 
 	// private methods
 
@@ -48,6 +48,9 @@ namespace core
 
 	void
 	callback_pose(ConstPosesStampedPtr& msg);
+
+	void
+	callback_test(const boost::shared_ptr<gazebo::msgs::Any const>& msg);
 
 	void
 	publish_velcmd();
@@ -172,6 +175,10 @@ core::init(int argc, char** argv)
 	// set goal
 	core::goal = GOAL_POS;
 
+	// initialize particle filter
+	if (USE_PARTICLE_FILTER)
+		pose_est_data.init(PATH_FLOOR_PLAN, FLOOR_PLAN_SCALE); 
+
 	// set initialization status
 	core::initialized = true;
 }
@@ -201,8 +208,9 @@ core::run()
 		// show camera output
 		cv::imshow(WNDW_CAMERA, camera_data.get_img());
 
-		// floor plane output
-		cv::imshow(WNDW_ESTIMATE, pose_est_data.get_img(pose_data));
+		// show particle filter output (if enabled)
+		if (USE_PARTICLE_FILTER)
+			cv::imshow(WNDW_PTCLFILT, pose_est_data.get_img(pose_data));
 
 		// run main controller
 		core::controller();
@@ -212,7 +220,6 @@ core::run()
 
 		// align windows
 		core::align_windows();
-
 	}
 
 	// shutdown gazebo
@@ -246,9 +253,6 @@ core::publish_velcmd()
 void
 core::controller()
 {
-	// localization
-	if (USE_LOCALIZATION){}
-		;//loc::update_pose(pose_data);
 
 	// extract nearest obstacles
 	nearest_obs["center"] = lidar_data.get_nearest_obs(pose_data.pos, { 0.38, -0.38 });
@@ -256,23 +260,29 @@ core::controller()
 	nearest_obs["left"]   = lidar_data.get_nearest_obs(pose_data.pos, { 1.76,  1.37 });
 	nearest_obs["any"]    = lidar_data.get_nearest_obs(pose_data.pos);
 
-	pose_est_data.get_lidar_data(lidar_data);
+	// particle filter
+	if (USE_PARTICLE_FILTER)
+	{
+		pose_est_data.get_lidar_data(lidar_data);
 
-	// pose_estimate.pos.x = pose_est_data.posX;
-	// pose_estimate.pos.y = pose_est_data.posY;
-	// pose_estimate.orient.yaw = pose_est_data.yaw;
-
-	// extract nearest marbles
-	// marbles = camera_data.get_marbles();
-	// nearest_marble = camera_data.get_nearest_marble();
+		pose_estimate.pos.x = pose_est_data.posX;
+		pose_estimate.pos.y = pose_est_data.posY;
+		pose_estimate.orient.yaw = pose_est_data.yaw;
+	}
 
 	// path generation + AI
 	;
 
 	// fuzzy controller
-	flctrl::run(nearest_obs, pose_data, goal, vel_data);
-	// flctrl::run(nearest_obs, pose_estimate, goal, vel_data);
-
+	// using global pose or estimated pose
+	if (USE_PARTICLE_FILTER && USE_LOCALIZATION)
+	{
+		flctrl::run(nearest_obs, pose_estimate, goal, vel_data);
+	}
+	else
+	{
+		flctrl::run(nearest_obs, pose_data, goal, vel_data);
+	}
 
 	// publish velocity command
 	core::publish_velcmd();

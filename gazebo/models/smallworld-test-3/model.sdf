@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+      <model name="smallworld-test-3">
+		<static>true</static>
+    	<link name="link">
+        	<pose>0 0 0 0 0 0</pose>
+
+        	<collision name="collision">
+          		<geometry>
+		      		<mesh>
+		      			<uri>model://smallworld-test-3/meshes/floor_plan.stl</uri>
+		      		</mesh>
+          		</geometry>
+    		</collision>
+        
+			<visual name="visual">
+          		<material>
+
+				  
+				  <lighting>true</lighting>
+
+				  <ambient>0.4 0.4 0.4 1.0</ambient>
+				  <diffuse>0.5 0.5 0.5 1.0</diffuse>
+				  <specular>0.5 0.5 0.5 1.0</specular>
+				  <emissive>0.0 0.0 0.0 1.0</emissive>
+
+				  <!-- OGRE texture script 
+				  <script>
+				    <uri>model://smallworld-test-2/materials</uri>
+					<name>concrete</name>
+				  </script>-->
+          		</material>
+
+
+          		<geometry>
+
+          			<mesh>
+		      			<uri>model://smallworld-test-3/meshes/floor_plan.stl</uri>
+          			</mesh>
+          		</geometry>
+				<cast_shadows>true</cast_shadows>
+				<laser_retro>true</laser_retro>
+
+
+         	</visual>
+        </link>
+    </model>
+</sdf>

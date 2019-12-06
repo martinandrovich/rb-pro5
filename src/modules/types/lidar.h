@@ -94,7 +94,7 @@ lidar_t::set(ConstLaserScanStampedPtr& msg)
 	// popuate vector of rays
 	this->vec_rays.clear();
 
-	for (int i = 0 + LIDAR_RANGE_LIMIT; i < this->num_ranges - LIDAR_RANGE_LIMIT; i++)
+	for (int i = 0; i < this->num_ranges; ++i)
 	{
 		auto angle = angle_min + i * angle_increment;
 		auto range = std::min((float)scan.ranges(i), range_max);

@@ -14,4 +14,7 @@ dump.txt
 *.out
 *.exe
 assets/csvfiles/show.m
+
+# custom files
 dump.txt
+assets/data/dump.txt

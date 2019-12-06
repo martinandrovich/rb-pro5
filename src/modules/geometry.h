@@ -5,6 +5,8 @@
 #include <vector>
 #include <stdexcept>
 #include <optional>
+#include <csignal>
+#include <algorithm>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
@@ -28,38 +30,42 @@ struct line_t
 	bounding_box() const;
 };
 
-struct gvd_t
-{
-	cv::Mat img;
-};
-
 // --------------------------------------------------------------------------------
 // declarations for ::geometry
 // --------------------------------------------------------------------------------
 
 namespace geometry
 {
+
+	// -- points ----------------------------------------------------------------------
+
+	cv::Mat
+	draw_pt(const cv::Mat& img, cv::Point pt, cv::Scalar color = cv::Scalar(255, 0, 255));
+
+	cv::Mat
+	draw_pts(const cv::Mat& img, std::vector<cv::Point> pts, cv::Scalar color = cv::Scalar(255, 0, 255));
 	
-	// -- brushfire & GVD -------------------------------------------------------------
+	cv::Point
+	avg_pt(const std::vector<cv::Point>& pts);
+	
+	std::optional<std::vector<cv::Point>>
+	pts_within_radius(std::vector<cv::Point>& pts, const cv::Point& center, float radius);
+
+	bool
+	pts_connected(const cv::Mat& img, const cv::Point& a,  const cv::Point& b, float max_deviation = 0);
 
 	std::vector<cv::Vec4i>
 	extract_lines(const cv::Mat& img);
 
 	std::vector<vertex_t>
-	extract_vertices(const cv::Mat& img);
-
-	cv::Mat
-	draw_vertices(const cv::Mat& img, std::vector<vertex_t> vertices);
-
-	cv::Mat
-	brushfire(const cv::Mat& img);
-
-	gvd_t
-	gvd(const cv::Mat& img);
+	extract_vertices(const cv::Mat& img, bool remove_duplicates = false, float duplicates_radius = 2.f);
 
 	// -- line segment intersection ---------------------------------------------------
 
 	// https://martin-thoma.com/how-to-check-if-two-line-segments-intersect/
+
+	size_t
+	count_duplicate_lines(std::vector<line_t> vec_lines);
 
 	float
 	cross(const cv::Point& a, const cv::Point& b);
@@ -91,6 +97,15 @@ namespace geometry
 	// -- test methods ----------------------------------------------------------------
 
 	void
+	test_gvd_draw_edges();
+	
+	void
+	test_gvd_houghlines();
+
+	void
+	test_gvd_houghlinesp();
+	
+	void
 	test_brushfire_and_gvd();
 
 	void
@@ -101,10 +116,92 @@ namespace geometry
 // definitions for ::geometry
 // --------------------------------------------------------------------------------
 
-// -- brushfire & GVD -------------------------------------------------------------
+// -- points ----------------------------------------------------------------------
+
+inline cv::Mat
+geometry::draw_pt(const cv::Mat& img, cv::Point pt, cv::Scalar color)
+{
+	cv::Mat img_out;
+
+	if (img.channels() == 1)
+		cv::cvtColor(img, img_out, CV_GRAY2BGR);
+	else
+		img_out = img.clone();
+
+	cv::circle(img_out, cv::Point(pt.x, pt.y), 3, color);
+
+	return img_out;
+}
+
+inline cv::Mat
+geometry::draw_pts(const cv::Mat& img, std::vector<cv::Point> pts, cv::Scalar color)
+{
+	cv::Mat img_out;
+
+	if (img.channels() == 1)
+		cv::cvtColor(img, img_out, CV_GRAY2BGR);
+	else
+		img_out = img.clone();
+
+	for (const auto& pt : pts)
+		cv::circle(img_out, cv::Point(pt.x, pt.y), 3, color);
+
+	return img_out;
+}
+
+inline cv::Point
+geometry::avg_pt(const std::vector<cv::Point>& pts)
+{
+	auto sum = std::accumulate(pts.begin(), pts.end(), cv::Point(0, 0));
+	auto avg = cv::Point2f(sum.x / (float)pts.size(), sum.y / (float)pts.size());
+
+	return static_cast<cv::Point>(avg);
+}
+
+inline std::optional<std::vector<cv::Point>>
+geometry::pts_within_radius(std::vector<cv::Point>& pts, const cv::Point& center, float radius)
+{
+	if (radius < 0)
+		throw std::runtime_error(ERR_NUM_NOT_POS);
+
+	std::vector<cv::Point> pts_match;
+
+	for (auto& pt : pts)
+	{	
+		auto diff_x = std::abs(pt.x - center.x);
+		auto diff_y = std::abs(pt.y - center.y);
+
+		if (std::pow(diff_x, 2) + std::pow(diff_y, 2) < std::pow(radius, 2))
+			pts_match.push_back(pt);
+	}
+
+	if (pts_match.empty())
+		return std::nullopt;
+	
+	else
+		return pts_match;
+}
+
+inline bool
+geometry::pts_connected(const cv::Mat& img, const cv::Point& a,  const cv::Point& b, float max_deviation)
+{
+	auto img_copy     = img.clone();
+	auto num_non_zero = cv::countNonZero(img_copy);
+
+	cv::line(img_copy, a, b, {255}, 1, 8);
+
+	auto deviation = std::abs((cv::countNonZero(img_copy) - num_non_zero) / (float)num_non_zero);
+
+	// std::cout << "before: " << num_non_zero << " | after: " << cv::countNonZero(img_copy) << std::endl;
+	// std::cout << "deviation: " << deviation << " | max_deviation: " << max_deviation << " | connected: " << (deviation <= max_deviation) << std::endl;
+	
+	return (deviation <= max_deviation);
+
+	// return (cv::countNonZero(img_copy) == num_non_zero);
+}
 
 inline std::vector<vertex_t>
-geometry::extract_vertices(const cv::Mat& img)
+geometry::extract_vertices(const cv::Mat& img, bool remove_duplicates, float duplicates_radius)
 {
 	// https://stackoverflow.com/questions/33646643/store-details-of-a-binary-image-consisting-simple-polygons
 	
@@ -114,154 +211,49 @@ geometry::extract_vertices(const cv::Mat& img)
 
 	// vector of contours
 	std::vector<std::vector<cv::Point>> vec_contours;
-	cv::findContours(img, vec_contours, cv::RETR_LIST, cv::CHAIN_APPROX_TC89_L1);
+	cv::findContours(img, vec_contours, CV_RETR_LIST, CV_CHAIN_APPROX_TC89_L1);
 
 	// flatten vector of contours into vector of vertices
 	std::vector<vertex_t> vec_vertices;
 	for (const auto& vec : vec_contours)
 		vec_vertices.insert(vec_vertices.end(), vec.begin(), vec.end());
-
-	return vec_vertices;
-}
-
-inline cv::Mat
-geometry::draw_vertices(const cv::Mat& img, std::vector<vertex_t> vertices)
-{
-	cv::Mat img_vertices;
-	cv::cvtColor(img, img_vertices, cv::COLOR_GRAY2BGR);
-
-	for (const auto& v : vertices)
-		cv::circle(img_vertices, cv::Point(v.x, v.y), 3, cv::Scalar(255, 0, 255));
-
-	return img_vertices;
-}
-
-inline cv::Mat
-geometry::brushfire(const cv::Mat& img_map)
-{
-	// assert grayscale image
-	if (img_map.channels() != 1)
-		throw std::runtime_error(ERR_IMG_NOT_GRAY);
-
-	// variables
-	cv::Mat img, img_copy, img_map_inv, img_laplace, img_gvd;
-
-	// clone
-	img = img_map.clone();
-
-	// remove compression (e.g. if JPEG)
-	img = img == 255;
-
-	// compute the inverse
-	cv::bitwise_not(img, img_map_inv);
 	
-	// binarize the inverse
-	img = cv::min(img_map_inv, 1);
-
-	// count zero-value pixels
-	auto num_zero_px = img.rows * img.cols - cv::countNonZero(img);
-
-	// 8-adjacency check for a given point, tries to find specified value within neighboors
-	auto eight_adj_find = [&](const cv::Point& pt, size_t val)
-	{
-
-		// absolute bounds and starting position for seeking pixel
-		// if seeking pixel starts in a corner or near image edge
-		
-		size_t bound_row, bound_col, start_col, start_row, num_adj;
-
-		bound_row = (pt.y >= (img.rows - 1)) ? img.rows : pt.y + 2;
-		bound_col = (pt.x >= (img.cols - 1)) ? img.cols : pt.x + 2;
-		start_col = pt.x - ((pt.x <= 0) ? 0 : 1);
-		start_row = pt.y - ((pt.y <= 0) ? 0 : 1);
-		num_adj   = 0;
-
-		// seek the kernel grid; return true if val is found
-		for(size_t row = start_row; row < (size_t)bound_row; row++)
+	// remove/average duplicates within radius
+	if (remove_duplicates)
+	{	
+		std::vector<vertex_t> vec_vertices_avg;
+		std::vector<vertex_t> vec_vertices_checked;
+		for (auto& pt : vec_vertices)
 		{
-			for(size_t col = start_col; col < (size_t)bound_col; col++)
+			// check whether point already belongs to a cluster
+			if (std::any_of(vec_vertices_checked.begin(), vec_vertices_checked.end(), [&](const auto& a){
+				return a == pt;
+			}))	continue;
+
+			// check whether point is on boundary
+			if (pt.x == 0 || pt.y == 0)
+				continue;
+
+			// perform radius mathching
+			if (auto vec_pts = pts_within_radius(vec_vertices, pt, duplicates_radius))
 			{
-				if (img.at<uchar>(cv::Point(col, row)) == (uchar)val)
-					num_adj++;
+				// average point
+				auto pt_avg = avg_pt(vec_pts.value());
+				vec_vertices_avg.push_back(pt_avg);
+
+				// add matching points (cluster)
+				vec_vertices_checked.insert(vec_vertices_checked.end(), vec_pts.value().begin(), vec_pts.value().end());
 			}
 		}
 
-		return num_adj;
-	};
-
-	// brushfire algorithm
-	// iterate all 0-valued pixels and increment n each (complete) iteration
-	// if zero-th pixel has the value n within its adjacency, then set that pixel to n + 1
-	for (size_t n = 1; num_zero_px != 0 ; ++n)
-	{
-
-		if (n > 255)
-			throw std::runtime_error("Value of n has exceeded 255.");
-
-		for (size_t row = 0; row < (size_t)img.rows; ++row)
-		{
-			for (size_t col = 0; col < (size_t)img.cols; ++col)
-			{
-				auto  pos   = cv::Point(col, row);
-				auto& pixel = img.at<uchar>(pos);
-
-				if (auto num_adj = eight_adj_find(pos, n); pixel == 0 && num_adj > 0)
-				{
-					pixel = n + 1;
-					--num_zero_px;
-				}
-
-			}
-		}
+		vec_vertices = vec_vertices_avg;
 	}
 
-	return img;
-}
 
-inline gvd_t
-geometry::gvd(const cv::Mat& img_map)
-{
-	// assert grayscale image
-	if (img_map.channels() != 1)
-		throw std::runtime_error(ERR_IMG_NOT_GRAY);
+	// count number of vertices
+	auto num_vertices = vec_vertices.size();
 
-	// variables
-	cv::Mat img_map_inv, img_bf, img_laplace, img_gvd, img_gvd_dil;
-
-	// compute inverse
-	cv::bitwise_not(img_map, img_map_inv);
-
-	// compute brushfure
-	img_bf = brushfire(img_map);
-
-	// use laplace operator to find gradient, i.e. the GVD
-	cv::Laplacian(img_bf, img_laplace, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
-	cv::convertScaleAbs(img_laplace, img_gvd);
-	
-	// amplify all non-zero pixels
-	img_gvd *= 255;
-
-	// remove obstacle outlinees from GVD (subtract the inverse)
-	img_gvd -= img_map_inv;
-
-	// invert the GVD, making the edges black
-	cv::bitwise_not(img_gvd, img_gvd);
-
-	// perform closing
-	;
-	
-	// dilute the GVD (thin the black edges)
-	size_t dil_sz  = 1;
-	auto   str_elm = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(dil_sz + 1, dil_sz + 1));
-
-	cv::dilate(img_gvd, img_gvd_dil, str_elm);
-	//show_img("gvd (dilated)", img_gvd_dil);
-
-	// needs more work
-	// an alternative appraoch is to detect the vertices
-	// and draw lines manually
-
-	return gvd_t{img_gvd};
+	return vec_vertices;
 }
 
 // -- line segment intersection ---------------------------------------------------
@@ -269,12 +261,30 @@ geometry::gvd(const cv::Mat& img_map)
 inline box_t
 line_t::bounding_box() const
 {
-	std::array<cv::Point, 2> box;
+	box_t box;
 
 	box[0] = cv::Point(std::min(this->from.x, this->to.x), std::min(this->from.y, this->to.y));
 	box[1] = cv::Point(std::max(this->from.x, this->to.x), std::max(this->from.y, this->to.y));
 
 	return box;
+}
+
+inline size_t
+geometry::count_duplicate_lines(std::vector<line_t> vec_lines)
+{
+	std::sort(vec_lines.begin(), vec_lines.end(), [](const auto& a, const auto& b){
+		return a.from.x < b.from.x;
+	});
+	
+	std::sort(vec_lines.begin(), vec_lines.end(), [](const auto& a, const auto& b){
+		return a.from.y < b.from.y;
+	});
+
+	auto unique_end = std::unique(vec_lines.begin(), vec_lines.end(), [](const auto& a, const auto& b){
+		return (a.from == b.from && a.to == b.to);
+	});
+
+	return (unique_end == vec_lines.end() ? 0 : std::distance(vec_lines.begin(), unique_end));
 }
 
 inline float
@@ -340,12 +350,7 @@ geometry::segment_intersect_at(const line_t& a, const line_t& b)
 inline bool
 geometry::segment_intersect(const line_t& a, const line_t& b)
 {
-	auto& A = a.from;
-	auto& B = a.to;
-	auto& C = b.from;
-	auto& D = b.to;
-
-	return segment_intersect(A, B, C, D);
+	return segment_intersect(a.from, a.to, b.from, b.to);
 }
 
 inline bool
@@ -360,30 +365,6 @@ geometry::segment_intersect(const cv::Point& A, const cv::Point& B, const cv::Po
 }
 
 // -- test methods ----------------------------------------------------------------
-
-inline void
-geometry::test_brushfire_and_gvd()
-{
-	// load and scale image
-	auto img = load_img(PATH_IMG_GVD_MAP, cv::IMREAD_GRAYSCALE);
-	cv::resize(img, img, cv::Size(), 20.f, 20.f, cv::INTER_NEAREST);
-
-	// show input
-	show_img("map", img);
-	
-	// brushfire
-	auto img_bf = brushfire(img);
-	show_img("brushfire", img_bf);
-
-	// gvd
-	auto img_gvd = gvd(img).img;
-	show_img("gvd", img_gvd);
-
-	// vertices
-	auto vert = extract_vertices(img_gvd);
-	auto img_vert = draw_vertices(img_gvd, vert);
-	show_img("vertices", img_vert);
-}
 
 inline void
 geometry::test_segment_intersect()
