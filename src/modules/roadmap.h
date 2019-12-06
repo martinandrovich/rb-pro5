@@ -20,9 +20,6 @@
 
 namespace roadmap
 {
-
-	// main methods
-
 	cv::Mat
 	brushfire(const cv::Mat& img_map, bool normalize = false);
 
@@ -34,9 +31,6 @@ namespace roadmap
 
 	void
 	test();
-
-	// helper methods
-
 }
 
 // --------------------------------------------------------------------------------
@@ -643,10 +637,22 @@ roadmap::test()
 	auto img_bf = brushfire(img_map, true);
 	show_img("brushfire (normalized)", img_bf);
 
+	// 8-bit brushfire for output
+	cv::Mat img_bf_out;
+	cv::normalize(img_bf, img_bf_out, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_bf.png", img_bf_out);
+	// show_img("brushfire (8-bit)", img_bf_out);
+
 	// GVD from brushfire (image only)
 	auto img_gvdbf = gvd_img(img_map, img_bf);
+	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvdbf.png", img_gvdbf);
 	show_img("gvd (bf)", img_gvdbf);
 
+	// GVD (bf) for output
+	cv::Mat img_gvdbf_out;
+	cv::bitwise_and(img_gvdbf, img_map, img_gvdbf_out);
+	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvdbfmap.png", img_gvdbf_out);
+	
 	// graph from GVD (edges and vertices)
 	auto img_gvd = gvd_graph(img_map, img_gvdbf);
 

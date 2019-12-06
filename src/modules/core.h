@@ -31,7 +31,6 @@
 #include "geometry.h"
 #include "roadmap.h"
 #include "flctrl.h"
-#include "pathgen.h"
 
 // public declarations for core
 
