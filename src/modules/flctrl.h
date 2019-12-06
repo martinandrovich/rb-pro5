@@ -75,8 +75,8 @@ flctrl::run(obs_list_t& obs_list, pose_t& pose, pos_t& goal, vel_t& vel_cmd)
 		goal_nav(pose, goal, vel_cmd);
 
 		static int i = 0;
-		std::vector<float>goalx = { 20, 20, 35,  35 };
-		std::vector<float>goaly = { 0,  20, 20, -30 };
+		std::vector<float>goalx = { 5, 0, 0 };
+		std::vector<float>goaly = { 0, 0, 0 };
 
 		// if goal is reached, then swap goal and origin
 		if (pose.dist(goal) < 2)

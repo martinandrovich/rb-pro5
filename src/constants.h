@@ -46,11 +46,11 @@ constexpr auto    IMG_BORDER_SIZE             = 1 ; // width in pixels
 
 constexpr auto    TEST_GVD                    = false;
 constexpr auto    TEST_LINE_SEG               = false;
-constexpr auto    TEST_MARBLE_DETECT          = true;
+constexpr auto    TEST_MARBLE_DETECT          = false;
 constexpr auto    TEST_EXIT_AFTER             = false;
 
 constexpr auto    USE_MANUAL_CONTROL          = true;
-constexpr auto    USE_OBS_AVOID               = true;
+constexpr auto    USE_OBS_AVOID               = false;
 constexpr auto    USE_PARTICLE_FILTER         = false;
 constexpr auto    USE_LOCALIZATION            = false;
 constexpr auto    USE_MARBLE_DETECT           = true;
