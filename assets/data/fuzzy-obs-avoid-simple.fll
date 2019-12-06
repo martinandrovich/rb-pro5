@@ -3,46 +3,46 @@ Engine: fuzzy-obs-avoid
 
 InputVariable: obs_dir
   enabled: true
-  range: -3.14 3.14
+  range: -6.14 6.14
   lock-range: false
 
-  term: farleft  Ramp 1.575 1.745 
-  term: left  Triangle  0.000  0.1  1.575
-  term: right Triangle -1.575 -0.1  0.05
-  term: farright  Ramp -1.575 -1.745 
+  term: farleft  Ramp 1 1.78
+  term: left  Triangle 0.0 0.1 2
+  term: right Triangle -2 -0.1 0.05
+  term: farright  Ramp -1 -1.78
 
 InputVariable: obs_dist
   enabled: true
-  range: 0.00 10
+  range: 0.0 50.0
   lock-range: false
 
-  term: close Ramp      0.5    0.3   
-  term: far   Ramp      0.3    0.5  
+  term: close Ramp      0.6    0.4   
+  term: far   Ramp      0.4    0.6  
 
 OutputVariable: rob_vel
   enabled: true
-  range: -0.100 1.900
+  range: -0.700 1.3
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 1000
   default: nan
   lock-previous: false
 
-  term: stop  Triangle  -0.1  0.000  0.1
-  term: fast  Triangle  0.0 1.000 1.900
+  term: stop  Triangle  -0.6 0.0 0.6
+  term: fast  Triangle  0.0 0.6 1.2
 
 OutputVariable: rob_angvel
   enabled: true
-  range: -0.6 0.6
+  range: -1.2 1.2
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 100
   default: nan
   lock-previous: false
 
-  term: right  Triangle  0.000  0.300  0.600
-  term: zero   Triangle  -0.3  0.000  0.3
-  term: left   Triangle -0.600 -0.300  0.000
+  term: right  Triangle  0.0 0.6 1.2
+  term: zero   Triangle  -0.6 0.0 0.6
+  term: left   Triangle -1.2 -0.6 0.0
 
 RuleBlock: mamdani
   enabled: true
@@ -51,11 +51,11 @@ RuleBlock: mamdani
   implication: AlgebraicProduct
   activation: General
 
-  rule: if obs_dir is extremely right then rob_angvel is left
-  rule: if obs_dir is extremely left  then rob_angvel is right
+  rule: if obs_dir is right and obs_dist is close then rob_angvel is left and rob_vel is stop
+  rule: if obs_dir is right and obs_dist is far then rob_angvel is left and rob_vel is fast
+  
+  rule: if obs_dir is left and obs_dist is close then rob_angvel is right and rob_vel is stop
+  rule: if obs_dir is left and obs_dist is far then rob_angvel is right and rob_vel is fast
 
-  rule: if obs_dir is farleft  then rob_angvel is zero
-  rule: if obs_dir is farright then rob_angvel is zero
-
-  rule: if obs_dist is close then rob_vel is stop
-  rule: if obs_dist is far   then rob_vel is fast
+  rule: if obs_dir is farleft  then rob_angvel is zero and rob_vel is fast
+  rule: if obs_dir is farright then rob_angvel is zero and rob_vel is fast

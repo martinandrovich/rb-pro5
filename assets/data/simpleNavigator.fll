@@ -5,18 +5,18 @@ InputVariable: goal_dist
   enabled: true
   range: 0.00 50
   lock-range: false
-  term: stop Ramp           0.05 0.01
-  term: close Triangle      0.05 1.0 1.9 
-  term: far Ramp            1.5 3.0
+  term: stop Ramp           0.6 0.1
+  term: close Triangle      0.1 0.6 1.2 
+  term: far Ramp            0.6 1.2
 
 
 InputVariable: goal_dir
   enabled: true
   range: -6.24 6.24
   lock-range: false
-  term: positive Ramp  0.00 3.14
-  term: zero Triangle -0.1 0.0 0.1
-  term: negative Ramp  0.00 -3.14
+  term: positive Ramp  0.0 0.3
+  term: zero Triangle -0.3 0.0 0.3
+  term: negative Ramp  0.0 -0.3
 
 
 OutputVariable: ang_vel
@@ -28,21 +28,21 @@ OutputVariable: ang_vel
   default: nan
   lock-previous: false
 
-  term: positive Triangle  0.000 0.800 1.600
-  term: zero Triangle     -0.800 0.000 0.800
-  term: negative Triangle -1.600 -0.800 0.000 
+  term: positive Triangle  0.0 0.8 1.6
+  term: zero Triangle     -0.8 0.0 0.8
+  term: negative Triangle -1.6 -0.8 0.0
 
 OutputVariable: robot_speed
   enabled: true
-  range: -0.1 1.900
+  range: -0.4 1.2
   lock-range: false
   aggregation: Maximum
   defuzzifier: Centroid 1000
   default: nan
   lock-previous: false
-  term: stop Triangle    -0.100 0.000 0.100       
-  term: slow Triangle     0.000 0.100 0.300 
-  term: fast Triangle     0.100 1.000 1.900
+  term: stop Triangle    -0.4 0.0 0.4
+  term: slow Triangle     0.0 0.4 0.8
+  term: fast Triangle     0.4 0.8 1.2
   
 
 RuleBlock: mamdani
