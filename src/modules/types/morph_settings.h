@@ -186,7 +186,10 @@ _Morphology_Operations( int, void* user_data )
   {
       cv::Point center(cvRound(morph.circles[i][0]), cvRound(morph.circles[i][1]));
       int radius = cvRound(morph.circles[i][2]);
-	  std::cout << "Marble found, C: " << 2 * M_PI * radius << std::endl;
+      std::cout
+			<< "Marble found\n" 
+			<< " r: " << radius	<< " | d: " << 0.5f * 277.0f / radius
+			<< std::endl;
       // circle center
       cv::circle(*args->dst, center, 3, cv::Scalar(0,255,0), -1, 8, 0 );
       // circle outline

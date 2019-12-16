@@ -67,6 +67,9 @@ namespace core
 	void
 	stop_vehicle();
 
+	void 
+	experiment_marble_plot(pose_t & pose, cv::Point2f marble);
+
 	tune_morphology::morph_settings 
 	tune_morphology_settings(const std::string& video_path);
 }
@@ -189,8 +192,20 @@ core::init(int argc, char** argv)
 	core::initialized = true;
 }
 
+
+
+void 
+core::experiment_marble_plot(pose_t & pose, cv::Point2f marble)
+{
+	static std::fstream fpos;
+	fpos.open("assets/csvfiles/exp_marble.csv", std::ios::out | std::ios::app);
+		fpos << pose.pos.x << " , " << pose.pos.y << " , " << pose.orient.yaw << " , ";
+		fpos << marble.x << " , " << marble.y << std::endl;
+	fpos.close();
+}
+
 void
-core::run()
+core:: run()
 {
 	
 	// assert that system is initialized
@@ -376,13 +391,13 @@ core::test_run(const std::string& video_filename)
 			//std::cout << "The video has been opened" << std::endl;			
 		}
 
-		if ((key == key_up) && (core::vel_data.trans <= 1.2f))
+		if ((key == 'w') && (core::vel_data.trans <= 2.4f))
 		core::vel_data.trans += 0.05 * scale_factor;
-		else if ((key == key_down) && (core::vel_data.trans >= -1.2f))
+		else if ((key == 's') && (core::vel_data.trans >= -2.4f))
 		core::vel_data.trans -= 0.05 * scale_factor;
-		else if ((key == key_right) && (core::vel_data.ang <= 0.4f))
+		else if ((key == 'd') && (core::vel_data.ang <= 0.4f))
 		core::vel_data.ang  += 0.05 * scale_factor;
-		else if ((key == key_left) && (core::vel_data.ang  >= -0.4f))
+		else if ((key == 'a') && (core::vel_data.ang  >= -0.4f))
 		core::vel_data.ang  -= 0.05 * scale_factor;
 
 		// publish velocity command
@@ -409,13 +424,14 @@ core::marble_detect()
 
 	std::vector<cv::Vec3f> vec_circles;
 
-	auto gauss_ksize = 3;
-	auto gauss_sigma = 13;
-	auto morph_ksize = 5;
-	auto morph_op = cv::MORPH_GRADIENT;
-	auto hough_upper_tresh = 42;
+
+	auto hough_upper_tresh = 60;
 	auto hough_center_tresh = 24;
-	auto hough_min_radius = 25;
+	auto hough_min_radius = 21;
+	auto morph_op = cv::MORPH_OPEN;
+	auto gauss_ksize = 3;
+	auto gauss_sigma = 5;
+	auto morph_ksize = 1;
 
 	cv::Mat img = img_camera.clone();
 	cvtColor(img, img, cv::COLOR_BGR2GRAY);
@@ -453,6 +469,14 @@ core::marble_detect()
 
 		// circle outline
 		cv::circle(img_camera, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);
+
+		experiment_marble_plot(
+								pose_data, 
+					 			cv::Point2f(
+									 		pose_data.pos.x + cos(pose_data.orient.yaw) * dist, 
+							   			  	pose_data.pos.y + sin(pose_data.orient.yaw) * dist 
+										 )
+							   );
 	}
 
 	// override output image

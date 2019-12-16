@@ -50,7 +50,7 @@ constexpr auto    TEST_MARBLE_DETECT          = false;
 constexpr auto    TEST_EXIT_AFTER             = true;
 
 constexpr auto    USE_MANUAL_CONTROL          = true;
-constexpr auto    USE_OBS_AVOID               = true;
+constexpr auto    USE_OBS_AVOID               = false;
 constexpr auto    USE_PARTICLE_FILTER         = false;
 constexpr auto    USE_LOCALIZATION            = false;
 constexpr auto    USE_MARBLE_DETECT           = true;
