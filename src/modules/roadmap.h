@@ -434,6 +434,18 @@ roadmap::gvd_graph(const cv::Mat& img_map, const cv::Mat& img_gvd)
 		// find all 8-adj connected components (blos) sorted by size
 		auto vec_blobs = connected_blobs(img, 8, true);
 
+		// output img og blobs
+		cv::Mat img_blobs;
+		cv::cvtColor(img, img_blobs, cv::COLOR_GRAY2BGR);
+		for (size_t i = 0; i < vec_blobs.size(); i++)
+		{
+			auto color = (i == 0) ? cv::Vec3b(0, 0, 0) : cv::Vec3b(29, 182, 67);
+			for (const auto& pt : vec_blobs[i].vec_pts)
+				img_blobs.at<cv::Vec3b>(pt) = color;
+		}
+		combine_img(img_blobs, img_map);
+		cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvd_blobs.png", img_blobs);
+
 		// expand all blobs; skip the first being the largest network
 		for (size_t i = 1; i < vec_blobs.size(); i++)
 		{
@@ -581,6 +593,10 @@ roadmap::gvd_graph(const cv::Mat& img_map, const cv::Mat& img_gvd)
 	remove_disjoint_networks();
 	show_img("gvd: connect all networks + remove disjoint (step 2)", img);
 	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvd_step2.png", img);
+	
+	cv::cvtColor(img, img_out, cv::COLOR_GRAY2BGR);
+	combine_img(img_out, img_map);
+	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvd_connected.png", img_out);
 
 	// fix cross shapes
 	fix_cross_shapes();
@@ -610,10 +626,22 @@ roadmap::gvd_graph(const cv::Mat& img_map, const cv::Mat& img_gvd)
 	show_img("gvd: expand diagonals (step 7)", img);
 	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvd_step7.png", img);
 
+	// black output
+	cv::Mat img_out2;
+	cv::cvtColor(img_out, img_out2, cv::COLOR_BGR2GRAY);
+	combine_img(img_out2, img_map);
+	cv::cvtColor(img_out2, img_out2, cv::COLOR_GRAY2BGR);
+
 	// draw vertices
 	find_vertices();
 	for (const auto& v : vec_vertices)
-		img_out.at<cv::Vec3b>(v) = { 255, 0, 0 };
+	{
+		cv::circle(img_out, v, 1, { 255, 0, 0 }, cv::FILLED);
+		cv::circle(img_out2, v, 1, { 255, 0, 0 }, cv::FILLED);
+		// img_out.at<cv::Vec3b>(v) = { 255, 0, 0 };
+	}
+
+	cv::imwrite(PATH_IMG_GVD_OUTPUT + "img_gvd_final2.png", img_out2);
 
 	// number of edges found
 	// std::cout << "number of edges: " << vec_edges.size() << std::endl;
