@@ -26,6 +26,8 @@ sudo apt-get install libopencv-contrib-dev
 curl -sSL http://get.gazebosim.org | sh
 ```
 
+If desired, OpenCV 4 can be used, but must be installed [manually](https://www.learnopencv.com/install-opencv-4-on-ubuntu-18-04/) with contrib modules.
+
 **Notice**, if using Visual Studio Code C/C++ extension, the linter might have issues with the Gazebo header files; simply add the following lines to the include path to resolve this issuse:
 
 ```
